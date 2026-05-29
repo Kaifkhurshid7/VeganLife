@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaFire, FaCircleCheck, FaStar } from 'react-icons/fa6';
 import { SectionHeader } from '../../ui';
+import { Fireflies } from '../../ambient';
 import { CHALLENGE_DATA } from './challengeData';
 import styles from './Challenge.module.css';
 
@@ -34,6 +35,7 @@ export default function Challenge() {
 
   return (
     <section id="challenge" className={styles.section}>
+      <Fireflies count={6} />
       <SectionHeader
         label="Activation"
         title="Student Challenges"

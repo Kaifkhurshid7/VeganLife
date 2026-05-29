@@ -1,0 +1,13 @@
+.container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+}
+
+.butterfly {
+  position: absolute;
+  filter: blur(0.5px);
+  will-change: transform;
+}

@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Autoplay } from 'swiper/modules';
 import { FaQuoteLeft, FaCircleCheck } from 'react-icons/fa6';
 import { SectionHeader, WaveDivider } from '../../ui';
+import { AnimatedWaves } from '../../ambient';
 import styles from './Testimonials.module.css';
 
 const STORIES = [
@@ -33,6 +34,7 @@ export default function Testimonials() {
   return (
     <section id="testimonials" className={styles.section}>
       <WaveDivider variant="default" />
+      <AnimatedWaves />
 
       <SectionHeader
         label="Transformations"

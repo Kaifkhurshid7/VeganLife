@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaArrowDown } from 'react-icons/fa6';
 import { useMousePosition } from '../../../hooks';
+import { Butterflies, FloatingBirds, Fireflies } from '../../ambient';
 import styles from './Hero.module.css';
 
 export default function Hero() {
@@ -15,6 +16,11 @@ export default function Hero() {
 
   return (
     <section ref={containerRef} className={styles.hero} id="hero">
+      {/* Ambient nature animations */}
+      <Butterflies count={5} />
+      <FloatingBirds count={4} />
+      <Fireflies count={10} />
+
       <motion.div className={`${styles.orb} ${styles.orbOrange}`} style={{ y: bgY }} />
       <motion.div className={`${styles.orb} ${styles.orbGreen}`} style={{ y: bgY }} />
 

@@ -1,0 +1,15 @@
+.container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(166, 180, 143, 0.6) 0%, rgba(166, 180, 143, 0) 70%);
+  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
+}

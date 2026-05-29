@@ -1,0 +1,14 @@
+.container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  overflow: hidden;
+  color: var(--color-earth);
+}
+
+.bird {
+  position: absolute;
+  left: -10vw;
+  will-change: transform;
+}

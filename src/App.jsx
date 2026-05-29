@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import Lenis from 'lenis';
 import Home from './pages/Home';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
+import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
 
 export default function App() {
   useEffect(() => {
@@ -25,6 +26,9 @@ export default function App() {
     <>
       <ScrollIndicator />
       <NoiseOverlay />
+      <ParallaxLayers />
+      <FloatingLeaves count={6} />
+      <CursorTrail />
       <Home />
     </>
   );

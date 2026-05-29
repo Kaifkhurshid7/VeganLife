@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FaEarthAmericas, FaHeartPulse, FaHandHoldingHeart, FaSeedling } from 'react-icons/fa6';
 import { SectionHeader, WaveDivider } from '../../ui';
+import { DeerSilhouettes, Fireflies } from '../../ambient';
 import styles from './WhyVegan.module.css';
 
 const PILLARS = [
@@ -41,6 +42,8 @@ export default function WhyVegan() {
   return (
     <section id="why-vegan" style={{ backgroundColor: 'var(--color-bg)' }}>
       <WaveDivider variant="default" />
+      <DeerSilhouettes />
+      <Fireflies count={8} />
 
       <SectionHeader
         label="Core Pillars"
