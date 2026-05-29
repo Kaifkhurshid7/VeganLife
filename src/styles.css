@@ -1,0 +1,274 @@
+:root {
+  --bg: #ece0d2;
+  --text: #7c664d;
+  --dark: #573d21;
+  --accent: #e3a36e;
+  --light: #f3f3f3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Roboto Condensed', sans-serif;
+}
+
+.navbar {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 60px;
+  position: absolute;
+  z-index: 10;
+}
+
+.nav-links {
+  display: flex;
+  gap: 25px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: var(--dark);
+  font-size: 14px;
+}
+
+.logo {
+  font-size: 44px;
+  font-family: 'Playfair Display', serif;
+  color: var(--dark);
+}
+
+.hero {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      to bottom,
+      #ece0d2 0%,
+      #e2c3a9 35%,
+      #9d82ab 65%,
+      #596447 100%
+    );
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 140%;
+  height: 240px;
+  left: -20%;
+  border-radius: 50%;
+}
+
+.hero::before {
+  bottom: 180px;
+  background: rgba(107, 77, 120, 0.5);
+}
+
+.hero::after {
+  bottom: 50px;
+  background: rgba(89, 105, 64, 0.85);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+  radial-gradient(circle at top right, rgba(216,222,183,0.7), transparent 25%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero h1 {
+  font-size: 96px;
+  color: #f7f0e6;
+  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+}
+
+.hero p {
+  max-width: 700px;
+  font-size: 18px;
+  line-height: 1.7;
+  color: #fff7ef;
+  margin-bottom: 35px;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+button {
+  border: none;
+  background: var(--accent);
+  color: var(--dark);
+  padding: 16px 38px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.outline {
+  background: transparent;
+  border: 1px solid var(--dark);
+}
+
+.section,
+.nutrition,
+.impact {
+  padding: 100px 60px;
+}
+
+.title-block {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.title-block h2 {
+  font-size: 58px;
+  color: var(--dark);
+  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+}
+
+.title-block p {
+  max-width: 700px;
+  margin: auto;
+  line-height: 1.8;
+}
+
+.card-grid,
+.recipe-grid,
+.impact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+}
+
+.info-card,
+.recipe-card,
+.impact-card {
+  background: rgba(255,255,255,0.25);
+  backdrop-filter: blur(8px);
+  padding: 35px;
+}
+
+.info-card h3,
+.recipe-card h3,
+.impact-card h3 {
+  font-size: 32px;
+  margin-bottom: 15px;
+  color: var(--dark);
+  font-family: 'Playfair Display', serif;
+}
+
+.recipe-image {
+  height: 260px;
+  margin-bottom: 20px;
+}
+
+.recipe-0 {
+  background: linear-gradient(135deg, #a6b48f, #e3a36e);
+}
+
+.recipe-1 {
+  background: linear-gradient(135deg, #7d9166, #ece0d2);
+}
+
+.recipe-2 {
+  background: linear-gradient(135deg, #8b6f8d, #e1c6ab);
+}
+
+.nutrition-table {
+  max-width: 900px;
+  margin: auto;
+}
+
+.table-head,
+.table-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding: 20px;
+  background: rgba(255,255,255,0.25);
+  margin-bottom: 10px;
+}
+
+.table-head {
+  font-weight: bold;
+  color: var(--dark);
+}
+
+.impact {
+  background: #dcc7b1;
+}
+
+.footer {
+  padding: 80px 20px;
+  text-align: center;
+  background: #d8c0a6;
+}
+
+.footer h2 {
+  font-size: 48px;
+  margin-bottom: 15px;
+  font-family: 'Playfair Display', serif;
+  color: var(--dark);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 20px;
+}
+
+@media(max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+  }
+
+  .hero h1 {
+    font-size: 62px;
+  }
+
+  .title-block h2 {
+    font-size: 42px;
+  }
+
+  .section,
+  .nutrition,
+  .impact {
+    padding: 70px 20px;
+  }
+
+  .table-head,
+  .table-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+  }
+}
