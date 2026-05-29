@@ -1,0 +1,72 @@
+.section {
+  background: linear-gradient(to bottom, var(--color-bg) 0%, var(--color-clay) 100%);
+}
+
+.swiperContainer {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 50px;
+  text-align: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.45);
+}
+
+.quoteIcon {
+  font-size: 3rem;
+  opacity: 0.25;
+}
+
+.storyText {
+  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+  line-height: 1.6;
+  font-style: italic;
+  max-width: 750px;
+}
+
+.divider {
+  width: 80px;
+  border: none;
+  border-top: 2px solid;
+}
+
+.author h4 {
+  font-size: 1.25rem;
+  color: var(--color-earth);
+  font-weight: 700;
+  margin: 0;
+}
+
+.role {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+  margin: 2px 0 8px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--color-cream);
+  color: var(--color-earth);
+  padding: 4px 14px;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 15px;
+}

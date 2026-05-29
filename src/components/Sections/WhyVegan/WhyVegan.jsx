@@ -7,7 +7,7 @@ const PILLARS = [
   {
     icon: <FaEarthAmericas />,
     title: 'Environment',
-    desc: 'Animal farming accounts for 14.5% of global greenhouse emissions. A plant-based diet reduces your food\'s carbon footprint by up to 73% and helps combat the climate crisis.',
+    desc: "Animal farming accounts for 14.5% of global greenhouse emissions. A plant-based diet reduces your food's carbon footprint by up to 73% and helps combat the climate crisis.",
     color: 'var(--color-sage)',
   },
   {

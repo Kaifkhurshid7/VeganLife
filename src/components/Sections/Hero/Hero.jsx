@@ -15,11 +15,9 @@ export default function Hero() {
 
   return (
     <section ref={containerRef} className={styles.hero} id="hero">
-      {/* Ambient gradient orbs for cinematic depth */}
       <motion.div className={`${styles.orb} ${styles.orbOrange}`} style={{ y: bgY }} />
       <motion.div className={`${styles.orb} ${styles.orbGreen}`} style={{ y: bgY }} />
 
-      {/* Decorative floating leaves */}
       <motion.svg
         viewBox="0 0 100 100"
         className={`${styles.leaf} ${styles.leafLeft} animate-float`}
@@ -36,7 +34,6 @@ export default function Hero() {
         <path d="M50,0 C65,35 90,45 100,65 C90,85 75,95 50,100 C25,95 10,85 0,65 C10,45 35,35 50,0 Z" />
       </motion.svg>
 
-      {/* Butterfly */}
       <motion.div
         className={`${styles.butterfly} animate-butterfly`}
         style={{ x: mouse.x * 0.8, y: mouse.y * 0.8 }}
@@ -47,7 +44,6 @@ export default function Hero() {
         </svg>
       </motion.div>
 
-      {/* Main content */}
       <motion.div
         className={styles.content}
         style={{ x: mouse.x * 0.3, y: mouse.y * 0.3 }}
@@ -66,7 +62,6 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      {/* Layered mountain curves */}
       <div className={styles.mountains}>
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className={styles.mountainBack}>
           <path d="M0,0 C150,90 350,10 600,70 C850,130 1050,40 1200,10 L1200,120 L0,120 Z" />
@@ -76,7 +71,6 @@ export default function Hero() {
         </svg>
       </div>
 
-      {/* Scroll indicator */}
       <motion.a
         href="#why-vegan"
         className={styles.scrollCta}

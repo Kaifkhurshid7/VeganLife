@@ -135,7 +135,7 @@ export default function Impact() {
                 <YAxis tick={{ fill: 'var(--color-earth)', fontSize: 11 }} stroke="rgba(87,61,33,0.15)" />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
                 <Area name="Water Saved (Liters)" type="monotone" dataKey="Water" stroke="#8884d8" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2.5} />
-                <Area name="CO₂ Saved (Kilograms)" type="monotone" dataKey="CO2" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCO2)" strokeWidth={2} />
+                <Area name="CO2 Saved (Kilograms)" type="monotone" dataKey="CO2" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCO2)" strokeWidth={2} />
               </AreaChart>
             )}
           </ResponsiveContainer>

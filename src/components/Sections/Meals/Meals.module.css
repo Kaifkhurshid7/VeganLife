@@ -13,7 +13,9 @@
 
 .filterBtn {
   border: 1px solid var(--glass-border);
-  background: var(--glass-bg);
+  background: rgba(247, 240, 230, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: var(--color-earth);
   padding: 10px 24px;
   border-radius: 20px;
@@ -24,23 +26,28 @@
 }
 
 .filterBtnActive {
-  background: var(--color-earth);
-  color: var(--color-cream);
+  background: var(--color-earth) !important;
+  color: var(--color-cream) !important;
+  border-color: var(--color-earth);
 }
 
 .carouselWrapper {
-  max-width: var(--max-width);
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   padding: 0 40px;
 }
 
 .recipeCard {
-  padding: 0;
+  padding: 0 !important;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   height: 520px;
+}
+
+.recipeCard:hover {
+  transform: none !important;
 }
 
 .recipeCard:hover .recipeImg {
@@ -72,7 +79,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.8s var(--ease-out);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .cardBody {
@@ -142,7 +149,7 @@
   justify-content: center;
   cursor: pointer;
   color: var(--color-earth);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .navBtnPrev {

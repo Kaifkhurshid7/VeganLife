@@ -55,7 +55,6 @@ export default function Myths() {
               animate={{ rotateY: flippedCards[item.id] ? 180 : 0 }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
             >
-              {/* Front */}
               <div className={styles.cardFront}>
                 <span className={styles.mythBadge}>Common Myth</span>
                 <h3 className={styles.mythText}>{item.myth}</h3>
@@ -64,7 +63,6 @@ export default function Myths() {
                 </div>
               </div>
 
-              {/* Back */}
               <div className={styles.cardBack} style={{ borderColor: item.color }}>
                 <span className={styles.realityBadge} style={{ backgroundColor: item.color }}>
                   {item.reality}

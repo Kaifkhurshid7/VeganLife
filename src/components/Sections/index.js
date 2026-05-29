@@ -1,0 +1,9 @@
+export { default as Hero } from './Hero';
+export { default as WhyVegan } from './WhyVegan';
+export { default as Impact } from './Impact';
+export { default as Nutrition } from './Nutrition';
+export { default as Meals } from './Meals';
+export { default as Myths } from './Myths';
+export { default as Challenge } from './Challenge';
+export { default as Blog } from './Blog';
+export { default as Testimonials } from './Testimonials';

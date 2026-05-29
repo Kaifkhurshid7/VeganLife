@@ -71,13 +71,15 @@ export default function Meals() {
                       <img src={recipe.image} alt={recipe.title} className={styles.recipeImg} loading="lazy" />
                     </div>
                     <div className={styles.cardBody}>
-                      <div className={styles.meta}>
-                        <span><FiClock /> {recipe.time}</span>
-                        <span><FiDollarSign /> {recipe.cost}</span>
-                        <span><GiBarbedCoil /> {recipe.protein}</span>
+                      <div>
+                        <div className={styles.meta}>
+                          <span><FiClock /> {recipe.time}</span>
+                          <span><FiDollarSign /> {recipe.cost}</span>
+                          <span><GiBarbedCoil /> {recipe.protein}</span>
+                        </div>
+                        <h3 className={styles.recipeTitle}>{recipe.title}</h3>
+                        <p className={styles.recipeDesc}>{recipe.desc}</p>
                       </div>
-                      <h3 className={styles.recipeTitle}>{recipe.title}</h3>
-                      <p className={styles.recipeDesc}>{recipe.desc}</p>
                       <div className={styles.ingredients}>
                         {recipe.ingredients.slice(0, 3).map((ing) => (
                           <span key={ing} className={styles.ingredientTag}>{ing}</span>
