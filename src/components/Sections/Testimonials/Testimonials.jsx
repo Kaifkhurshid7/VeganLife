@@ -24,7 +24,7 @@ const STORIES = [
     name: 'Clara Vance',
     role: 'Graduate Student, Literature',
     achievement: 'Reduced Grocery Cost by 30%',
-    story: 'College budget was my main bottleneck. Swapping beef and processed cheese for dry lentils, black beans, sweet potatoes, and peanut-hummus wraps literally cut my weekly food budget down to under $40. My body feels lighter, and my skin cleared up completely!',
+    story: 'College budget was my main bottleneck. Swapping beef and processed cheese for dry lentils, black beans, sweet potatoes, and peanut-hummus wraps literally cut my weekly food budget down to under ₹300. My body feels lighter, and my skin cleared up completely!',
     color: 'var(--color-purple)',
   },
 ];

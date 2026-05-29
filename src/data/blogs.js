@@ -21,7 +21,7 @@ export const blogs = [
   },
   {
     id: 3,
-    title: 'The $6 A Day Student Meal Prep Blueprint',
+    title: 'The ₹150 A Day Student Meal Prep Blueprint',
     category: 'Student Life',
     author: 'Kaia Mercer',
     readTime: '6 min read',

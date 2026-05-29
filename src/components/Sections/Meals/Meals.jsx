@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
-import { FiArrowLeft, FiArrowRight, FiClock, FiDollarSign } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiClock } from 'react-icons/fi';
+import { FaRupeeSign } from 'react-icons/fa';
 import { GiBarbedCoil } from 'react-icons/gi';
 import { SectionHeader, WaveDivider } from '../../ui';
 import { recipes } from '../../../data/recipes';
@@ -12,7 +13,10 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
-const CATEGORIES = ['All', 'Breakfast', 'Lunch', 'Dinner', 'Snacks'];
+const CATEGORIES = [
+  'All', 'Breakfast', 'Lunch', 'Dinner', 'Snacks',
+  'High Protein', 'Budget Friendly', 'Quick Meals', 'Indian Meals', 'Gym Meals', 'Hostel Friendly', 'Weight Gain', 'Weight Loss'
+];
 
 export default function Meals() {
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -20,7 +24,8 @@ export default function Meals() {
   const filteredRecipes =
     selectedCategory === 'All'
       ? recipes
-      : recipes.filter((r) => r.category === selectedCategory);
+      : // match either category or tags
+        recipes.filter((r) => r.category === selectedCategory || (r.tags && r.tags.includes(selectedCategory)));
 
   return (
     <section id="recipes" className={styles.section}>
@@ -74,7 +79,7 @@ export default function Meals() {
                       <div>
                         <div className={styles.meta}>
                           <span><FiClock /> {recipe.time}</span>
-                          <span><FiDollarSign /> {recipe.cost}</span>
+                          <span><FaRupeeSign /> {recipe.cost}</span>
                           <span><GiBarbedCoil /> {recipe.protein}</span>
                         </div>
                         <h3 className={styles.recipeTitle}>{recipe.title}</h3>

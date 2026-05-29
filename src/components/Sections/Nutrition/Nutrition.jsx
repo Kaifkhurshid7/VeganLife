@@ -16,6 +16,7 @@ const TAB_COLORS = {
 export default function Nutrition() {
   const [activeTab, setActiveTab] = useState('protein');
   const selectedCategory = nutritionCategories.find((cat) => cat.id === activeTab) || nutritionCategories[0];
+  const diet = studentVeganDiet;
 
   return (
     <section id="nutrition" style={{ backgroundColor: 'var(--color-bg)' }}>
@@ -49,20 +50,20 @@ export default function Nutrition() {
               transition={{ duration: 0.4 }}
             >
               <h3 className={styles.panelTitle}>{selectedCategory.name}</h3>
-              <p className={styles.panelDesc}>{selectedCategory.desc}</p>
+                <p className={styles.panelDesc}>{selectedCategory.desc}</p>
 
               <div className={styles.progressList}>
                 {selectedCategory.items.map((item, idx) => (
                   <div key={item.food} className={styles.progressItem}>
                     <div className={styles.progressLabel}>
                       <span>{item.food}</span>
-                      <span className={styles.progressQuantity}>{item.quantity}</span>
+                      <span className={styles.progressQuantity}>{item.quantity || item.protein || item.cost || ''}</span>
                     </div>
                     <div className={styles.progressTrack}>
                       <motion.div
                         className={styles.progressFill}
                         initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(item.pct, 100)}%` }}
+                        animate={{ width: `${Math.min(item.pct || 60, 100)}%` }}
                         transition={{ duration: 1, ease: 'easeOut', delay: idx * 0.1 }}
                         style={{ backgroundColor: TAB_COLORS[activeTab] }}
                       />
@@ -81,38 +82,38 @@ export default function Nutrition() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <div className={styles.dietHeader}>
+            <div className={styles.dietHeader}>
             <div className={styles.dietBadge}>
               <FaBookmark style={{ color: 'var(--color-orange)' }} />
-              <span>Featured Routine</span>
+              <span>Student Routine</span>
             </div>
-            <h3 className={styles.dietTitle}>{studentVeganDiet.title}</h3>
+            <h3 className={styles.dietTitle}>{diet.title}</h3>
             <div className={styles.dietMeta}>
-              <span className={styles.metaTag}><FaTag /> {studentVeganDiet.calories}</span>
-              <span className={styles.metaTag}><FaClock /> {studentVeganDiet.cost}</span>
+              <span className={styles.metaTag}><FaTag /> {diet.macros.calories}</span>
+              <span className={styles.metaTag}><FaClock /> {diet.costEstimates.perDay}</span>
             </div>
           </div>
 
           <div className={styles.highlights}>
-            {studentVeganDiet.highlights.map((h) => (
-              <div key={h} className={styles.highlightItem}>
-                <FaCheckCircle style={{ color: 'var(--color-sage)', flexShrink: 0 }} />
-                <span>{h}</span>
-              </div>
-            ))}
+            <div className={styles.highlightItem}><FaCheckCircle style={{ color: 'var(--color-sage)', flexShrink: 0 }} /><span>Balanced macros for study performance</span></div>
+            <div className={styles.highlightItem}><FaCheckCircle style={{ color: 'var(--color-sage)', flexShrink: 0 }} /><span>Budget-friendly weekly plans</span></div>
+            <div className={styles.highlightItem}><FaCheckCircle style={{ color: 'var(--color-sage)', flexShrink: 0 }} /><span>Fortified B12 recommended</span></div>
           </div>
 
           <hr className={styles.separator} />
 
           <div className={styles.schedule}>
-            {studentVeganDiet.schedule.map((item) => (
-              <div key={item.meal} className={styles.scheduleItem}>
+            {diet.timeline.map((item) => (
+              <div key={item.section} className={styles.scheduleItem}>
                 <div className={styles.scheduleHeader}>
-                  <span className={styles.mealLabel}>{item.meal}</span>
+                  <span className={styles.mealLabel}>{item.section}</span>
                   <span className={styles.prepTime}>Prep: {item.prep}</span>
                 </div>
-                <h4 className={styles.mealTitle}>{item.title}</h4>
-                <p className={styles.mealDetails}>{item.details}</p>
+                <h4 className={styles.mealTitle}>{item.meal}</h4>
+                <p className={styles.mealDetails}>{item.description}</p>
+                <div className={styles.mealMeta}>
+                  <span>{item.calories} • {item.protein} protein • {item.price} </span>
+                </div>
               </div>
             ))}
           </div>
