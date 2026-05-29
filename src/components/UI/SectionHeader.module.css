@@ -1,0 +1,9 @@
+.label {
+  display: inline-block;
+  font-size: 0.95rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-earth);
+  font-weight: 700;
+  margin-bottom: 10px;
+}

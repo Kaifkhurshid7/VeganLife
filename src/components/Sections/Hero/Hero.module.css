@@ -1,0 +1,159 @@
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 750px;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, #ece0d2 0%, #e1c6ab 40%, #9d82ab 70%, #a6b48f 100%);
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.orbOrange {
+  top: 15%;
+  right: 10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(227, 163, 110, 0.3) 0%, transparent 70%);
+  filter: blur(60px);
+}
+
+.orbGreen {
+  bottom: 20%;
+  left: 5%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(166, 180, 143, 0.35) 0%, transparent 70%);
+  filter: blur(50px);
+}
+
+.leaf {
+  position: absolute;
+  pointer-events: none;
+}
+
+.leafLeft {
+  left: 8%;
+  top: 25%;
+  width: 100px;
+  height: 100px;
+  fill: #a6b48f;
+  opacity: 0.6;
+}
+
+.leafRight {
+  right: 10%;
+  bottom: 28%;
+  width: 80px;
+  height: 80px;
+  fill: #e3a36e;
+  opacity: 0.5;
+}
+
+.butterfly {
+  position: absolute;
+  right: 25%;
+  top: 30%;
+  width: 45px;
+  height: 45px;
+  z-index: 4;
+}
+
+.content {
+  text-align: center;
+  max-width: 850px;
+  padding: 0 24px;
+  z-index: 5;
+}
+
+.tagline {
+  display: inline-block;
+  font-size: 1.1rem;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--color-earth);
+  font-weight: 700;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.title {
+  font-size: clamp(3.8rem, 8.5vw, 7.5rem);
+  color: var(--color-cream);
+  line-height: 1.05;
+  text-shadow: 0 4px 16px rgba(87, 61, 33, 0.15);
+  margin-bottom: 24px;
+}
+
+.subtitle {
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  color: var(--color-cream);
+  max-width: 680px;
+  margin: 0 auto 40px;
+  opacity: 0.95;
+  text-shadow: 0 2px 8px rgba(87, 61, 33, 0.1);
+}
+
+.actions {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.btnLight {
+  border-color: var(--color-cream);
+  color: var(--color-cream);
+}
+
+.mountains {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  line-height: 0;
+  z-index: 6;
+}
+
+.mountainBack {
+  position: absolute;
+  bottom: 25px;
+  width: 100%;
+  height: 70px;
+  fill: rgba(225, 198, 171, 0.4);
+  transform: scaleY(0.7);
+}
+
+.mountainFront {
+  position: relative;
+  width: 100%;
+  height: 90px;
+  fill: var(--color-bg);
+  display: block;
+}
+
+.scrollCta {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: var(--color-earth);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}

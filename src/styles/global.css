@@ -3,16 +3,19 @@
 @import './variables.css';
 @import './animations.css';
 
-/* Global Reset & Base */
-* {
+/* Reset */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-html, body {
-  background-color: var(--bg-color);
-  color: var(--color-text-dark);
+html,
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
   font-family: var(--font-body);
   font-size: 16px;
   overflow-x: hidden;
@@ -20,28 +23,38 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Scrollbar */
+/* Lenis smooth scroll */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: var(--color-bg);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--color-clay);
-  border: 2px solid var(--bg-color);
-  border-radius: var(--border-radius-medium);
+  border: 2px solid var(--color-bg);
+  border-radius: var(--radius-md);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-earth);
 }
 
-/* Headers */
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-headings);
+  font-family: var(--font-heading);
   color: var(--color-earth);
   font-weight: 700;
   line-height: 1.2;
@@ -50,47 +63,27 @@ h1, h2, h3, h4, h5, h6 {
 p {
   line-height: 1.8;
   font-weight: 300;
-  color: var(--color-text-light);
+  color: var(--color-text-secondary);
 }
 
-/* Smooth Scrolling Support (Lenis) */
-html.lenis, html.lenis body {
-  height: auto;
-}
-
-.lenis-smooth {
-  scroll-behavior: auto !important;
-}
-
-.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-/* Layout Utilities */
+/* Section Layout */
 section {
   position: relative;
-  padding: 120px 8%;
+  padding: var(--space-section) var(--section-padding);
   z-index: 2;
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  section {
-    padding: 80px 5%;
-  }
-}
-
-/* Section Header Typography */
+/* Section Header */
 .section-header {
   text-align: center;
-  max-width: 800px;
-  margin: 0 auto 70px auto;
+  max-width: var(--max-width-text);
+  margin: 0 auto var(--space-2xl) auto;
 }
 
 .section-header h2 {
   font-size: clamp(2.5rem, 5vw, 4.5rem);
-  margin-bottom: 20px;
-  position: relative;
+  margin-bottom: var(--space-md);
 }
 
 .section-header p {
@@ -99,15 +92,15 @@ section {
   opacity: 0.85;
 }
 
-/* Premium Glassmorphism Cards */
+/* Glass Card */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: var(--border-radius-large);
-  padding: 40px;
-  transition: var(--transition-smooth);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  transition: var(--transition-base);
   position: relative;
   overflow: hidden;
 }
@@ -118,15 +111,16 @@ section {
   transform: translateY(-8px);
 }
 
-/* Accent Ambient Glows on Hover */
+/* Glow effect on mouse-tracked cards */
 .glow-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(800px circle at var(--mouse-x, 0) var(--mouse-y, 0), rgba(227, 163, 110, 0.15), transparent 40%);
+  inset: 0;
+  background: radial-gradient(
+    800px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+    rgba(227, 163, 110, 0.15),
+    transparent 40%
+  );
   z-index: 1;
   pointer-events: none;
   opacity: 0;
@@ -137,14 +131,14 @@ section {
   opacity: 1;
 }
 
-/* Premium Buttons */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 16px 36px;
-  border-radius: 50px;
+  padding: var(--space-md) 36px;
+  border-radius: var(--radius-full);
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 700;
@@ -152,10 +146,8 @@ section {
   letter-spacing: 1.5px;
   cursor: pointer;
   transition: var(--transition-elastic);
-  position: relative;
-  z-index: 2;
-  overflow: hidden;
   text-decoration: none;
+  border: none;
 }
 
 .btn-primary {
@@ -182,8 +174,8 @@ section {
   transform: scale(1.05);
 }
 
-/* Noise overlay */
-.noise-wrapper {
+/* Noise Overlay */
+.noise-overlay {
   position: fixed;
   top: -50%;
   left: -50%;
@@ -197,32 +189,37 @@ section {
   pointer-events: none;
 }
 
-/* SVG Organic Wave Divider */
-.organic-divider {
+/* Organic Wave Dividers */
+.wave-divider {
   position: absolute;
   left: 0;
   width: 100%;
   line-height: 0;
-  direction: ltr;
   z-index: 1;
 }
 
-.divider-top {
+.wave-divider--top {
   top: 0;
   transform: translateY(-98%);
 }
 
-.divider-bottom {
-  bottom: 0;
-  transform: translateY(98%) scaleY(-1);
-}
-
-.organic-divider svg {
+.wave-divider svg {
   display: block;
   width: calc(100% + 1.3px);
   height: 60px;
 }
 
-.organic-divider .shape-fill {
-  fill: var(--bg-color);
+.wave-divider .shape-fill {
+  fill: var(--color-bg);
+}
+
+/* Swiper overrides */
+.swiper-pagination-bullet-active {
+  background: var(--color-earth) !important;
+  width: 24px !important;
+  border-radius: 6px !important;
+}
+
+.swiper-pagination-bullet {
+  transition: all 0.3s ease;
 }

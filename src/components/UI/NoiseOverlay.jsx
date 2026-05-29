@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function NoiseOverlay() {
-  return <div className="noise-wrapper" aria-hidden="true" />;
+  return <div className="noise-overlay" aria-hidden="true" />;
 }
