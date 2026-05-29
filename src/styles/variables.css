@@ -1,0 +1,32 @@
+:root {
+  /* Color Palette */
+  --bg-color: #ece0d2;
+  --color-clay: #e1c6ab;
+  --color-earth: #573d21;
+  --color-purple: #9d82ab;
+  --color-sage: #a6b48f;
+  --color-orange: #e3a36e;
+  --color-cream: #f7f0e6;
+  --color-text-dark: #3a2713;
+  --color-text-light: #573d21;
+
+  /* Glassmorphism settings */
+  --glass-bg: rgba(247, 240, 230, 0.35);
+  --glass-bg-hover: rgba(247, 240, 230, 0.55);
+  --glass-border: rgba(87, 61, 33, 0.12);
+  --glass-border-hover: rgba(87, 61, 33, 0.22);
+  
+  /* Typography */
+  --font-headings: 'Playfair Display', serif;
+  --font-body: 'Roboto Condensed', sans-serif;
+  
+  /* Transitions */
+  --transition-smooth: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+  --transition-elastic: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-slow: all 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Spacing */
+  --space-unit: 8px;
+  --border-radius-large: 24px;
+  --border-radius-medium: 12px;
+}
