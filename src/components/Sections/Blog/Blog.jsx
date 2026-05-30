@@ -40,10 +40,22 @@ export default function Blog() {
                 <p className={styles.desc}>{post.desc}</p>
               </div>
 
-              <div className={styles.readLink}>
-                <span>Read Full Article</span>
-                <FiArrowUpRight />
-              </div>
+              {post.url ? (
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.readLink}
+                >
+                  <span>Read Full Article</span>
+                  <FiArrowUpRight />
+                </a>
+              ) : (
+                <div className={styles.readLink}>
+                  <span>Read Full Article</span>
+                  <FiArrowUpRight />
+                </div>
+              )}
             </div>
           </motion.article>
         ))}
