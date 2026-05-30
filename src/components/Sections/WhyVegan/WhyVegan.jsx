@@ -3,33 +3,16 @@ import { FaEarthAmericas, FaHeartPulse, FaHandHoldingHeart, FaSeedling } from 'r
 import { SectionHeader, WaveDivider } from '../../ui';
 import { DeerSilhouettes, Fireflies } from '../../ambient';
 import styles from './WhyVegan.module.css';
+import { awarenessCards } from '../../../data/awarenessCards';
 
-const PILLARS = [
-  {
-    icon: <FaEarthAmericas />,
-    title: 'Environment',
-    desc: "Animal farming accounts for 14.5% of global greenhouse emissions. A plant-based diet reduces your food's carbon footprint by up to 73% and helps combat the climate crisis.",
-    color: 'var(--color-sage)',
-  },
-  {
-    icon: <FaHeartPulse />,
-    title: 'Health',
-    desc: 'Rich in complex fiber, antioxidants, and pure clean nutrients. Plant-based diets reduce the risk of cardiovascular illnesses, lower high blood pressure, and boost mental clarity.',
-    color: 'var(--color-orange)',
-  },
-  {
-    icon: <FaHandHoldingHeart />,
-    title: 'Compassion',
-    desc: 'Every animal is a conscious, feeling being that experiences joy, fear, and pain. Choosing plant options helps build a kinder society, preventing animal farming suffering.',
-    color: 'var(--color-purple)',
-  },
-  {
-    icon: <FaSeedling />,
-    title: 'Sustainability',
-    desc: 'We grow enough crops to feed 10 billion people, yet millions go hungry because 70% is fed to livestock. Vegan feeding is the most efficient, equitable resource model.',
-    color: 'var(--color-earth)',
-  },
-];
+const ICON_MAP = {
+  Globe: <FaEarthAmericas />,
+  HeartPulse: <FaHeartPulse />,
+  HandHeart: <FaHandHoldingHeart />,
+  Leaf: <FaSeedling />,
+  CloudSun: <FaSeedling />,
+  Sprout: <FaSeedling />,
+};
 
 export default function WhyVegan() {
   const handleMouseMove = (e) => {
@@ -52,9 +35,9 @@ export default function WhyVegan() {
       />
 
       <div className={styles.grid}>
-        {PILLARS.map((pillar, idx) => (
+        {awarenessCards.map((card, idx) => (
           <motion.div
-            key={pillar.title}
+            key={card.title}
             className="glass-card glow-card"
             onMouseMove={handleMouseMove}
             initial={{ opacity: 0, y: 40 }}
@@ -62,11 +45,15 @@ export default function WhyVegan() {
             viewport={{ once: true, margin: '-100px' }}
             transition={{ duration: 0.8, delay: idx * 0.1 }}
           >
-            <div className={styles.iconBox} style={{ color: pillar.color }}>
-              {pillar.icon}
+            <div className={styles.iconBox} style={{ color: card.color }}>
+              {ICON_MAP[card.icon] || <FaSeedling />}
             </div>
-            <h3 className={styles.cardTitle}>{pillar.title}</h3>
-            <p className={styles.cardDesc}>{pillar.desc}</p>
+            <h3 className={styles.cardTitle}>{card.title}</h3>
+            <p className={styles.cardDesc}>{card.description}</p>
+            <div className={styles.cardExtras}>
+              <small className={styles.stat}>{card.statistic}</small>
+              <blockquote className={styles.quote}>{card.quote}</blockquote>
+            </div>
           </motion.div>
         ))}
       </div>

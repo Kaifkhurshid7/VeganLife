@@ -30,4 +30,28 @@
   font-size: 1rem;
   color: var(--color-text-secondary);
   opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.cardExtras {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.stat {
+  display: block;
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.quote {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  opacity: 0.95;
 }
