@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Lenis from 'lenis';
 import Home from './pages/Home';
+import Calculator from './pages/Calculator';
+import WorldMap from './pages/WorldMap';
+import Infographic from './pages/Infographic';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
 import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
 
@@ -23,13 +27,18 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <BrowserRouter>
       <ScrollIndicator />
       <NoiseOverlay />
       <ParallaxLayers />
       <FloatingLeaves count={6} />
       <CursorTrail />
-      <Home />
-    </>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/calculator" element={<Calculator />} />
+        <Route path="/world-map" element={<WorldMap />} />
+        <Route path="/infographic" element={<Infographic />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
