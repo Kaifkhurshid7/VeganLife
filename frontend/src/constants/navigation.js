@@ -7,6 +7,7 @@ export const NAV_LINKS = [
 
 export const EXPLORE_LINKS = [
   { name: 'BMI Calculator', href: '/calculator', desc: 'Vegan calorie & macro planner' },
+  { name: 'Carbon Savings', href: '/savings', desc: 'Impact per meal calculator' },
   { name: 'World Map', href: '/world-map', desc: 'Global environmental impact' },
   { name: 'Our Story', href: '/infographic', desc: 'Scroll-driven storytelling' },
   { name: 'Seasonal Produce', href: '/seasonal', desc: "What's fresh this month" },

@@ -7,6 +7,7 @@ import WorldMap from './pages/WorldMap';
 import Infographic from './pages/Infographic';
 import SeasonalProduce from './pages/SeasonalProduce';
 import Compare from './pages/Compare';
+import SavingsCalculator from './pages/SavingsCalculator';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
 import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
 
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/infographic" element={<Infographic />} />
         <Route path="/seasonal" element={<SeasonalProduce />} />
         <Route path="/compare" element={<Compare />} />
+        <Route path="/savings" element={<SavingsCalculator />} />
       </Routes>
     </BrowserRouter>
   );
