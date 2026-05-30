@@ -1,0 +1,71 @@
+.section {
+  min-height: 100vh;
+  padding: 120px 8% 80px;
+  background-color: var(--color-bg);
+}
+
+.container { max-width: 1000px; margin: 0 auto; }
+
+.header { text-align: center; margin-bottom: 50px; }
+.label { display: inline-block; font-size: 0.95rem; letter-spacing: 3px; text-transform: uppercase; color: var(--color-earth); font-weight: 700; margin-bottom: 10px; }
+.title { font-size: clamp(2.2rem, 5vw, 3.5rem); color: var(--color-earth); margin-bottom: 16px; }
+.subtitle { font-size: 1.1rem; color: var(--color-text-secondary); max-width: 550px; margin: 0 auto; }
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+@media (max-width: 600px) {
+  .monthGrid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.monthBtn {
+  padding: 12px 8px;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  color: var(--color-earth);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.monthBtnActive {
+  background: var(--color-earth);
+  color: var(--color-cream);
+  border-color: var(--color-earth);
+}
+
+.produceGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.categoryCard { padding: 30px; }
+
+.categoryTitle {
+  font-size: 1.3rem;
+  margin-bottom: 16px;
+  text-transform: capitalize;
+}
+
+.itemList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.item {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.3);
+}

@@ -1,29 +1,22 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiChevronDown } from 'react-icons/fi';
 import { FaLeaf } from 'react-icons/fa6';
 import { useScrollPosition } from '../../../hooks';
-import { NAV_LINKS } from '../../../constants';
+import { NAV_LINKS, EXPLORE_LINKS } from '../../../constants';
 import styles from './Navbar.module.css';
 
 function NavLink({ href, className, onClick, children }) {
   if (href.startsWith('/') && !href.includes('#')) {
-    return (
-      <Link to={href} className={className} onClick={onClick}>
-        {children}
-      </Link>
-    );
+    return <Link to={href} className={className} onClick={onClick}>{children}</Link>;
   }
-  return (
-    <a href={href} className={className} onClick={onClick}>
-      {children}
-    </a>
-  );
+  return <a href={href} className={className} onClick={onClick}>{children}</a>;
 }
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [exploreOpen, setExploreOpen] = useState(false);
   const isScrolled = useScrollPosition(40);
 
   return (
@@ -45,9 +38,35 @@ export default function Navbar() {
               {link.name}
             </NavLink>
           ))}
-          <Link to="/calculator" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
-            Calculator
-          </Link>
+
+          <div
+            className={styles.dropdown}
+            onMouseEnter={() => setExploreOpen(true)}
+            onMouseLeave={() => setExploreOpen(false)}
+          >
+            <button className={styles.dropdownTrigger}>
+              Explore <FiChevronDown />
+            </button>
+
+            <AnimatePresence>
+              {exploreOpen && (
+                <motion.div
+                  className={styles.dropdownMenu}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {EXPLORE_LINKS.map((link) => (
+                    <Link key={link.name} to={link.href} className={styles.dropdownItem} onClick={() => setExploreOpen(false)}>
+                      <span className={styles.dropdownItemName}>{link.name}</span>
+                      <span className={styles.dropdownItemDesc}>{link.desc}</span>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <button
@@ -82,33 +101,24 @@ export default function Navbar() {
                   <FaLeaf className={styles.brandIcon} />
                   <span>Green Earth</span>
                 </Link>
-                <button
-                  className={styles.drawerClose}
-                  onClick={() => setIsOpen(false)}
-                  aria-label="Close menu"
-                >
+                <button className={styles.drawerClose} onClick={() => setIsOpen(false)} aria-label="Close menu">
                   <FiX />
                 </button>
               </div>
 
+              <span className={styles.drawerSection}>Sections</span>
               {NAV_LINKS.map((link) => (
-                <NavLink
-                  key={link.name}
-                  href={link.href}
-                  className={styles.drawerLink}
-                  onClick={() => setIsOpen(false)}
-                >
+                <NavLink key={link.name} href={link.href} className={styles.drawerLink} onClick={() => setIsOpen(false)}>
                   {link.name}
                 </NavLink>
               ))}
-              <Link
-                to="/calculator"
-                className="btn btn-primary"
-                style={{ marginTop: '20px', padding: '14px 24px' }}
-                onClick={() => setIsOpen(false)}
-              >
-                BMI Calculator
-              </Link>
+
+              <span className={styles.drawerSection}>Explore</span>
+              {EXPLORE_LINKS.map((link) => (
+                <Link key={link.name} to={link.href} className={styles.drawerLink} onClick={() => setIsOpen(false)}>
+                  {link.name}
+                </Link>
+              ))}
             </motion.div>
           </motion.div>
         )}

@@ -3,20 +3,25 @@ export const NAV_LINKS = [
   { name: 'Impact', href: '/#impact' },
   { name: 'Nutrition', href: '/#nutrition' },
   { name: 'Recipes', href: '/#recipes' },
-  { name: 'Calculator', href: '/calculator' },
-  { name: 'World Map', href: '/world-map' },
-  { name: 'Story', href: '/infographic' },
+];
+
+export const EXPLORE_LINKS = [
+  { name: 'BMI Calculator', href: '/calculator', desc: 'Vegan calorie & macro planner' },
+  { name: 'World Map', href: '/world-map', desc: 'Global environmental impact' },
+  { name: 'Our Story', href: '/infographic', desc: 'Scroll-driven storytelling' },
+  { name: 'Seasonal Produce', href: '/seasonal', desc: "What's fresh this month" },
+  { name: 'Vegan vs Omnivore', href: '/compare', desc: 'Side-by-side comparison' },
 ];
 
 export const FOOTER_LINKS = [
   { name: 'Home', href: '/' },
   { name: 'Why Vegan', href: '/#why-vegan' },
   { name: 'Impact Tracker', href: '/#impact' },
-  { name: 'Nutrition Guide', href: '/#nutrition' },
   { name: 'BMI Calculator', href: '/calculator' },
   { name: 'World Map', href: '/world-map' },
+  { name: 'Seasonal Produce', href: '/seasonal' },
+  { name: 'Compare', href: '/compare' },
   { name: 'Our Story', href: '/infographic' },
-  { name: 'Challenges', href: '/#challenge' },
 ];
 
 export const SOCIAL_LINKS = [

@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Calculator from './pages/Calculator';
 import WorldMap from './pages/WorldMap';
 import Infographic from './pages/Infographic';
+import SeasonalProduce from './pages/SeasonalProduce';
+import Compare from './pages/Compare';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
 import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
 
@@ -38,6 +40,8 @@ export default function App() {
         <Route path="/calculator" element={<Calculator />} />
         <Route path="/world-map" element={<WorldMap />} />
         <Route path="/infographic" element={<Infographic />} />
+        <Route path="/seasonal" element={<SeasonalProduce />} />
+        <Route path="/compare" element={<Compare />} />
       </Routes>
     </BrowserRouter>
   );
