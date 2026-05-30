@@ -61,6 +61,20 @@ export default function Navbar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
             >
+              <div className={styles.drawerHeader}>
+                <a href="#" className={styles.brand} onClick={() => setIsOpen(false)}>
+                  <FaLeaf className={styles.brandIcon} />
+                  <span>Green Earth</span>
+                </a>
+                <button
+                  className={styles.drawerClose}
+                  onClick={() => setIsOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <FiX />
+                </button>
+              </div>
+
               {NAV_LINKS.map((link) => (
                 <a
                   key={link.name}

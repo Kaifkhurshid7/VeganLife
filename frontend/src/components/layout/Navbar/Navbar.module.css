@@ -73,7 +73,7 @@
   inset: 0;
   background-color: rgba(58, 39, 19, 0.4);
   backdrop-filter: blur(10px);
-  z-index: 998;
+  z-index: 1001;
 }
 
 .drawer {
@@ -84,11 +84,27 @@
   width: 80%;
   max-width: 360px;
   background-color: var(--color-bg);
-  padding: 100px 40px 40px;
+  padding: 30px 40px 40px;
   display: flex;
   flex-direction: column;
   gap: 24px;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.1);
+}
+
+.drawerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.drawerClose {
+  background: none;
+  border: none;
+  color: var(--color-earth);
+  font-size: 1.6rem;
+  cursor: pointer;
+  padding: 4px;
 }
 
 .drawerLink {
