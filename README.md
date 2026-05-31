@@ -13,17 +13,24 @@ A production-grade, full-stack sustainability platform promoting conscious food 
 - Ambient nature animations (butterflies, birds, fireflies, floating leaves, parallax layers)
 - Smooth scroll experience (Lenis)
 - PWA support — installable, offline-capable
+- Splash screen with animated loading
+- Page transition animations (fade between routes)
+- Error boundary with graceful fallback UI
+- Custom 404 page with illustrations
+- Toast notification system (success/error/warning/info)
 - Fully responsive (mobile, tablet, desktop)
 
 ### Pages & Tools
 - **Home** — Cinematic hero, Why Vegan, Impact Dashboard, Nutrition Guide, Recipes, Myths, Challenges, Testimonials
-- **Community** — Reddit/Instagram-style social feed with upvotes, comments, shares, gamification
+- **Community** — Reddit/Instagram-style social feed with upvotes, comments, shares, search, delete own posts
+- **Profile** — User profile with bio, stats, edit profile, view own posts
 - **BMI & Calorie Calculator** — Personalized vegan macro planner
 - **Carbon & Water Savings** — Per-meal environmental impact calculator
 - **World Map** — Interactive global environmental impact data
 - **Infographic** — Scroll-driven animated storytelling
 - **Seasonal Produce** — Month-by-month fresh produce calendar
 - **Vegan vs Omnivore** — Side-by-side comparison sliders
+- **Admin Panel** — Post moderation, user management, analytics
 
 ### Authentication & Users
 - JWT access + refresh token architecture
@@ -32,21 +39,27 @@ A production-grade, full-stack sustainability platform promoting conscious food 
 - Admin login with secret key
 - Profile management (update, change password, delete account)
 - Password strength meter, real-time validation
+- Split-screen premium auth UI
+- Rate-limited auth endpoints
 
 ### Community & Social
 - Post creation with category tagging
 - Upvote/downvote system
 - Threaded comments
 - Share functionality
-- Admin moderation (approve/reject/delete posts)
+- Search posts by keyword
+- Delete own posts
+- Admin moderation (approve/reject/delete)
 - Gamification badges (Seedling → Planet Guardian)
 - XP system, streak tracking, leaderboard
+- Skeleton loading states
 
-### Admin Panel
-- Post moderation queue (pending/approved/rejected)
-- User management
-- Analytics overview (post counts, engagement)
-- Bulk actions (approve, reject, delete)
+### Nutrition System
+- Expandable food cards with detailed nutritional data
+- Cost, hostel-friendliness, shelf life, workout suitability
+- Science-backed references (Harvard, WHO, ICMR, NCBI)
+- Student-focused meal plans with Indian food options
+- Meal ideas, pairing suggestions, common mistakes
 
 ---
 
@@ -60,7 +73,7 @@ A production-grade, full-stack sustainability platform promoting conscious food 
 | Smooth Scroll | Lenis |
 | Charts | Recharts |
 | Carousel | Swiper |
-| Icons | React Icons |
+| Icons | React Icons (Feather + FA6) |
 | PWA | vite-plugin-pwa |
 | Backend | Node.js, Express |
 | Database | MongoDB Atlas, Mongoose |
@@ -80,15 +93,15 @@ VeganLife/
 │   │   │   ├── ambient/       # Nature animations
 │   │   │   ├── layout/        # Navbar, Footer
 │   │   │   ├── sections/      # Homepage sections
-│   │   │   └── ui/            # Reusable primitives
-│   │   ├── constants/          # Navigation, config
-│   │   ├── context/            # AuthContext (global state)
-│   │   ├── data/               # Static data files
+│   │   │   └── ui/            # Toast, ErrorBoundary, SplashScreen, BackButton, etc.
+│   │   ├── constants/          # Navigation config
+│   │   ├── context/            # AuthContext
+│   │   ├── data/               # Static data (nutrition, blogs, recipes, statistics)
 │   │   ├── hooks/              # Custom React hooks
-│   │   ├── pages/              # Route pages
+│   │   ├── pages/              # All route pages
 │   │   ├── styles/             # Global CSS, variables, animations
 │   │   └── utils/              # Animation utilities
-│   ├── public/                 # PWA assets
+│   ├── public/                 # PWA assets, favicon
 │   ├── .env                    # VITE_API_URL
 │   ├── vite.config.js
 │   └── package.json
@@ -116,13 +129,14 @@ VeganLife/
 | Token Architecture | Access (15min) + Refresh (7 days) rotation |
 | Cookie Security | httpOnly, secure, sameSite |
 | Rate Limiting | Auth: 15/15min, API: 100/min, Posts: 10/min |
-| NoSQL Injection | Input sanitization (strips $ operators) |
+| NoSQL Injection | Input sanitization (blocks $ operators) |
 | XSS Prevention | HTML tag stripping on all inputs |
 | HTTP Headers | Helmet (CSP, X-Frame, HSTS, etc.) |
-| CORS | Strict origin whitelist with credentials |
+| CORS | Dynamic origin whitelist with credentials |
 | Body Limits | 5MB max payload |
 | Error Handling | Global handler — no stack leaks in production |
 | Validation | express-validator on all auth routes |
+| DB Indexes | Compound indexes on User and Post for query performance |
 
 ---
 
@@ -138,7 +152,7 @@ VeganLife/
 | GET | `/me` | Get current user | Yes |
 | PATCH | `/profile` | Update profile | Yes |
 | PATCH | `/change-password` | Change password | Yes |
-| POST | `/logout` | Logout (clear tokens) | Yes |
+| POST | `/logout` | Logout | Yes |
 | DELETE | `/account` | Delete account | Yes |
 
 ### Posts (`/api/posts`)
@@ -152,19 +166,20 @@ VeganLife/
 | DELETE | `/:postId/comments/:commentId` | Delete comment | Yes |
 | GET | `/admin/all` | All posts (admin) | Admin |
 | PATCH | `/:id/status` | Approve/reject (admin) | Admin |
-| DELETE | `/:id` | Delete post (admin) | Admin |
+| DELETE | `/:id` | Delete post (admin/owner) | Yes |
 
 ---
 
 ## Installation
 
 ```bash
-# Clone
 git clone https://github.com/Kaifkhurshid7/VeganLife.git
 cd VeganLife
 
-# Install all
+# Frontend
 cd frontend && npm install
+
+# Backend
 cd ../backend && npm install
 ```
 
@@ -211,6 +226,21 @@ cd frontend && npm run dev
 
 ---
 
+## UX Features
+
+| Feature | Description |
+|---------|-------------|
+| Splash Screen | Animated leaf + progress bar on first load |
+| Page Transitions | Fade + slide between routes (Framer Motion) |
+| Error Boundary | Graceful crash recovery with refresh button |
+| 404 Page | Illustrated not-found with floating leaves |
+| Toast System | Contextual success/error/warning notifications |
+| Back Button | Auto-hides on scroll, reappears at top |
+| Skeleton Loading | Shimmer placeholders while content loads |
+| Search | Real-time post filtering by keyword |
+
+---
+
 ## Performance
 
 - Code-split vendor chunks (React, Framer Motion, Recharts, Swiper)
@@ -221,6 +251,7 @@ cd frontend && npm run dev
 - GPU-accelerated animations (`will-change: transform`)
 - MongoDB compound indexes on hot queries
 - Paginated API responses with lean queries
+- PWA service worker caches assets and images
 
 ---
 
@@ -233,10 +264,14 @@ Earthy organic palette — warm clays, sage greens, muted purples, cream tones. 
 ## Future Scope
 
 - Real-time chat (Socket.IO)
-- AI nutrition assistant
-- Recipe database with search & favorites
-- Certificate system with QR verification
-- Email notifications
+- AI nutrition assistant (OpenAI)
+- Image uploads (Cloudinary)
+- Bookmark/save posts
+- Follow system
+- Notification bell
+- Recipe detail pages
+- PDF certificate generation
+- Email verification
 - Dark mode
 - Internationalization (i18n)
 
