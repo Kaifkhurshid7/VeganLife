@@ -1,0 +1,39 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg);
+  padding: 40px;
+}
+
+.card {
+  text-align: center;
+  max-width: 420px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 60px 40px;
+}
+
+.leafIcon { font-size: 2rem; color: var(--color-sage); opacity: 0.4; margin-bottom: 16px; }
+.icon { font-size: 3rem; color: var(--color-orange); margin-bottom: 20px; }
+.title { font-size: 1.6rem; color: var(--color-earth); margin-bottom: 12px; }
+.desc { font-size: 1rem; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 28px; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: var(--color-earth);
+  color: var(--color-cream);
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn:hover { background: var(--color-orange); color: var(--color-earth); }

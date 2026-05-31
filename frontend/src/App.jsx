@@ -1,8 +1,12 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './components/ui/Toast';
+import ErrorBoundary from './components/ui/ErrorBoundary';
+import SplashScreen from './components/ui/SplashScreen';
+import PageTransition from './components/ui/PageTransition';
 import Home from './pages/Home';
 import Calculator from './pages/Calculator';
 import WorldMap from './pages/WorldMap';
@@ -14,10 +18,41 @@ import Auth from './pages/Auth';
 import Community from './pages/Community';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
+import NotFound from './pages/NotFound';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
 import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
 
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageTransition><Home /></PageTransition>} />
+        <Route path="/calculator" element={<PageTransition><Calculator /></PageTransition>} />
+        <Route path="/world-map" element={<PageTransition><WorldMap /></PageTransition>} />
+        <Route path="/infographic" element={<PageTransition><Infographic /></PageTransition>} />
+        <Route path="/seasonal" element={<PageTransition><SeasonalProduce /></PageTransition>} />
+        <Route path="/compare" element={<PageTransition><Compare /></PageTransition>} />
+        <Route path="/savings" element={<PageTransition><SavingsCalculator /></PageTransition>} />
+        <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
+        <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
+        <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
+        <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
+        <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1800);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.3,
@@ -36,29 +71,27 @@ export default function App() {
   }, []);
 
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <ScrollIndicator />
-          <NoiseOverlay />
-          <ParallaxLayers />
-          <FloatingLeaves count={6} />
-          <CursorTrail />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/calculator" element={<Calculator />} />
-            <Route path="/world-map" element={<WorldMap />} />
-            <Route path="/infographic" element={<Infographic />} />
-            <Route path="/seasonal" element={<SeasonalProduce />} />
-            <Route path="/compare" element={<Compare />} />
-            <Route path="/savings" element={<SavingsCalculator />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/community" element={<Community />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/profile" element={<Profile />} />
-          </Routes>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <AnimatePresence>
+              {showSplash && <SplashScreen />}
+            </AnimatePresence>
+
+            {!showSplash && (
+              <>
+                <ScrollIndicator />
+                <NoiseOverlay />
+                <ParallaxLayers />
+                <FloatingLeaves count={6} />
+                <CursorTrail />
+                <AnimatedRoutes />
+              </>
+            )}
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }

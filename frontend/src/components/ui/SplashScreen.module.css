@@ -1,0 +1,35 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.content { text-align: center; }
+
+.icon { font-size: 3.5rem; color: var(--color-sage); margin-bottom: 20px; }
+
+.title {
+  font-size: 2.2rem;
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+  margin-bottom: 24px;
+}
+
+.loader {
+  width: 180px;
+  height: 4px;
+  background: rgba(87, 61, 33, 0.1);
+  border-radius: 2px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.loaderBar {
+  height: 100%;
+  background: linear-gradient(to right, var(--color-sage), var(--color-orange));
+  border-radius: 2px;
+}
