@@ -2,7 +2,7 @@ export const NAV_LINKS = [
   { name: 'Why Vegan', href: '/#why-vegan' },
   { name: 'Impact', href: '/#impact' },
   { name: 'Nutrition', href: '/#nutrition' },
-  { name: 'Recipes', href: '/#recipes' },
+  { name: 'Community', href: '/community' },
 ];
 
 export const EXPLORE_LINKS = [

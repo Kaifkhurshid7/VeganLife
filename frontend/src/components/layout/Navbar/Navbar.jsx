@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiChevronDown } from 'react-icons/fi';
+import { FiMenu, FiX, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi';
 import { FaLeaf } from 'react-icons/fa6';
 import { useScrollPosition } from '../../../hooks';
 import { NAV_LINKS, EXPLORE_LINKS } from '../../../constants';
+import { useAuth } from '../../../context/AuthContext';
 import styles from './Navbar.module.css';
 
 function NavLink({ href, className, onClick, children }) {
@@ -18,6 +19,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
   const isScrolled = useScrollPosition(40);
+  const { user, logout, isAdmin } = useAuth();
 
   return (
     <>
@@ -47,7 +49,6 @@ export default function Navbar() {
             <button className={styles.dropdownTrigger}>
               Explore <FiChevronDown />
             </button>
-
             <AnimatePresence>
               {exploreOpen && (
                 <motion.div
@@ -67,6 +68,26 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
+
+          {/* Auth section */}
+          {user ? (
+            <div className={styles.userSection}>
+              <Link to="/community" className={styles.userBadge}>
+                <span className={styles.userAvatar}>{user.name.charAt(0)}</span>
+                <span className={styles.userName}>{user.name.split(' ')[0]}</span>
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className={styles.adminLink}>Admin</Link>
+              )}
+              <button className={styles.logoutBtn} onClick={logout} aria-label="Logout">
+                <FiLogOut />
+              </button>
+            </div>
+          ) : (
+            <Link to="/auth" className="btn btn-primary" style={{ padding: '8px 20px', fontSize: '0.82rem' }}>
+              <FiUser style={{ marginRight: '4px' }} /> Login
+            </Link>
+          )}
         </div>
 
         <button
@@ -78,6 +99,7 @@ export default function Navbar() {
         </button>
       </motion.nav>
 
+      {/* Mobile drawer */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -106,6 +128,21 @@ export default function Navbar() {
                 </button>
               </div>
 
+              {/* User info in drawer */}
+              {user ? (
+                <div className={styles.drawerUser}>
+                  <div className={styles.drawerAvatar}>{user.name.charAt(0)}</div>
+                  <div>
+                    <span className={styles.drawerUserName}>{user.name}</span>
+                    <span className={styles.drawerUserRole}>{isAdmin ? 'Admin' : 'Member'}</span>
+                  </div>
+                </div>
+              ) : (
+                <Link to="/auth" className={`btn btn-primary ${styles.drawerAuthBtn}`} onClick={() => setIsOpen(false)}>
+                  <FiUser /> Login / Sign Up
+                </Link>
+              )}
+
               <span className={styles.drawerSection}>Sections</span>
               {NAV_LINKS.map((link) => (
                 <NavLink key={link.name} href={link.href} className={styles.drawerLink} onClick={() => setIsOpen(false)}>
@@ -119,6 +156,17 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+
+              {user && (
+                <>
+                  <span className={styles.drawerSection}>Account</span>
+                  <Link to="/community" className={styles.drawerLink} onClick={() => setIsOpen(false)}>Community</Link>
+                  {isAdmin && <Link to="/admin" className={styles.drawerLink} onClick={() => setIsOpen(false)}>Admin Panel</Link>}
+                  <button className={styles.drawerLogout} onClick={() => { logout(); setIsOpen(false); }}>
+                    <FiLogOut /> Logout
+                  </button>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}
