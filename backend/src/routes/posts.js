@@ -51,7 +51,7 @@ router.post('/', authenticate, postLimiter, asyncHandler(async (req, res) => {
     content: content.trim(),
     category,
     image: image || '',
-    status: req.user.role === 'admin' ? 'approved' : 'pending',
+    status: 'approved',
   });
 
   await post.populate('author', 'name username avatar');
