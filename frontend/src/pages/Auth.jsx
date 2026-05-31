@@ -47,7 +47,7 @@ export default function Auth() {
   const { login, signup, adminLogin, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  if (isAuthenticated) return <Navigate to="/community" />;
+  if (isAuthenticated) return <Navigate to="/" />;
 
   const updateField = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -86,12 +86,12 @@ export default function Auth() {
       } else if (mode === 'signup') {
         await signup(formData.name, formData.username, formData.email, formData.password);
         setSuccess(true);
-        setTimeout(() => navigate('/community'), 1500);
+        setTimeout(() => navigate('/'), 1500);
         return;
       } else {
         await adminLogin(formData.email, formData.password, formData.secretKey);
       }
-      navigate(mode === 'admin' ? '/admin' : '/community');
+      navigate(mode === 'admin' ? '/admin' : '/');
     } catch (err) {
       setError(err.message);
     } finally {
