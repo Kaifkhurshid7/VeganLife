@@ -1,0 +1,45 @@
+.section { min-height: 100vh; padding: 100px 8% 80px; background-color: var(--color-bg); }
+.container { max-width: 700px; margin: 0 auto; }
+
+.profileCard { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); padding: 40px; margin-bottom: 30px; }
+
+.avatarSection { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--color-earth); color: var(--color-cream); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; }
+.editBtn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: var(--glass-bg); color: var(--color-earth); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.3s ease; }
+.editBtn:hover { background: var(--color-earth); color: var(--color-cream); }
+
+.profileInfo { margin-bottom: 24px; }
+.name { font-size: 1.8rem; color: var(--color-earth); margin-bottom: 4px; }
+.username { font-size: 0.9rem; color: var(--color-text-secondary); opacity: 0.7; margin-bottom: 12px; }
+.bio { font-size: 0.95rem; color: var(--color-text-secondary); line-height: 1.6; }
+
+.editForm { display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 0.82rem; font-weight: 700; color: var(--color-earth); }
+.field input, .field textarea { padding: 12px 16px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255,255,255,0.5); font-size: 0.95rem; font-family: var(--font-body); color: var(--color-text-primary); resize: vertical; }
+.field input:focus, .field textarea:focus { outline: none; border-color: var(--color-earth); }
+
+.editActions { display: flex; gap: 10px; }
+.saveBtn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--color-earth); color: var(--color-cream); border: none; border-radius: var(--radius-full); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.cancelBtn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: none; border: 1px solid var(--glass-border); color: var(--color-earth); border-radius: var(--radius-full); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+
+.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding-top: 20px; border-top: 1px solid var(--glass-border); }
+.stat { text-align: center; }
+.statIcon { font-size: 1.2rem; color: var(--color-sage); margin-bottom: 4px; }
+.stat span { display: block; font-size: 1.1rem; font-weight: 700; color: var(--color-earth); font-family: var(--font-heading); }
+.stat small { font-size: 0.72rem; color: var(--color-text-secondary); opacity: 0.7; }
+
+@media (max-width: 600px) { .statsRow { grid-template-columns: repeat(2, 1fr); } }
+
+.postsSection { }
+.postsTitle { font-size: 1.4rem; color: var(--color-earth); margin-bottom: 16px; }
+.noPosts { color: var(--color-text-secondary); opacity: 0.6; }
+
+.postsList { display: flex; flex-direction: column; gap: 12px; }
+.postItem { display: flex; justify-content: space-between; align-items: flex-start; padding: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); }
+.postContent h3 { font-size: 1.05rem; color: var(--color-earth); margin-bottom: 6px; }
+.postContent p { font-size: 0.88rem; color: var(--color-text-secondary); line-height: 1.5; margin-bottom: 8px; }
+.postMeta { display: flex; gap: 14px; font-size: 0.75rem; font-weight: 600; color: var(--color-text-secondary); opacity: 0.7; }
+
+.deleteBtn { background: none; border: none; color: #c0392b; font-size: 1.2rem; cursor: pointer; opacity: 0.6; padding: 4px; flex-shrink: 0; }
+.deleteBtn:hover { opacity: 1; }

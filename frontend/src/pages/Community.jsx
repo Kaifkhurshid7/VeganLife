@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart } from 'react-icons/fi';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2 } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
 import styles from './Community.module.css';
 
@@ -37,13 +38,19 @@ function getUserBadge(score) {
 
 export default function Community() {
   const { user, accessToken, isAuthenticated } = useAuth();
+  const toast = useToast();
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState('latest');
   const [showComposer, setShowComposer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General', image: '' });
 
   useEffect(() => { fetchPosts(); }, [activeTab]);
+
+  const filteredPosts = searchQuery
+    ? posts.filter((p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.content?.toLowerCase().includes(searchQuery.toLowerCase()))
+    : posts;
 
   async function fetchPosts() {
     setLoading(true);
@@ -62,14 +69,14 @@ export default function Community() {
   }
 
   async function handleUpvote(postId) {
-    if (!accessToken) return;
+    if (!accessToken) { toast.warning('Login to upvote'); return; }
     try {
       await fetch(`${API_URL}/posts/${postId}/upvote`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       fetchPosts();
-    } catch {}
+    } catch { toast.error('Failed to upvote'); }
   }
 
   async function handleComment(postId, text) {
@@ -80,8 +87,21 @@ export default function Community() {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
         body: JSON.stringify({ text }),
       });
+      toast.success('Comment added');
       fetchPosts();
-    } catch {}
+    } catch { toast.error('Failed to comment'); }
+  }
+
+  async function handleDeletePost(postId) {
+    if (!confirm('Delete this post?')) return;
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) { toast.success('Post deleted'); fetchPosts(); }
+      else toast.error('Cannot delete this post');
+    } catch { toast.error('Network error'); }
   }
 
   async function handleCreatePost(e) {
@@ -96,6 +116,7 @@ export default function Community() {
       if (res.ok) {
         setShowComposer(false);
         setNewPost({ title: '', content: '', category: 'General', image: '' });
+        toast.success('Post published!');
         fetchPosts();
       }
     } catch {}
@@ -173,6 +194,21 @@ export default function Community() {
             ))}
           </div>
 
+          {/* Search */}
+          <div className={styles.searchBar}>
+            <FiSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search posts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+            {searchQuery && (
+              <button className={styles.searchClear} onClick={() => setSearchQuery('')}><FiX /></button>
+            )}
+          </div>
+
           {/* Composer Modal */}
           <AnimatePresence>
             {showComposer && (
@@ -204,9 +240,14 @@ export default function Community() {
           {/* Feed */}
           {loading ? (
             <div className={styles.skeletons}>
-              {[1, 2, 3].map((i) => <div key={i} className={styles.skeleton} />)}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className={styles.skeleton}>
+                  <div className={styles.skeletonHeader}><div className={styles.skeletonAvatar} /><div className={styles.skeletonLines}><div className={styles.skeletonLine} /><div className={styles.skeletonLineShort} /></div></div>
+                  <div className={styles.skeletonBody}><div className={styles.skeletonLine} /><div className={styles.skeletonLine} /><div className={styles.skeletonLineShort} /></div>
+                </div>
+              ))}
             </div>
-          ) : posts.length === 0 ? (
+          ) : filteredPosts.length === 0 ? (
             <motion.div className={styles.emptyState} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <FaSeedling className={styles.emptyIcon} />
               <h3>No posts yet</h3>
@@ -215,8 +256,8 @@ export default function Community() {
             </motion.div>
           ) : (
             <div className={styles.feed}>
-              {posts.map((post, idx) => (
-                <PostCard key={post._id} post={post} idx={idx} user={user} onUpvote={handleUpvote} onComment={handleComment} />
+              {filteredPosts.map((post, idx) => (
+                <PostCard key={post._id} post={post} idx={idx} user={user} onUpvote={handleUpvote} onComment={handleComment} onDelete={handleDeletePost} />
               ))}
             </div>
           )}
@@ -274,7 +315,7 @@ export default function Community() {
   );
 }
 
-function PostCard({ post, idx, user, onUpvote, onComment }) {
+function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
   const hasUpvoted = user && post.upvotes?.includes(user.id);
@@ -302,6 +343,9 @@ function PostCard({ post, idx, user, onUpvote, onComment }) {
           </div>
         </div>
         <span className={styles.postCategory}>{post.category}</span>
+        {user && (post.author?._id === user.id || user.role === 'admin') && (
+          <button className={styles.postDeleteBtn} onClick={() => onDelete(post._id)}><FiTrash2 /></button>
+        )}
       </div>
 
       <h3 className={styles.postTitle}>{post.title}</h3>

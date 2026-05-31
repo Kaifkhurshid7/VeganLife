@@ -72,7 +72,7 @@ export default function Navbar() {
           {/* Auth section */}
           {user ? (
             <div className={styles.userSection}>
-              <Link to="/community" className={styles.userBadge}>
+              <Link to="/profile" className={styles.userBadge}>
                 <span className={styles.userAvatar}>{user.name.charAt(0)}</span>
                 <span className={styles.userName}>{user.name.split(' ')[0]}</span>
               </Link>
