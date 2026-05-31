@@ -32,24 +32,23 @@ export function sanitizeInput(req, res, next) {
   const sanitize = (obj) => {
     if (!obj || typeof obj !== 'object') return obj;
     for (const key of Object.keys(obj)) {
-      if (typeof obj[key] === 'string') {
-        // Remove $ and . at start of keys (MongoDB operators)
-        obj[key] = obj[key].replace(/^\$/, '').replace(/\./, '');
-      } else if (typeof obj[key] === 'object') {
-        // Block objects with $ keys (injection attempts)
-        if (key.startsWith('$')) {
-          delete obj[key];
-        } else {
-          sanitize(obj[key]);
+      if (key.startsWith('$')) {
+        delete obj[key];
+      } else if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+        // Block nested objects with $ keys
+        for (const nestedKey of Object.keys(obj[key])) {
+          if (nestedKey.startsWith('$')) {
+            delete obj[key][nestedKey];
+          }
         }
       }
     }
     return obj;
   };
 
-  if (req.body) req.body = sanitize(req.body);
-  if (req.query) req.query = sanitize(req.query);
-  if (req.params) req.params = sanitize(req.params);
+  if (req.body) sanitize(req.body);
+  if (req.query) sanitize(req.query);
+  if (req.params) sanitize(req.params);
   next();
 }
 
