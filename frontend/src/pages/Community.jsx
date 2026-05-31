@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
+import BackButton from '../components/ui/BackButton';
 import styles from './Community.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -101,6 +102,7 @@ export default function Community() {
 
   return (
     <section className={styles.section}>
+      <BackButton />
       <div className={styles.layout}>
         {/* Left Sidebar */}
         <aside className={styles.leftSidebar}>

@@ -1,8 +1,11 @@
-.btn {
+.wrapper {
   position: fixed;
   top: 24px;
   left: 24px;
   z-index: 999;
+}
+
+.btn {
   display: flex;
   align-items: center;
   gap: 6px;
