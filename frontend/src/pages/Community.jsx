@@ -50,7 +50,8 @@ export default function Community() {
     try {
       const res = await fetch(`${API_URL}/posts`);
       if (res.ok) {
-        let data = await res.json();
+        const json = await res.json();
+        let data = Array.isArray(json) ? json : (json.data || []);
         if (activeTab === 'trending') data.sort((a, b) => (b.upvotes?.length || 0) - (a.upvotes?.length || 0));
         if (activeTab === 'challenges') data = data.filter((p) => p.category === 'Sustainability' || p.category === 'Fitness');
         if (activeTab === 'recipes') data = data.filter((p) => p.category === 'Recipes' || p.category === 'Nutrition');
