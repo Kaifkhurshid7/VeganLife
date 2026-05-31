@@ -88,7 +88,7 @@
 
 .reactionsBar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; font-size: 0.8rem; color: var(--color-text-secondary); }
 .reactionSummary { display: flex; align-items: center; gap: 6px; }
-.reactionEmojis { font-size: 1rem; }
+.reactionIcons { display: flex; align-items: center; gap: 3px; font-size: 0.9rem; color: var(--color-sage); }
 .commentCount { opacity: 0.7; }
 
 .postActions { display: flex; gap: 4px; }

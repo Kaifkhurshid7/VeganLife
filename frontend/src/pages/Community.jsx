@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend } from 'react-icons/fi';
-import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas } from 'react-icons/fa6';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart } from 'react-icons/fi';
+import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/ui/BackButton';
 import styles from './Community.module.css';
@@ -17,18 +17,18 @@ const FEED_TABS = [
 ];
 
 const REACTIONS = [
-  { emoji: '🌱', label: 'Inspired' },
-  { emoji: '💚', label: 'Helpful' },
-  { emoji: '🔥', label: 'Motivating' },
-  { emoji: '🌍', label: 'Sustainable' },
+  { icon: <FaSeedling />, label: 'Inspired' },
+  { icon: <FiHeart />, label: 'Helpful' },
+  { icon: <FaFire />, label: 'Motivating' },
+  { icon: <FaEarthAmericas />, label: 'Sustainable' },
 ];
 
 const BADGES = [
-  { level: 0, name: 'Seedling', icon: '🌱' },
-  { level: 50, name: 'Conscious Eater', icon: '🍃' },
-  { level: 150, name: 'Eco Warrior', icon: '🌿' },
-  { level: 300, name: 'Planet Guardian', icon: '🌎' },
-  { level: 500, name: 'Sustainability Mentor', icon: '♻️' },
+  { level: 0, name: 'Seedling', icon: <FaSeedling style={{ color: '#a6b48f' }} /> },
+  { level: 50, name: 'Conscious Eater', icon: <FaLeaf style={{ color: '#8fa67a' }} /> },
+  { level: 150, name: 'Eco Warrior', icon: <FaSeedling style={{ color: '#2ecc71' }} /> },
+  { level: 300, name: 'Planet Guardian', icon: <FaEarthAmericas style={{ color: '#9d82ab' }} /> },
+  { level: 500, name: 'Sustainability Mentor', icon: <FaHandHoldingHeart style={{ color: '#e3a36e' }} /> },
 ];
 
 function getUserBadge(score) {
@@ -311,7 +311,7 @@ function PostCard({ post, idx, user, onUpvote, onComment }) {
       <div className={styles.reactionsBar}>
         {post.upvotes?.length > 0 && (
           <div className={styles.reactionSummary}>
-            <span className={styles.reactionEmojis}>🌱💚</span>
+            <span className={styles.reactionIcons}><FaSeedling /><FiHeart /></span>
             <span>{post.upvotes.length} reaction{post.upvotes.length > 1 ? 's' : ''}</span>
           </div>
         )}
