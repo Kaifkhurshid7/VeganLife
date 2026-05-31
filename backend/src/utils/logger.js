@@ -3,8 +3,8 @@ const CURRENT_LEVEL = LOG_LEVELS[process.env.LOG_LEVEL || 'info'];
 
 function formatMessage(level, message, meta = {}) {
   const timestamp = new Date().toISOString();
-  const metaStr = Object.keys(meta).length ?  {JSON.stringify(meta)} : '';
-  return [{timestamp}] [{level.toUpperCase()}] {message}{metaStr};
+  const metaStr = Object.keys(meta).length ? ' ' + JSON.stringify(meta) : '';
+  return '[' + timestamp + '] [' + level.toUpperCase() + '] ' + message + metaStr;
 }
 
 export const logger = {
