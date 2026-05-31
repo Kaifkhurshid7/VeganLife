@@ -1,161 +1,142 @@
 import { Router } from 'express';
 import Post from '../models/Post.js';
-import { authenticate, adminOnly } from '../middleware/auth.js';
+import { authenticate, adminOnly, optionalAuth } from '../middleware/auth.js';
+import { postLimiter } from '../middleware/security.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/ApiError.js';
 
 const router = Router();
 
-// Get all approved posts (public)
-router.get('/', async (req, res) => {
-  try {
-    const posts = await Post.find({ status: 'approved' })
-      .populate('author', 'name avatar')
-      .populate('comments.user', 'name')
-      .sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+// Get all approved posts (public, paginated)
+router.get('/', asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const skip = (page - 1) * limit;
+  const sort = req.query.sort === 'popular' ? { 'upvotes.length': -1 } : { createdAt: -1 };
+
+  const [posts, total] = await Promise.all([
+    Post.find({ status: 'approved' })
+      .populate('author', 'name username avatar')
+      .populate('comments.user', 'name username')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Post.countDocuments({ status: 'approved' }),
+  ]);
+
+  res.json({ success: true, data: posts, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+}));
 
 // Get single post
-router.get('/:id', async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id)
-      .populate('author', 'name avatar')
-      .populate('comments.user', 'name');
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+router.get('/:id', asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id)
+    .populate('author', 'name username avatar')
+    .populate('comments.user', 'name username');
+  if (!post) throw ApiError.notFound('Post not found');
+  res.json({ success: true, data: post });
+}));
+
+// Create post
+router.post('/', authenticate, postLimiter, asyncHandler(async (req, res) => {
+  const { title, content, category, image } = req.body;
+
+  if (!title?.trim() || !content?.trim() || !category) {
+    throw ApiError.badRequest('Title, content, and category are required');
   }
-});
 
-// Create post (authenticated users)
-router.post('/', authenticate, async (req, res) => {
-  try {
-    const { title, content, category, image } = req.body;
+  const post = await Post.create({
+    author: req.user._id,
+    title: title.trim(),
+    content: content.trim(),
+    category,
+    image: image || '',
+    status: req.user.role === 'admin' ? 'approved' : 'pending',
+  });
 
-    if (!title || !content || !category) {
-      return res.status(400).json({ message: 'Title, content, and category are required' });
-    }
+  await post.populate('author', 'name username avatar');
+  res.status(201).json({ success: true, data: post });
+}));
 
-    const post = await Post.create({
-      author: req.user._id,
-      title,
-      content,
-      category,
-      image: image || '',
-      status: req.user.role === 'admin' ? 'approved' : 'pending',
-    });
+// Upvote toggle
+router.post('/:id/upvote', authenticate, asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (!post) throw ApiError.notFound('Post not found');
 
-    await post.populate('author', 'name avatar');
-    res.status(201).json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+  const userId = req.user._id;
+  const index = post.upvotes.indexOf(userId);
+
+  if (index > -1) {
+    post.upvotes.splice(index, 1);
+  } else {
+    post.upvotes.push(userId);
   }
-});
 
-// Upvote/remove upvote
-router.post('/:id/upvote', authenticate, async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-
-    const userId = req.user._id;
-    const hasUpvoted = post.upvotes.includes(userId);
-
-    if (hasUpvoted) {
-      post.upvotes = post.upvotes.filter((id) => id.toString() !== userId.toString());
-    } else {
-      post.upvotes.push(userId);
-    }
-
-    await post.save();
-    res.json({ upvotes: post.upvotes.length, hasUpvoted: !hasUpvoted });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+  await post.save();
+  res.json({ success: true, upvotes: post.upvotes.length, hasUpvoted: index === -1 });
+}));
 
 // Add comment
-router.post('/:id/comments', authenticate, async (req, res) => {
-  try {
-    const { text } = req.body;
-    if (!text) return res.status(400).json({ message: 'Comment text is required' });
+router.post('/:id/comments', authenticate, postLimiter, asyncHandler(async (req, res) => {
+  const { text } = req.body;
+  if (!text?.trim()) throw ApiError.badRequest('Comment text is required');
+  if (text.length > 500) throw ApiError.badRequest('Comment too long (max 500 chars)');
 
-    const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+  const post = await Post.findById(req.params.id);
+  if (!post) throw ApiError.notFound('Post not found');
 
-    post.comments.push({ user: req.user._id, text });
-    await post.save();
+  post.comments.push({ user: req.user._id, text: text.trim() });
+  await post.save();
 
-    await post.populate('comments.user', 'name');
-    res.status(201).json(post.comments[post.comments.length - 1]);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+  await post.populate('comments.user', 'name username');
+  res.status(201).json({ success: true, data: post.comments[post.comments.length - 1] });
+}));
+
+// Delete comment
+router.delete('/:postId/comments/:commentId', authenticate, asyncHandler(async (req, res) => {
+  const post = await Post.findById(req.params.postId);
+  if (!post) throw ApiError.notFound('Post not found');
+
+  const comment = post.comments.id(req.params.commentId);
+  if (!comment) throw ApiError.notFound('Comment not found');
+
+  if (comment.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+    throw ApiError.forbidden('Not authorized to delete this comment');
   }
-});
 
-// Delete comment (admin or comment author)
-router.delete('/:postId/comments/:commentId', authenticate, async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.postId);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+  comment.deleteOne();
+  await post.save();
+  res.json({ success: true, message: 'Comment deleted' });
+}));
 
-    const comment = post.comments.id(req.params.commentId);
-    if (!comment) return res.status(404).json({ message: 'Comment not found' });
+// ADMIN: Get all posts
+router.get('/admin/all', authenticate, adminOnly, asyncHandler(async (req, res) => {
+  const posts = await Post.find()
+    .populate('author', 'name username email')
+    .sort({ createdAt: -1 })
+    .lean();
+  res.json({ success: true, data: posts });
+}));
 
-    if (comment.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
-
-    comment.deleteOne();
-    await post.save();
-    res.json({ message: 'Comment deleted' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+// ADMIN: Update post status
+router.patch('/:id/status', authenticate, adminOnly, asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  if (!['approved', 'rejected'].includes(status)) {
+    throw ApiError.badRequest('Status must be approved or rejected');
   }
-});
 
-// ADMIN: Get all posts (including pending)
-router.get('/admin/all', authenticate, adminOnly, async (req, res) => {
-  try {
-    const posts = await Post.find()
-      .populate('author', 'name email')
-      .sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+  const post = await Post.findByIdAndUpdate(req.params.id, { status }, { new: true })
+    .populate('author', 'name email');
+  if (!post) throw ApiError.notFound('Post not found');
 
-// ADMIN: Approve/reject post
-router.patch('/:id/status', authenticate, adminOnly, async (req, res) => {
-  try {
-    const { status } = req.body;
-    if (!['approved', 'rejected'].includes(status)) {
-      return res.status(400).json({ message: 'Status must be approved or rejected' });
-    }
-
-    const post = await Post.findByIdAndUpdate(req.params.id, { status }, { new: true })
-      .populate('author', 'name email');
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+  res.json({ success: true, data: post });
+}));
 
 // ADMIN: Delete post
-router.delete('/:id', authenticate, adminOnly, async (req, res) => {
-  try {
-    const post = await Post.findByIdAndDelete(req.params.id);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
-    res.json({ message: 'Post deleted' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
+router.delete('/:id', authenticate, adminOnly, asyncHandler(async (req, res) => {
+  const post = await Post.findByIdAndDelete(req.params.id);
+  if (!post) throw ApiError.notFound('Post not found');
+  res.json({ success: true, message: 'Post deleted' });
+}));
 
 export default router;

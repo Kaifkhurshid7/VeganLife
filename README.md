@@ -1,161 +1,246 @@
-# VeganLife — Green Earth
+# 🌿 VeganLife — Green Earth
 
-A premium, cinematic awareness platform promoting sustainable living and conscious food choices. Built as a modern single-page application with smooth animations, interactive data visualizations, and a rich earthy design system.
+A production-grade, full-stack sustainability platform promoting conscious food choices, environmental awareness, and community engagement. Built with a cinematic earthy design system, real-time social features, and enterprise-level security.
+
+**Live:** [Frontend (Vercel)](https://vegan-life.vercel.app) · [Backend API (Render)](https://veganlife.onrender.com/api/health)
+
+---
 
 ## Features
 
-- Premium glassmorphism UI with organic design language
-- Ambient nature animations (butterflies, birds, fireflies, floating leaves, deer silhouettes)
-- Smooth scroll experience powered by Lenis
-- Interactive environmental impact dashboard with live charts
-- Comprehensive nutrition guide with animated progress indicators
-- Recipe carousel with category filtering
-- Gamified sustainability challenges with progress tracking
-- Flip-card myth-busting section
-- Student testimonial slider
-- Parallax forest layers and cursor trail effects
-- Fully responsive across mobile, tablet, and desktop
+### Platform
+- Premium glassmorphism UI with organic earthy design language
+- Ambient nature animations (butterflies, birds, fireflies, floating leaves, parallax layers)
+- Smooth scroll experience (Lenis)
+- PWA support — installable, offline-capable
+- Fully responsive (mobile, tablet, desktop)
+
+### Pages & Tools
+- **Home** — Cinematic hero, Why Vegan, Impact Dashboard, Nutrition Guide, Recipes, Myths, Challenges, Testimonials
+- **Community** — Reddit/Instagram-style social feed with upvotes, comments, shares, gamification
+- **BMI & Calorie Calculator** — Personalized vegan macro planner
+- **Carbon & Water Savings** — Per-meal environmental impact calculator
+- **World Map** — Interactive global environmental impact data
+- **Infographic** — Scroll-driven animated storytelling
+- **Seasonal Produce** — Month-by-month fresh produce calendar
+- **Vegan vs Omnivore** — Side-by-side comparison sliders
+
+### Authentication & Users
+- JWT access + refresh token architecture
+- Secure httpOnly cookie-based refresh tokens
+- Role-based access (User / Admin)
+- Admin login with secret key
+- Profile management (update, change password, delete account)
+- Password strength meter, real-time validation
+
+### Community & Social
+- Post creation with category tagging
+- Upvote/downvote system
+- Threaded comments
+- Share functionality
+- Admin moderation (approve/reject/delete posts)
+- Gamification badges (Seedling → Planet Guardian)
+- XP system, streak tracking, leaderboard
+
+### Admin Panel
+- Post moderation queue (pending/approved/rejected)
+- User management
+- Analytics overview (post counts, engagement)
+- Bulk actions (approve, reject, delete)
+
+---
 
 ## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend Framework | React 18 |
-| Build Tool | Vite |
-| Animations | Framer Motion |
+| Frontend | React 18, Vite, React Router |
+| Styling | CSS Modules, CSS Variables |
+| Animations | Framer Motion, GSAP |
 | Smooth Scroll | Lenis |
 | Charts | Recharts |
 | Carousel | Swiper |
 | Icons | React Icons |
-| Styling | CSS Modules + CSS Variables |
-| Backend (future) | Express.js |
+| PWA | vite-plugin-pwa |
+| Backend | Node.js, Express |
+| Database | MongoDB Atlas, Mongoose |
+| Auth | JWT (access + refresh), bcrypt |
+| Security | Helmet, CORS, Rate Limiting, XSS/NoSQL sanitization |
+| Deployment | Vercel (frontend), Render (backend) |
+
+---
 
 ## Project Structure
 
 ```
-VEGAN-LIFE/
-├── frontend/                # React SPA
+VeganLife/
+├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── ambient/    # Nature animations (butterflies, birds, fireflies, etc.)
-│   │   │   ├── layout/     # Navbar, Footer
-│   │   │   ├── sections/   # Feature sections (Hero, Impact, Nutrition, etc.)
-│   │   │   └── ui/         # Reusable UI primitives
-│   │   ├── constants/      # Static configuration
-│   │   ├── data/           # Static data (blogs, recipes, nutrition, statistics)
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── pages/          # Page-level compositions
-│   │   ├── styles/         # Global styles, CSS variables, animations
-│   │   └── utils/          # Shared utilities
-│   ├── index.html
+│   │   │   ├── ambient/       # Nature animations
+│   │   │   ├── layout/        # Navbar, Footer
+│   │   │   ├── sections/      # Homepage sections
+│   │   │   └── ui/            # Reusable primitives
+│   │   ├── constants/          # Navigation, config
+│   │   ├── context/            # AuthContext (global state)
+│   │   ├── data/               # Static data files
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── pages/              # Route pages
+│   │   ├── styles/             # Global CSS, variables, animations
+│   │   └── utils/              # Animation utilities
+│   ├── public/                 # PWA assets
+│   ├── .env                    # VITE_API_URL
 │   ├── vite.config.js
 │   └── package.json
-├── backend/                 # Express API (future)
+├── backend/
 │   ├── src/
-│   │   ├── controllers/
-│   │   ├── middleware/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   └── index.js
-│   ├── .env.example
+│   │   ├── config/            # DB connection, token utilities
+│   │   ├── middleware/        # Auth, validation, security, error handling
+│   │   ├── models/            # Mongoose schemas (User, Post)
+│   │   ├── routes/            # API routes (auth, posts)
+│   │   └── utils/             # ApiError, ApiResponse, asyncHandler, logger
+│   ├── .env                   # MongoDB URI, JWT secrets, admin key
 │   └── package.json
-├── vercel.json              # Vercel deployment config
-├── package.json             # Root scripts
+├── vercel.json                # Frontend deployment config
+├── package.json               # Root workspace scripts
 └── README.md
 ```
+
+---
+
+## Security
+
+| Feature | Implementation |
+|---------|---------------|
+| Password Hashing | bcrypt (12 rounds) |
+| Token Architecture | Access (15min) + Refresh (7 days) rotation |
+| Cookie Security | httpOnly, secure, sameSite |
+| Rate Limiting | Auth: 15/15min, API: 100/min, Posts: 10/min |
+| NoSQL Injection | Input sanitization (strips $ operators) |
+| XSS Prevention | HTML tag stripping on all inputs |
+| HTTP Headers | Helmet (CSP, X-Frame, HSTS, etc.) |
+| CORS | Strict origin whitelist with credentials |
+| Body Limits | 5MB max payload |
+| Error Handling | Global handler — no stack leaks in production |
+| Validation | express-validator on all auth routes |
+
+---
+
+## API Endpoints
+
+### Auth (`/api/auth`)
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| POST | `/signup` | Create account | No |
+| POST | `/login` | User login | No |
+| POST | `/admin-login` | Admin login (secret key) | No |
+| POST | `/refresh` | Refresh access token | Cookie |
+| GET | `/me` | Get current user | Yes |
+| PATCH | `/profile` | Update profile | Yes |
+| PATCH | `/change-password` | Change password | Yes |
+| POST | `/logout` | Logout (clear tokens) | Yes |
+| DELETE | `/account` | Delete account | Yes |
+
+### Posts (`/api/posts`)
+| Method | Route | Description | Auth |
+|--------|-------|-------------|------|
+| GET | `/` | Get approved posts (paginated) | No |
+| GET | `/:id` | Get single post | No |
+| POST | `/` | Create post | Yes |
+| POST | `/:id/upvote` | Toggle upvote | Yes |
+| POST | `/:id/comments` | Add comment | Yes |
+| DELETE | `/:postId/comments/:commentId` | Delete comment | Yes |
+| GET | `/admin/all` | All posts (admin) | Admin |
+| PATCH | `/:id/status` | Approve/reject (admin) | Admin |
+| DELETE | `/:id` | Delete post (admin) | Admin |
+
+---
 
 ## Installation
 
 ```bash
-# Install all dependencies
-npm run install:all
+# Clone
+git clone https://github.com/Kaifkhurshid7/VeganLife.git
+cd VeganLife
 
-# Or install individually
+# Install all
 cd frontend && npm install
-cd backend && npm install
+cd ../backend && npm install
+```
+
+## Environment Variables
+
+**Frontend** (`frontend/.env`):
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+**Backend** (`backend/.env`):
+```
+PORT=5000
+MONGODB_URI=mongodb+srv://...
+JWT_SECRET=your_access_secret
+JWT_REFRESH_SECRET=your_refresh_secret
+ADMIN_SECRET_KEY=vegan@life@098
+CLIENT_URL=http://localhost:5173
+NODE_ENV=development
 ```
 
 ## Development
 
 ```bash
-# Run frontend dev server
-npm run dev:frontend
+# Terminal 1 — Backend
+cd backend && npm run dev
 
-# Run backend dev server (future)
-npm run dev:backend
+# Terminal 2 — Frontend
+cd frontend && npm run dev
 ```
 
-## Build
+## Deployment
 
-```bash
-# Production build (frontend)
-npm run build
+**Frontend → Vercel:**
+- Root Directory: `frontend`
+- Framework: Vite (auto-detected)
+- Env var: `VITE_API_URL=https://veganlife.onrender.com/api`
 
-# Preview production build
-npm run preview
-```
+**Backend → Render:**
+- Root Directory: `backend`
+- Build Command: `npm install`
+- Start Command: `node src/index.js`
+- Add all env vars from backend/.env
 
-## Deployment (Vercel)
+---
 
-This project is configured for one-click Vercel deployment.
+## Performance
 
-### Option 1: Vercel CLI
+- Code-split vendor chunks (React, Framer Motion, Recharts, Swiper)
+- CSS Modules for zero-conflict styles
+- Lazy-loaded images (`loading="lazy"`)
+- Framer Motion `viewport={{ once: true }}`
+- Throttled cursor trail (80ms, max 8 particles)
+- GPU-accelerated animations (`will-change: transform`)
+- MongoDB compound indexes on hot queries
+- Paginated API responses with lean queries
 
-```bash
-npm install -g vercel
-vercel
-```
-
-### Option 2: GitHub Integration
-
-1. Push this repo to GitHub
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Import your GitHub repository
-4. Vercel auto-detects the `vercel.json` config
-5. Click **Deploy**
-
-No additional settings needed — the `vercel.json` handles:
-- Install command: `cd frontend && npm install`
-- Build command: `cd frontend && npm run build`
-- Output directory: `frontend/dist`
-
-### Option 3: Drag & Drop
-
-1. Run `npm run build` locally
-2. Go to [vercel.com/new](https://vercel.com/new)
-3. Drag the `frontend/dist` folder into the upload area
+---
 
 ## Design Philosophy
 
-The visual identity draws from an earthy, organic palette — warm clays, sage greens, muted purples, and cream tones. Typography pairs Playfair Display (headings) with Roboto Condensed (body) for editorial elegance and modern readability.
+Earthy organic palette — warm clays, sage greens, muted purples, cream tones. Playfair Display headings paired with Roboto Condensed body text. Glassmorphism cards with backdrop blur. Ambient nature animations inspired by Studio Ghibli and premium eco-brands. Film-grain noise overlay for tactile texture.
 
-Ambient nature animations (butterflies, floating birds, fireflies, drifting leaves) create a living ecosystem feel inspired by nature documentaries and Studio Ghibli atmospheres.
-
-## Performance Optimization
-
-- CSS Modules for zero-conflict, tree-shakeable styles
-- Lazy-loaded images with native `loading="lazy"`
-- Framer Motion `viewport={{ once: true }}` prevents re-triggering
-- Throttled cursor trail (80ms intervals, max 8 particles)
-- `will-change: transform` for GPU-accelerated animations
-- `pointer-events: none` on all decorative layers
-- Lenis smooth scroll with optimized RAF loop
-
-## Responsiveness
-
-- **Mobile** (< 768px): Single-column, hidden carousel arrows, reduced animations
-- **Tablet** (768px–1024px): Two-column grids, adjusted typography
-- **Desktop** (> 1024px): Full layouts, desktop nav, hover interactions, cursor trail
+---
 
 ## Future Scope
 
-- Community forum and user profiles (backend)
-- Personal sustainability dashboard with persistent tracking
-- Searchable recipe database with filtering and favorites
-- Sustainability tracker with weekly/monthly reports
-- Dark mode toggle
-- Internationalization (i18n) support
-- PWA offline support
+- Real-time chat (Socket.IO)
+- AI nutrition assistant
+- Recipe database with search & favorites
+- Certificate system with QR verification
+- Email notifications
+- Dark mode
+- Internationalization (i18n)
+
+---
 
 ## License
 

@@ -26,4 +26,9 @@ postSchema.virtual('commentCount').get(function () {
 
 postSchema.set('toJSON', { virtuals: true });
 
+// Indexes for query performance
+postSchema.index({ status: 1, createdAt: -1 });
+postSchema.index({ author: 1 });
+postSchema.index({ category: 1 });
+
 export default mongoose.model('Post', postSchema);
