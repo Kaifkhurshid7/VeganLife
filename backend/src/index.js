@@ -43,6 +43,9 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(cookieParser());
 
+// Serve static files (uploaded images)
+app.use('/uploads', express.static('uploads'));
+
 // Input sanitization (NoSQL injection + XSS)
 app.use(sanitizeInput);
 app.use(xssClean);
