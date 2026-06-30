@@ -1,8 +1,21 @@
 import mongoose from 'mongoose';
 
+const pollOptionSchema = new mongoose.Schema({
+  text: { type: String, required: true, maxlength: 200 },
+  votes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+});
+
+const reactionSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  emoji: { type: String, required: true },
+});
+
 const commentSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   text: { type: String, required: true, maxlength: 500 },
+  replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
+  reactions: [reactionSchema],
+  isPinned: { type: Boolean, default: false },
 }, { timestamps: true });
 
 const postSchema = new mongoose.Schema({
@@ -15,6 +28,12 @@ const postSchema = new mongoose.Schema({
   mentions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],
+  pinnedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  polls: [{
+    question: { type: String, required: true, maxlength: 300 },
+    options: [pollOptionSchema],
+  }],
+  isPinned: { type: Boolean, default: false },
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
 }, { timestamps: true });
 
@@ -24,6 +43,10 @@ postSchema.virtual('upvoteCount').get(function () {
 
 postSchema.virtual('commentCount').get(function () {
   return this.comments.length;
+});
+
+postSchema.virtual('pinCount').get(function () {
+  return this.pinnedBy.length;
 });
 
 postSchema.set('toJSON', { virtuals: true });

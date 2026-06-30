@@ -10,6 +10,7 @@ import { logger } from './utils/logger.js';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import userRoutes from './routes/users.js';
+import collectionsRoutes from './routes/collections.js';
 
 dotenv.config();
 
@@ -67,6 +68,7 @@ connectDB();
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/collections', collectionsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
