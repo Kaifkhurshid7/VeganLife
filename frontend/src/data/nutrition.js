@@ -568,58 +568,132 @@ export const studentVeganDiet = {
 export const brainFoods = [
   { food: "Walnuts", benefits: ["Omega-3 ALA","Cognitive support"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
   { food: "Flaxseeds", benefits: ["ALA omega-3","Fiber"], availability: "Common", budgetLevel: "Very Affordable", hostelFriendly: true },
-  { food: "Oats", benefits: ["Slow-release carbs","B vitamins"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: true }
+  { food: "Oats", benefits: ["Slow-release carbs","B vitamins"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: true },
+  { food: "Pumpkin Seeds", benefits: ["Zinc","Magnesium","Iron"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
+  { food: "Turmeric", benefits: ["Anti-inflammatory","Neuroprotective curcumin"], availability: "Ubiquitous in India", budgetLevel: "Very Affordable", hostelFriendly: true },
+  { food: "Dark Chocolate (70%+)", benefits: ["Flavonoids","Improved blood flow to brain"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
+  { food: "Blueberries", benefits: ["Antioxidants","Memory support"], availability: "Seasonal/frozen", budgetLevel: "Moderate", hostelFriendly: false },
+  { food: "Spinach", benefits: ["Folate","Iron","Nitrates for brain circulation"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: false }
 ];
 
 export const examSeasonMeals = [
   { name: "Moong Cheela + Chutney", reason: "High protein + easy digestion", prep: "10-15 mins", hostelFriendly: true },
-  { name: "Peanut Butter Banana Toast", reason: "Fast energy + healthy fats", prep: "3-5 mins", hostelFriendly: true }
+  { name: "Peanut Butter Banana Toast", reason: "Fast energy + healthy fats", prep: "3-5 mins", hostelFriendly: true },
+  { name: "Oats with Walnuts & Seeds", reason: "Slow energy + brain-boosting omega-3", prep: "5 mins", hostelFriendly: true },
+  { name: "Sprouted Moong Salad with Lemon", reason: "Iron + protein + vitamin C combo", prep: "5 mins", hostelFriendly: true },
+  { name: "Sattu Drink with Jaggery", reason: "Quick iron and protein without cooking", prep: "2 mins", hostelFriendly: true },
+  { name: "Makhana (Fox Nuts) Trail Mix", reason: "Light, crunchy, brain-friendly snack", prep: "3 mins", hostelFriendly: true },
+  { name: "Rice + Dal + Spinach Plate", reason: "Complete amino acids + iron", prep: "20 mins", hostelFriendly: false },
+  { name: "Dark Chocolate + Almonds", reason: "Flavonoids + healthy fats for focus", prep: "0 mins", hostelFriendly: true }
 ];
 
 export const muscleGainMeals = [
-  { name: "Soya Chunk Pulao + Raita", protein: "High", notes: "Batch-cook for convenience" },
-  { name: "Tofu Bhurji + Whole Wheat Wrap", protein: "High", notes: "Good post-workout" }
+  { name: "Soya Chunk Pulao + Raita", protein: "High (35g+)", notes: "Batch-cook for convenience", calories: "550 kcal" },
+  { name: "Tofu Bhurji + Whole Wheat Wrap", protein: "High (28g)", notes: "Good post-workout", calories: "420 kcal" },
+  { name: "Peanut Butter Oatmeal Bowl", protein: "Moderate (20g)", notes: "Calorie-dense for bulking", calories: "480 kcal" },
+  { name: "Chickpea Curry + Brown Rice", protein: "High (25g)", notes: "Complete amino acids", calories: "520 kcal" },
+  { name: "Tempeh Stir-fry + Quinoa", protein: "High (32g)", notes: "Fermented + high absorption", calories: "460 kcal" },
+  { name: "Rajma + Rice + Peanut Salad", protein: "High (30g)", notes: "Classic Indian mass gainer", calories: "580 kcal" },
+  { name: "Smoothie: Soy Milk + PB + Banana + Oats", protein: "High (28g)", notes: "Liquid calories for easy intake", calories: "500 kcal" },
+  { name: "Dal Makhani + Naan + Tofu Side", protein: "High (26g)", notes: "Comfort food with protein", calories: "620 kcal" }
 ];
 
 export const weightLossMeals = [
-  { name: "Millet Khichdi + Salad", notes: "High fiber, lower calorie density" },
-  { name: "Sprouts Salad with Lemon", notes: "Protein-rich, low calorie" }
+  { name: "Millet Khichdi + Salad", notes: "High fiber, lower calorie density", calories: "280 kcal" },
+  { name: "Sprouts Salad with Lemon", notes: "Protein-rich, low calorie", calories: "180 kcal" },
+  { name: "Vegetable Soup + Whole Wheat Toast", notes: "Filling, hydrating, low calorie", calories: "200 kcal" },
+  { name: "Cucumber + Chickpea Bowl with Lime", notes: "High volume, moderate protein", calories: "220 kcal" },
+  { name: "Cauliflower Rice + Stir-fry Vegetables", notes: "Very low carb, high fiber", calories: "160 kcal" },
+  { name: "Moong Dal Cheela (no oil)", notes: "High protein, minimal fat", calories: "200 kcal" },
+  { name: "Watermelon + Mint Smoothie", notes: "Hydrating, low calorie, refreshing", calories: "120 kcal" },
+  { name: "Roasted Chana + Green Chutney", notes: "Crunchy, satisfying, portion-controlled", calories: "180 kcal" }
 ];
 
 export const cheapProteinSnacks = [
-  { name: "Roasted Peanuts Sachet", cost: "₹5-10", hostelFriendly: true },
-  { name: "Roasted Chana", cost: "₹10-20", hostelFriendly: true }
+  { name: "Roasted Peanuts Sachet", cost: "₹5-10", protein: "7g", hostelFriendly: true },
+  { name: "Roasted Chana", cost: "₹10-20", protein: "10g", hostelFriendly: true },
+  { name: "Soya Puff/Sticks", cost: "₹10-15", protein: "8g", hostelFriendly: true },
+  { name: "Makhana (Roasted with Spices)", cost: "₹15-25", protein: "5g", hostelFriendly: true },
+  { name: "Sprouts in a Cup", cost: "₹15-20", protein: "12g", hostelFriendly: true },
+  { name: "Peanut Chikki", cost: "₹10", protein: "6g", hostelFriendly: true },
+  { name: "Murmura (Puffed Rice) Bhel", cost: "₹10-15", protein: "3g", hostelFriendly: true },
+  { name: "Til (Sesame) Laddoo", cost: "₹10-15", protein: "4g", hostelFriendly: true }
 ];
 
 export const hostelEmergencyMeals = [
-  { name: "Instant Sattu Drink", time: "2 mins", notes: "High in iron, easy to store" },
-  { name: "Instant Oats with Peanut Butter", time: "3 mins", notes: "Warm and filling" }
+  { name: "Instant Sattu Drink", time: "2 mins", notes: "High in iron, easy to store", ingredients: ["Sattu powder", "Water", "Lemon", "Salt"] },
+  { name: "Instant Oats with Peanut Butter", time: "3 mins", notes: "Warm and filling", ingredients: ["Oats", "Hot water", "Peanut butter", "Banana"] },
+  { name: "Bread + Hummus + Cucumber", time: "2 mins", notes: "No cooking required", ingredients: ["Whole wheat bread", "Store-bought hummus", "Cucumber"] },
+  { name: "Banana + Peanut Butter Roll", time: "2 mins", notes: "Energy-dense, portable", ingredients: ["Roti/wrap", "Peanut butter", "Banana"] },
+  { name: "Murmura Bhel with Onion", time: "3 mins", notes: "Crunchy, filling, zero cooking", ingredients: ["Puffed rice", "Onion", "Lemon", "Chaat masala"] },
+  { name: "Cup Noodles + Soy Chunks (rehydrated)", time: "5 mins", notes: "Add protein to instant noodles", ingredients: ["Instant noodles", "Soy chunks", "Hot water"] },
+  { name: "Makhana + Dark Chocolate", time: "1 min", notes: "Brain food combo", ingredients: ["Roasted makhana", "Dark chocolate pieces"] },
+  { name: "Overnight Oats (prepared night before)", time: "0 mins (ready)", notes: "Grab and eat in the morning", ingredients: ["Oats", "Soy milk", "Chia seeds", "Fruits"] }
 ];
 
 export const fiveMinuteMeals = [
-  { name: "Peanut Butter Banana Sandwich", time: "3-4 mins" },
-  { name: "Makhana (foxnut) roasted with spices", time: "5 mins" }
+  { name: "Peanut Butter Banana Sandwich", time: "3-4 mins", protein: "12g", category: "Breakfast" },
+  { name: "Makhana (foxnut) roasted with spices", time: "5 mins", protein: "5g", category: "Snack" },
+  { name: "Avocado Toast with Seeds", time: "4 mins", protein: "8g", category: "Breakfast" },
+  { name: "Instant Poha with Peanuts", time: "5 mins", protein: "8g", category: "Breakfast" },
+  { name: "Fruit + Nut Butter Bowl", time: "3 mins", protein: "10g", category: "Snack" },
+  { name: "Hummus + Veggie Sticks", time: "2 mins", protein: "6g", category: "Snack" },
+  { name: "Masala Chai + Peanut Chikki", time: "4 mins", protein: "7g", category: "Evening" },
+  { name: "Soya Milk Smoothie + Banana", time: "3 mins", protein: "14g", category: "Post-workout" },
+  { name: "Dates + Walnuts + Seeds Mix", time: "1 min", protein: "5g", category: "Snack" },
+  { name: "Leftover Roti + Peanut Butter Roll-up", time: "2 mins", protein: "10g", category: "Any" }
 ];
 
 export const studyFriendlyMeals = [
-  { name: "Oats Upma with Vegetables", benefit: "Slow energy release" },
-  { name: "Chana Salad with Lemon", benefit: "Protein + iron" }
+  { name: "Oats Upma with Vegetables", benefit: "Slow energy release", brainBoost: true },
+  { name: "Chana Salad with Lemon", benefit: "Protein + iron", brainBoost: false },
+  { name: "Walnut + Flax Energy Balls", benefit: "Omega-3 for cognitive function", brainBoost: true },
+  { name: "Banana + Dark Chocolate Smoothie", benefit: "Dopamine boost + sustained energy", brainBoost: true },
+  { name: "Millet Roti + Palak Dal", benefit: "Iron + B-vitamins for concentration", brainBoost: true },
+  { name: "Trail Mix (Almonds, Pumpkin Seeds, Raisins)", benefit: "Zinc + magnesium for memory", brainBoost: true },
+  { name: "Turmeric Golden Milk (Soy)", benefit: "Anti-inflammatory, calming for evening study", brainBoost: true },
+  { name: "Quinoa + Vegetable Bowl", benefit: "Complete protein + complex carbs", brainBoost: false }
 ];
 
 export const hydrationTips = [
   "Carry a water bottle to class (1L minimum)",
   "Sip water regularly — set phone reminders if needed",
-  "Use coconut water after intense sessions for electrolytes"
+  "Use coconut water after intense sessions for electrolytes",
+  "Infuse water with cucumber, mint, or lemon for variety",
+  "Drink a full glass of water 30 minutes before each meal",
+  "Avoid excessive caffeine which dehydrates — limit to 2 cups/day",
+  "Herbal teas (chamomile, hibiscus) count toward daily intake",
+  "Monitor urine color: pale yellow means well-hydrated",
+  "Eat water-rich foods: watermelon, cucumber, oranges, tomatoes",
+  "During exams, keep a water bottle at your desk — dehydration reduces cognitive performance by 20%"
 ];
 
 export const immunityBoostingFoods = [
-  { name: "Citrus + Amla", benefits: "Vitamin C to support immune response" },
-  { name: "Turmeric Milk (plant)", benefits: "Anti-inflammatory support" }
+  { name: "Citrus + Amla", benefits: "Vitamin C to support immune response", season: "Winter" },
+  { name: "Turmeric Milk (plant)", benefits: "Anti-inflammatory support", season: "All year" },
+  { name: "Ginger Tea", benefits: "Antioxidant, anti-nausea, warming", season: "Winter/Monsoon" },
+  { name: "Garlic (raw or lightly cooked)", benefits: "Allicin compound boosts white blood cells", season: "All year" },
+  { name: "Mushrooms (Shiitake/Button)", benefits: "Beta-glucans support immune cells", season: "All year" },
+  { name: "Red Bell Peppers", benefits: "2x vitamin C of oranges, beta-carotene", season: "Winter" },
+  { name: "Sunflower Seeds", benefits: "Vitamin E, selenium, zinc trio", season: "All year" },
+  { name: "Green Tea", benefits: "EGCG antioxidant, L-theanine for calm immunity", season: "All year" },
+  { name: "Sweet Potato", benefits: "Beta-carotene → Vitamin A for mucosal immunity", season: "Winter" },
+  { name: "Fermented Foods (Idli/Dosa batter, Kanji)", benefits: "Probiotics strengthen gut immunity", season: "All year" }
 ];
 
 export const veganMythsDebunked = [
-  { myth: "Vegan diets are always low in protein", truth: "With pulses, soy and nuts, protein needs can be met affordably." },
-  { myth: "You can't build muscle on a vegan diet", truth: "Appropriate calorie and protein intake with strength training supports muscle gain." }
+  { myth: "Vegan diets are always low in protein", truth: "With pulses, soy and nuts, protein needs can be met affordably. Indian vegan diets easily provide 80-100g protein daily." },
+  { myth: "You can't build muscle on a vegan diet", truth: "Appropriate calorie and protein intake with strength training supports muscle gain. Many elite athletes are plant-based." },
+  { myth: "Vegan food is expensive", truth: "Pulses, grains, and seasonal vegetables are among the cheapest foods globally. A vegan diet costs 30-40% less than meat-based in India." },
+  { myth: "Vegans don't get enough calcium", truth: "Calcium-set tofu, fortified plant milks, sesame seeds, and leafy greens provide adequate calcium. Some plant milks have more calcium than cow's milk." },
+  { myth: "Plant protein is incomplete", truth: "While individual plant foods may be low in certain amino acids, eating a variety of foods across the day provides all essential amino acids." },
+  { myth: "Soy causes hormonal imbalances", truth: "Large-scale research shows moderate soy consumption is safe and may even reduce cancer risk. Phytoestrogens are not the same as human estrogen." },
+  { myth: "Vegan diets are boring and restrictive", truth: "Indian cuisine alone has thousands of naturally vegan dishes. Going vegan often leads to MORE food variety as people explore new cuisines." },
+  { myth: "Children and pregnant women can't be vegan", truth: "Well-planned vegan diets are nutritionally adequate for all life stages according to the Academy of Nutrition and Dietetics." },
+  { myth: "Vegan diets lack iron", truth: "Plant iron sources include lentils, chickpeas, spinach, and sesame. Pairing with vitamin C dramatically improves absorption." },
+  { myth: "You need dairy for strong bones", truth: "Countries with highest dairy consumption (Scandinavia) have the highest osteoporosis rates. Weight-bearing exercise and vitamin D matter more." },
+  { myth: "Vegan diets are unsustainable long-term", truth: "Millions of people in India have been vegetarian/vegan for generations. With B12 supplementation, it's fully sustainable for life." },
+  { myth: "One person going vegan makes no difference", truth: "One person going vegan saves approximately 200 animals, 15,000L water, 3,300 kg CO₂, and 1,000 sq ft of forest per year." }
 ];
 
 export const trustIndicators = {
@@ -627,3 +701,177 @@ export const trustIndicators = {
   reviewedBy: ["Indian Dietetic Association (suggested review)", "Peer-reviewed sources listed per category"],
   showSourceIcons: true
 };
+
+// Seasonal produce guide for India
+export const seasonalProduceGuide = {
+  summer: {
+    season: "Summer (March - June)",
+    fruits: ["Mango", "Watermelon", "Litchi", "Muskmelon", "Jackfruit", "Papaya", "Jamun"],
+    vegetables: ["Bottle Gourd (Lauki)", "Ridge Gourd", "Bitter Gourd (Karela)", "Cucumber", "Okra (Bhindi)", "Drumstick (Moringa)", "Tinda"],
+    tips: ["Hydrate with water-rich fruits", "Use cooling foods like cucumber raita", "Avoid heavy fried foods in peak heat"],
+    recipes: ["Aam Panna (raw mango drink)", "Watermelon mint cooler", "Lauki kofta curry", "Raw mango chutney"]
+  },
+  monsoon: {
+    season: "Monsoon (July - September)",
+    fruits: ["Pomegranate", "Pear", "Plum", "Peach", "Jamun", "Custard Apple"],
+    vegetables: ["Corn", "Leafy Greens (Amaranth/Cholai)", "Snake Gourd", "Colocasia (Arbi)", "Turmeric (fresh)"],
+    tips: ["Boost immunity with turmeric and ginger", "Eat freshly cooked food — avoid raw salads", "Include probiotics like kanji"],
+    recipes: ["Makke ki sabzi (corn curry)", "Arbi fry", "Ginger-turmeric kadha", "Corn soup"]
+  },
+  winter: {
+    season: "Winter (October - February)",
+    fruits: ["Orange", "Guava", "Amla", "Strawberry", "Kinnow", "Chiku (Sapota)"],
+    vegetables: ["Spinach (Palak)", "Fenugreek (Methi)", "Mustard Greens (Sarson)", "Peas", "Carrots", "Cauliflower", "Radish", "Sweet Potato", "Beet"],
+    tips: ["Load up on greens — highest nutrition and lowest cost", "Use sarson ka saag for iron", "Eat amla daily for vitamin C"],
+    recipes: ["Sarson ka saag (no ghee, use oil)", "Gajar ka halwa (with soy milk)", "Palak paneer (use tofu)", "Amla murabba"]
+  }
+};
+
+// Weekly meal plan templates
+export const weeklyMealPlans = {
+  budget: {
+    name: "Budget-Friendly Week",
+    weeklyBudget: "₹800-1,000",
+    description: "Maximum nutrition at minimum cost. Built around bulk-bought pulses and seasonal vegetables.",
+    days: [
+      { day: "Monday", breakfast: "Poha + Peanuts", lunch: "Rajma Rice", dinner: "Moong Dal + Roti", snacks: "Roasted Chana" },
+      { day: "Tuesday", breakfast: "Oats + Banana", lunch: "Chole + Rice", dinner: "Khichdi + Pickle", snacks: "Peanut Chikki" },
+      { day: "Wednesday", breakfast: "Moong Cheela", lunch: "Aloo Gobi + Roti", dinner: "Dal Fry + Rice", snacks: "Sprouts" },
+      { day: "Thursday", breakfast: "Upma + Chutney", lunch: "Soya Chunk Curry + Roti", dinner: "Vegetable Pulao", snacks: "Murmura Bhel" },
+      { day: "Friday", breakfast: "Sattu Paratha", lunch: "Kadhi + Rice", dinner: "Chana Dal + Roti", snacks: "Fruit (seasonal)" },
+      { day: "Saturday", breakfast: "Aloo Paratha (no ghee)", lunch: "Biryani (soya)", dinner: "Pav Bhaji (oil)", snacks: "Makhana" },
+      { day: "Sunday", breakfast: "Idli + Sambar", lunch: "Thali (Dal + Sabzi + Rice + Roti)", dinner: "Light Soup + Bread", snacks: "Homemade Ladoo" }
+    ]
+  },
+  highProtein: {
+    name: "High-Protein Muscle Week",
+    weeklyBudget: "₹1,200-1,500",
+    description: "Targeting 90-100g protein daily for active students and gym-goers.",
+    days: [
+      { day: "Monday", breakfast: "Soy Milk Smoothie + Oats", lunch: "Tofu Tikka + Quinoa", dinner: "Soya Chunk Curry + Rice", snacks: "Protein shake" },
+      { day: "Tuesday", breakfast: "Moong Cheela x3", lunch: "Rajma + Brown Rice", dinner: "Tempeh Stir-fry + Millet", snacks: "PB Toast" },
+      { day: "Wednesday", breakfast: "Chickpea Flour Omelette", lunch: "Soya Pulao + Raita", dinner: "Dal Makhani + Roti", snacks: "Trail Mix" },
+      { day: "Thursday", breakfast: "Tofu Scramble + Toast", lunch: "Chana Biryani", dinner: "Sprouted Moong Curry + Rice", snacks: "Soya Milk + Banana" },
+      { day: "Friday", breakfast: "Peanut Butter Oats", lunch: "Black Bean Bowl + Avocado", dinner: "Mixed Dal + Roti", snacks: "Roasted Peanuts" },
+      { day: "Saturday", breakfast: "Sattu Paratha x2", lunch: "Tofu Bhurji Wrap", dinner: "Chole + Rice + Salad", snacks: "Protein Bar (homemade)" },
+      { day: "Sunday", breakfast: "Soya Chunk Upma", lunch: "Protein Thali", dinner: "Light Khichdi + Tofu Side", snacks: "Seeds + Dark Chocolate" }
+    ]
+  }
+};
+
+// Environmental impact data
+export const environmentalImpact = {
+  perDayVegan: {
+    waterSaved: "4,164 L",
+    co2Reduced: "9 kg",
+    landSaved: "3.7 sq m",
+    grainSaved: "20 kg",
+    animalLives: "1 animal"
+  },
+  perYearVegan: {
+    waterSaved: "1,519,860 L",
+    co2Reduced: "3,285 kg",
+    landSaved: "1,350 sq m",
+    forestSaved: "0.5 acres",
+    animalLives: "200+ animals",
+    oceanImpact: "Reduced dead zones from agricultural runoff"
+  },
+  comparisons: [
+    { activity: "1 Beef Burger", water: "2,500 L", co2: "6.5 kg", land: "24 sq m", equivalent: "= 2 months of showers" },
+    { activity: "1 kg Chicken", water: "4,300 L", co2: "6.9 kg", land: "12 sq m", equivalent: "= Driving 25 km" },
+    { activity: "1 L Dairy Milk", water: "1,020 L", co2: "3.2 kg", land: "9 sq m", equivalent: "= Charging 400 phones" },
+    { activity: "1 kg Rice", water: "2,500 L", co2: "1.2 kg", land: "2.7 sq m", equivalent: "= 1 bath" },
+    { activity: "1 kg Lentils", water: "1,250 L", co2: "0.9 kg", land: "3.4 sq m", equivalent: "= Half a bath" },
+    { activity: "1 kg Tofu", water: "302 L", co2: "2.0 kg", land: "2.2 sq m", equivalent: "= A 3-min shower" }
+  ],
+  globalStats: {
+    livestockEmissions: "14.5% of all greenhouse gas emissions",
+    deforestation: "80% of Amazon deforestation is for cattle ranching",
+    oceanDeadZones: "400+ ocean dead zones caused by agricultural runoff",
+    speciesExtinction: "Animal agriculture is the leading cause of species extinction",
+    antibioticUse: "73% of global antibiotics are used in farm animals",
+    pandemicRisk: "75% of new infectious diseases originate from animals"
+  }
+};
+
+// Supplement guide
+export const supplementGuide = [
+  {
+    nutrient: "Vitamin B12",
+    importance: "Critical",
+    dose: "250-500 mcg daily or 2500 mcg weekly",
+    form: "Cyanocobalamin (most studied)",
+    cost: "₹150-300/month",
+    when: "Any time with food",
+    notes: "The ONE non-negotiable supplement for vegans. Deficiency causes irreversible nerve damage.",
+    brands: ["Neurobion", "Methylcobalamin tablets (generic)"]
+  },
+  {
+    nutrient: "Vitamin D3",
+    importance: "High (especially in India despite sun)",
+    dose: "1000-2000 IU daily",
+    form: "Vegan D3 from lichen (not lanolin)",
+    cost: "₹200-400/month",
+    when: "With a fat-containing meal",
+    notes: "Even in sunny India, 70-80% of adults are deficient. Essential for calcium absorption.",
+    brands: ["Doctor's Best Vegan D3", "Nature Made D3"]
+  },
+  {
+    nutrient: "Omega-3 (DHA/EPA)",
+    importance: "Moderate-High",
+    dose: "250-500 mg DHA+EPA combined",
+    form: "Algae-based (not fish oil)",
+    cost: "₹500-800/month",
+    when: "With meals",
+    notes: "ALA from flax/chia converts poorly (5-10%) to DHA. Direct algae source is more reliable for brain health.",
+    brands: ["Naturelo Algae DHA", "Ovega-3"]
+  },
+  {
+    nutrient: "Iron",
+    importance: "Moderate (test first)",
+    dose: "Only if blood tests show deficiency",
+    form: "Iron bisglycinate (gentler on stomach)",
+    cost: "₹100-200/month",
+    when: "Empty stomach with vitamin C, away from calcium",
+    notes: "Don't supplement without testing. Plant-based diets can provide adequate iron with proper pairing.",
+    brands: ["Gentle Iron (Solgar)", "Generic ferrous bisglycinate"]
+  },
+  {
+    nutrient: "Iodine",
+    importance: "Moderate",
+    dose: "150 mcg daily (or use iodized salt)",
+    form: "Potassium iodide or iodized salt",
+    cost: "₹0 (iodized salt) - ₹100/month",
+    when: "Any time",
+    notes: "If you use Himalayan/rock salt instead of iodized salt, you may need supplementation.",
+    brands: ["Iodized table salt", "Kelp tablets"]
+  }
+];
+
+// Vegan athlete profiles (inspiration)
+export const veganAthletes = [
+  { name: "Virat Kohli", sport: "Cricket", country: "India", quote: "I feel more energetic and my recovery has improved significantly.", note: "Shifted toward plant-based diet in recent years" },
+  { name: "Lewis Hamilton", sport: "Formula 1", country: "UK", quote: "Going vegan was the best decision I've ever made.", note: "7x World Champion, fully plant-based since 2017" },
+  { name: "Novak Djokovic", sport: "Tennis", country: "Serbia", quote: "Plant-based eating has opened me up as a person.", note: "Predominantly plant-based, 24 Grand Slams" },
+  { name: "Patrik Baboumian", sport: "Strongman", country: "Germany", quote: "The strongest animals are plant eaters.", note: "Holds multiple world records, fully vegan" },
+  { name: "Scott Jurek", sport: "Ultramarathon", country: "USA", quote: "Plants give me everything I need to push my limits.", note: "Won Western States 100 seven consecutive times" },
+  { name: "Fiona Oakes", sport: "Marathon Running", country: "UK", quote: "Being vegan gives me an edge in endurance.", note: "Holds 4 world records, fully vegan since age 6" },
+  { name: "Nate Diaz", sport: "MMA/UFC", country: "USA", quote: "Real food, real fuel, real fighting.", note: "Plant-based fighter in the UFC" },
+  { name: "Venus Williams", sport: "Tennis", country: "USA", quote: "I'm powered by plants.", note: "Raw vegan diet helped manage autoimmune condition" }
+];
+
+// Daily affirmations for motivation
+export const dailyMotivation = [
+  "Every plant-based meal is a vote for the planet you want to live on.",
+  "You don't have to be perfect. Progress over perfection.",
+  "One person going vegan saves 200 animals per year. You are making a difference.",
+  "Your body is a garden, not a graveyard.",
+  "The food you eat can be the safest form of medicine or the slowest form of poison.",
+  "Be the change you wish to see in the world. It starts on your plate.",
+  "Compassion is the highest form of strength.",
+  "Small daily choices compound into massive environmental impact.",
+  "You are not giving something up. You are gaining a clearer conscience.",
+  "The future is plant-based. You're just ahead of the curve.",
+  "Strength doesn't come from what you can do. It comes from overcoming what you once thought you couldn't.",
+  "Every day you eat plants, you're fighting climate change with your fork."
+];
