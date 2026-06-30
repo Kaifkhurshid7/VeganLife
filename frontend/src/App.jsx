@@ -18,6 +18,7 @@ import Auth from './pages/Auth';
 import Community from './pages/Community';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
+import Hashtag from './pages/Hashtag';
 import NotFound from './pages/NotFound';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
 import { ParallaxLayers, FloatingLeaves, CursorTrail } from './components/ambient';
@@ -37,8 +38,9 @@ function AnimatedRoutes() {
         <Route path="/savings" element={<PageTransition><SavingsCalculator /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
+        <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
+        <Route path="/hashtag/:tag" element={<PageTransition><Hashtag /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
-        <Route path="/profile" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
