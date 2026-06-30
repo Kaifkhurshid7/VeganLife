@@ -17,6 +17,17 @@ const userSchema = new mongoose.Schema({
   completedChallenges: [{ type: String }],
   bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 
+  // Social
+  followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  
+  // Hashtags & Mentions
+  mentions: [{ 
+    post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
+    mentionedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now }
+  }],
+
   // Settings
   isVerified: { type: Boolean, default: false },
   lastLogin: { type: Date },

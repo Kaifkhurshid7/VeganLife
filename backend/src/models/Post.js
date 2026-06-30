@@ -11,6 +11,8 @@ const postSchema = new mongoose.Schema({
   content: { type: String, required: true, maxlength: 5000 },
   category: { type: String, required: true, enum: ['Sustainability', 'Fitness', 'Student Life', 'Climate', 'Nutrition', 'Recipes', 'General'] },
   image: { type: String, default: '' },
+  hashtags: [{ type: String, lowercase: true }],
+  mentions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],
   status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
@@ -30,5 +32,7 @@ postSchema.set('toJSON', { virtuals: true });
 postSchema.index({ status: 1, createdAt: -1 });
 postSchema.index({ author: 1 });
 postSchema.index({ category: 1 });
+postSchema.index({ hashtags: 1 });
+postSchema.index({ mentions: 1 });
 
 export default mongoose.model('Post', postSchema);
