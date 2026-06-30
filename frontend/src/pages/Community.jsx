@@ -45,6 +45,8 @@ export default function Community() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General', image: '' });
+  const [imagePreview, setImagePreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => { fetchPosts(); }, [activeTab]);
 
@@ -107,19 +109,71 @@ export default function Community() {
   async function handleCreatePost(e) {
     e.preventDefault();
     if (!accessToken || !newPost.title || !newPost.content) return;
+    
+    setUploading(true);
     try {
+      const formData = new FormData();
+      formData.append('title', newPost.title);
+      formData.append('content', newPost.content);
+      formData.append('category', newPost.category);
+      
+      // If there's a file, append it
+      if (imagePreview && imagePreview.file) {
+        formData.append('image', imagePreview.file);
+      }
+
       const res = await fetch(`${API_URL}/posts`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify(newPost),
+        headers: { Authorization: `Bearer ${accessToken}` },
+        body: formData,
       });
+      
       if (res.ok) {
         setShowComposer(false);
         setNewPost({ title: '', content: '', category: 'General', image: '' });
+        setImagePreview(null);
         toast.success('Post published!');
         fetchPosts();
+      } else {
+        const error = await res.json();
+        toast.error(error.message || 'Failed to publish post');
       }
-    } catch {}
+    } catch (err) {
+      toast.error('Network error');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleImageSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!['image/jpeg', 'image/png', 'image/gif', 'image/webp'].includes(file.type)) {
+      toast.error('Only JPEG, PNG, GIF, and WebP images are allowed');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5MB');
+      return;
+    }
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setImagePreview({
+        file,
+        preview: e.target.result,
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearImagePreview() {
+    setImagePreview(null);
   }
 
   return (
@@ -221,14 +275,32 @@ export default function Community() {
                   <form onSubmit={handleCreatePost} className={styles.composerForm}>
                     <input type="text" placeholder="Post title" value={newPost.title} onChange={(e) => setNewPost({ ...newPost, title: e.target.value })} required />
                     <textarea placeholder="Share your thoughts, recipes, or sustainability tips..." value={newPost.content} onChange={(e) => setNewPost({ ...newPost, content: e.target.value })} required rows={5} />
+                    
+                    {/* Image Preview */}
+                    {imagePreview && (
+                      <div className={styles.imagePreviewContainer}>
+                        <img src={imagePreview.preview} alt="Preview" className={styles.imagePreview} />
+                        <button type="button" className={styles.removeImageBtn} onClick={clearImagePreview}><FiX /></button>
+                      </div>
+                    )}
+
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      id="imageInput"
+                      accept="image/jpeg,image/png,image/gif,image/webp"
+                      onChange={handleImageSelect}
+                      style={{ display: 'none' }}
+                    />
+
                     <div className={styles.composerFooter}>
                       <div className={styles.composerTools}>
                         <select value={newPost.category} onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}>
                           <option>General</option><option>Sustainability</option><option>Fitness</option><option>Student Life</option><option>Climate</option><option>Nutrition</option><option>Recipes</option>
                         </select>
-                        <button type="button" className={styles.toolBtn}><FiImage /></button>
+                        <button type="button" className={styles.toolBtn} onClick={() => document.getElementById('imageInput').click()}><FiImage /></button>
                       </div>
-                      <button type="submit" className={styles.publishBtn}><FiSend /> Publish</button>
+                      <button type="submit" className={styles.publishBtn} disabled={uploading}><FiSend /> {uploading ? 'Publishing...' : 'Publish'}</button>
                     </div>
                     <p className={styles.composerNote}>Posts are reviewed before appearing publicly.</p>
                   </form>
@@ -350,6 +422,13 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
 
       <h3 className={styles.postTitle}>{post.title}</h3>
       <p className={styles.postContent}>{post.content}</p>
+
+      {/* Image */}
+      {post.image && (
+        <div className={styles.postImageContainer}>
+          <img src={post.image} alt={post.title} className={styles.postImage} />
+        </div>
+      )}
 
       {/* Reactions bar */}
       <div className={styles.reactionsBar}>
