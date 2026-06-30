@@ -206,4 +206,98 @@ router.get('/:userId/mentions', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
+// Toggle bookmark
+router.post('/bookmarks/:postId', authenticate, asyncHandler(async (req, res) => {
+  const { postId } = req.params;
+  const user = await User.findById(req.user._id);
+
+  const post = await Post.findById(postId);
+  if (!post) throw ApiError.notFound('Post not found');
+
+  const index = user.bookmarks.findIndex(id => id.toString() === postId);
+
+  if (index > -1) {
+    user.bookmarks.splice(index, 1);
+  } else {
+    user.bookmarks.push(postId);
+  }
+
+  await user.save();
+  res.json({ success: true, isBookmarked: index === -1, bookmarkCount: user.bookmarks.length });
+}));
+
+// Get user bookmarks
+router.get('/bookmarks/all', authenticate, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+    .populate({
+      path: 'bookmarks',
+      populate: { path: 'author', select: 'name username avatar' }
+    })
+    .lean();
+
+  res.json({ success: true, data: user.bookmarks || [] });
+}));
+
+// Create collection
+router.post('/collections', authenticate, asyncHandler(async (req, res) => {
+  const { name, description } = req.body;
+  if (!name?.trim()) throw ApiError.badRequest('Collection name is required');
+
+  const user = await User.findById(req.user._id);
+  user.collections.push({ name: name.trim(), description: description || '', posts: [] });
+  await user.save();
+
+  res.status(201).json({ success: true, data: user.collections[user.collections.length - 1] });
+}));
+
+// Get user collections
+router.get('/collections/all', authenticate, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id)
+    .populate({
+      path: 'collections.posts',
+      populate: { path: 'author', select: 'name username avatar' }
+    })
+    .lean();
+
+  res.json({ success: true, data: user.collections || [] });
+}));
+
+// Add/remove post to collection
+router.post('/collections/:collectionId/posts/:postId', authenticate, asyncHandler(async (req, res) => {
+  const { collectionId, postId } = req.params;
+  const user = await User.findById(req.user._id);
+
+  const collection = user.collections.id(collectionId);
+  if (!collection) throw ApiError.notFound('Collection not found');
+
+  const index = collection.posts.findIndex(id => id.toString() === postId);
+
+  if (index > -1) {
+    collection.posts.splice(index, 1);
+  } else {
+    collection.posts.push(postId);
+  }
+
+  await user.save();
+  res.json({ success: true, isInCollection: index === -1 });
+}));
+
+// Delete collection
+router.delete('/collections/:collectionId', authenticate, asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const collection = user.collections.id(req.params.collectionId);
+  if (!collection) throw ApiError.notFound('Collection not found');
+
+  collection.deleteOne();
+  await user.save();
+  res.json({ success: true, message: 'Collection deleted' });
+}));
+
+// Get user badges
+router.get('/:userId/badges', asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId).select('badges name username').lean();
+  if (!user) throw ApiError.notFound('User not found');
+  res.json({ success: true, data: user.badges || [] });
+}));
+
 export default router;
