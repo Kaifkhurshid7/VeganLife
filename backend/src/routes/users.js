@@ -1,0 +1,209 @@
+import { Router } from 'express';
+import User from '../models/User.js';
+import Post from '../models/Post.js';
+import { authenticate } from '../middleware/auth.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
+import { ApiError } from '../utils/ApiError.js';
+
+const router = Router();
+
+// Search users
+router.get('/search', asyncHandler(async (req, res) => {
+  const { q, limit = 10 } = req.query;
+
+  if (!q || q.length < 2) {
+    throw ApiError.badRequest('Search query must be at least 2 characters');
+  }
+
+  const users = await User.find({
+    $or: [
+      { name: { $regex: q, $options: 'i' } },
+      { username: { $regex: q, $options: 'i' } }
+    ]
+  })
+    .select('_id name username avatar bio sustainabilityScore followers')
+    .limit(parseInt(limit))
+    .lean();
+
+  res.json({ success: true, data: users });
+}));
+
+// Get user profile by username
+router.get('/profile/:username', asyncHandler(async (req, res) => {
+  const user = await User.findOne({ username: req.params.username.toLowerCase() })
+    .select('_id name username email avatar bio sustainabilityScore streak followers following completedChallenges createdAt')
+    .lean();
+
+  if (!user) throw ApiError.notFound('User not found');
+
+  // Get user's posts
+  const posts = await Post.find({ author: user._id, status: 'approved' })
+    .populate('author', 'name username avatar')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // Get follower count details
+  const followerCount = user.followers?.length || 0;
+  const followingCount = user.following?.length || 0;
+  const postCount = posts.length;
+
+  res.json({
+    success: true,
+    data: {
+      ...user,
+      stats: {
+        posts: postCount,
+        followers: followerCount,
+        following: followingCount,
+        score: user.sustainabilityScore,
+        streak: user.streak
+      },
+      posts
+    }
+  });
+}));
+
+// Get user profile by ID (including private data if authenticated)
+router.get('/:userId', asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId)
+    .select('_id name username avatar bio sustainabilityScore streak followers following createdAt')
+    .lean();
+
+  if (!user) throw ApiError.notFound('User not found');
+
+  const posts = await Post.find({ author: user._id, status: 'approved' })
+    .populate('author', 'name username avatar')
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const followerCount = user.followers?.length || 0;
+  const followingCount = user.following?.length || 0;
+  const postCount = posts.length;
+
+  res.json({
+    success: true,
+    data: {
+      ...user,
+      stats: {
+        posts: postCount,
+        followers: followerCount,
+        following: followingCount,
+        score: user.sustainabilityScore,
+        streak: user.streak
+      },
+      posts
+    }
+  });
+}));
+
+// Follow user
+router.post('/:targetUserId/follow', authenticate, asyncHandler(async (req, res) => {
+  const { targetUserId } = req.params;
+  const currentUserId = req.user._id.toString();
+
+  if (targetUserId === currentUserId) {
+    throw ApiError.badRequest('Cannot follow yourself');
+  }
+
+  const targetUser = await User.findById(targetUserId);
+  if (!targetUser) throw ApiError.notFound('User not found');
+
+  const currentUser = await User.findById(currentUserId);
+
+  // Check if already following
+  const isFollowing = currentUser.following?.includes(targetUserId);
+
+  if (isFollowing) {
+    // Unfollow
+    currentUser.following = currentUser.following.filter(id => id.toString() !== targetUserId);
+    targetUser.followers = targetUser.followers.filter(id => id.toString() !== currentUserId);
+  } else {
+    // Follow
+    if (!currentUser.following) currentUser.following = [];
+    if (!targetUser.followers) targetUser.followers = [];
+
+    currentUser.following.push(targetUserId);
+    targetUser.followers.push(currentUserId);
+  }
+
+  await Promise.all([currentUser.save(), targetUser.save()]);
+
+  res.json({
+    success: true,
+    message: isFollowing ? 'Unfollowed' : 'Followed',
+    isFollowing: !isFollowing,
+    followerCount: targetUser.followers?.length || 0
+  });
+}));
+
+// Get user's followers
+router.get('/:userId/followers', asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId)
+    .populate('followers', '_id name username avatar sustainabilityScore')
+    .lean();
+
+  if (!user) throw ApiError.notFound('User not found');
+
+  res.json({ success: true, data: user.followers || [] });
+}));
+
+// Get user's following
+router.get('/:userId/following', asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.userId)
+    .populate('following', '_id name username avatar sustainabilityScore')
+    .lean();
+
+  if (!user) throw ApiError.notFound('User not found');
+
+  res.json({ success: true, data: user.following || [] });
+}));
+
+// Get user's posts with pagination
+router.get('/:userId/posts', asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const skip = (page - 1) * limit;
+
+  const [posts, total] = await Promise.all([
+    Post.find({ author: req.params.userId, status: 'approved' })
+      .populate('author', 'name username avatar')
+      .populate('comments.user', 'name username')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Post.countDocuments({ author: req.params.userId, status: 'approved' })
+  ]);
+
+  res.json({ success: true, data: posts, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+}));
+
+// Get user's mentions
+router.get('/:userId/mentions', authenticate, asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const skip = (page - 1) * limit;
+
+  const user = await User.findById(req.params.userId)
+    .populate({
+      path: 'mentions',
+      populate: [
+        { path: 'post' },
+        { path: 'mentionedBy', select: '_id name username avatar' }
+      ]
+    })
+    .lean();
+
+  if (!user) throw ApiError.notFound('User not found');
+
+  const mentions = user.mentions || [];
+  const paginatedMentions = mentions.slice(skip, skip + limit);
+
+  res.json({
+    success: true,
+    data: paginatedMentions,
+    pagination: { page, limit, total: mentions.length, pages: Math.ceil(mentions.length / limit) }
+  });
+}));
+
+export default router;
