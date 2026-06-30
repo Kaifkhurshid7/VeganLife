@@ -58,6 +58,12 @@
 .publishBtn { display: flex; align-items: center; gap: 6px; padding: 10px 20px; background: var(--color-earth); color: var(--color-cream); border: none; border-radius: var(--radius-full); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 .composerNote { font-size: 0.75rem; color: var(--color-text-secondary); opacity: 0.6; margin: 0; }
 
+/* Image Preview */
+.imagePreviewContainer { position: relative; border-radius: var(--radius-md); overflow: hidden; background: rgba(255,255,255,0.3); }
+.imagePreview { width: 100%; height: auto; max-height: 300px; object-fit: cover; display: block; }
+.removeImageBtn { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: none; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.removeImageBtn:hover { background: rgba(0,0,0,0.8); }
+
 /* Skeletons */
 .skeletons { display: flex; flex-direction: column; gap: 16px; }
 .skeleton { padding: 24px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-xl); }
@@ -102,6 +108,10 @@
 
 .postTitle { font-size: 1.2rem; color: var(--color-earth); margin-bottom: 8px; line-height: 1.4; }
 .postContent { font-size: 0.92rem; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 14px; }
+
+/* Post Image */
+.postImageContainer { margin-bottom: 14px; border-radius: var(--radius-md); overflow: hidden; background: rgba(255,255,255,0.3); max-height: 400px; }
+.postImage { width: 100%; height: auto; object-fit: cover; display: block; }
 
 .reactionsBar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; font-size: 0.8rem; color: var(--color-text-secondary); }
 .reactionSummary { display: flex; align-items: center; gap: 6px; }
