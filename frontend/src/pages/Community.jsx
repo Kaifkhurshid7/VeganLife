@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash } from 'react-icons/fi';
-import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb } from 'react-icons/fa6';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2 } from 'react-icons/fi';
+import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb, FaXTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
@@ -106,6 +106,105 @@ export default function Community() {
       if (res.ok) { toast.success('Post deleted'); fetchPosts(); }
       else toast.error('Cannot delete this post');
     } catch { toast.error('Network error'); }
+  }
+
+  async function handleBookmark(postId) {
+    if (!accessToken) { toast.warning('Login to bookmark'); return; }
+    try {
+      const res = await fetch(`${API_URL}/users/bookmarks/${postId}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        toast.success(json.isBookmarked ? 'Saved to bookmarks' : 'Removed from bookmarks');
+      }
+    } catch { toast.error('Failed to bookmark'); }
+  }
+
+  async function handlePinPost(postId) {
+    if (!accessToken) { toast.warning('Login to pin'); return; }
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/pin`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        toast.success(json.isPinned ? 'Post pinned!' : 'Post unpinned');
+        fetchPosts();
+      }
+    } catch { toast.error('Failed to pin'); }
+  }
+
+  async function handleReplyComment(postId, commentId, text) {
+    if (!accessToken || !text.trim()) return;
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) { toast.success('Reply added'); fetchPosts(); }
+    } catch { toast.error('Failed to reply'); }
+  }
+
+  async function handleReactComment(postId, commentId, emoji) {
+    if (!accessToken) { toast.warning('Login to react'); return; }
+    try {
+      await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/react`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ emoji }),
+      });
+      fetchPosts();
+    } catch { toast.error('Failed to react'); }
+  }
+
+  async function handleEditComment(postId, commentId, text) {
+    if (!accessToken || !text.trim()) return;
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ text }),
+      });
+      if (res.ok) { toast.success('Comment updated'); fetchPosts(); }
+    } catch { toast.error('Failed to edit'); }
+  }
+
+  async function handleDeleteComment(postId, commentId) {
+    if (!confirm('Delete this comment?')) return;
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) { toast.success('Comment deleted'); fetchPosts(); }
+    } catch { toast.error('Failed to delete'); }
+  }
+
+  async function handlePinComment(postId, commentId) {
+    if (!accessToken) return;
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/pin`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (res.ok) { toast.success('Comment pin toggled'); fetchPosts(); }
+    } catch { toast.error('Failed to pin comment'); }
+  }
+
+  async function handleVotePoll(postId, pollId, optionIndex) {
+    if (!accessToken) { toast.warning('Login to vote'); return; }
+    try {
+      const res = await fetch(`${API_URL}/posts/${postId}/polls/${pollId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({ optionIndex }),
+      });
+      if (res.ok) { toast.success('Vote recorded!'); fetchPosts(); }
+    } catch { toast.error('Failed to vote'); }
   }
 
   async function handleCreatePost(e) {
@@ -326,7 +425,24 @@ export default function Community() {
           ) : (
             <div className={styles.feed}>
               {filteredPosts.map((post, idx) => (
-                <PostCard key={post._id} post={post} idx={idx} user={user} onUpvote={handleUpvote} onComment={handleComment} onDelete={handleDeletePost} />
+                <PostCard 
+                  key={post._id} 
+                  post={post} 
+                  idx={idx} 
+                  user={user} 
+                  onUpvote={handleUpvote} 
+                  onComment={handleComment} 
+                  onDelete={handleDeletePost}
+                  onBookmark={handleBookmark}
+                  onPin={handlePinPost}
+                  onReply={handleReplyComment}
+                  onReact={handleReactComment}
+                  onEditComment={handleEditComment}
+                  onDeleteComment={handleDeleteComment}
+                  onPinComment={handlePinComment}
+                  onVotePoll={handleVotePoll}
+                  accessToken={accessToken}
+                />
               ))}
             </div>
           )}
@@ -384,10 +500,19 @@ export default function Community() {
   );
 }
 
-function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
+function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, onPin, onReply, onReact, onEditComment, onDeleteComment, onPinComment, onVotePoll, accessToken }) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState('');
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const [showReactions, setShowReactions] = useState(null);
   const hasUpvoted = user && post.upvotes?.includes(user.id);
+  const isPinned = post.pinnedBy?.includes(user?.id);
+
+  const COMMENT_REACTIONS = ['👍', '❤️', '🌱', '🔥', '😂', '👏'];
 
   const handleSubmitComment = (e) => {
     e.preventDefault();
@@ -396,25 +521,65 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
     setCommentText('');
   };
 
+  const handleSubmitReply = (e) => {
+    e.preventDefault();
+    if (!replyText.trim() || !replyingTo) return;
+    onReply(post._id, replyingTo, replyText);
+    setReplyText('');
+    setReplyingTo(null);
+  };
+
+  const handleSubmitEdit = (e) => {
+    e.preventDefault();
+    if (!editText.trim() || !editingComment) return;
+    onEditComment(post._id, editingComment, editText);
+    setEditText('');
+    setEditingComment(null);
+  };
+
+  const shareUrl = `${window.location.origin}/community#post-${post._id}`;
+  const shareText = `${post.title} - VeganLife Community`;
+
+  const shareLinks = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`,
+  };
+
+  // Sort comments: pinned first
+  const sortedComments = [...(post.comments || [])].sort((a, b) => {
+    if (a.isPinned && !b.isPinned) return -1;
+    if (!a.isPinned && b.isPinned) return 1;
+    return 0;
+  });
+
   return (
     <motion.article
       className={styles.postCard}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
+      id={`post-${post._id}`}
     >
       <div className={styles.postHeader}>
         <div className={styles.postAuthor}>
-          <div className={styles.postAvatar}>{post.author?.name?.charAt(0) || '?'}</div>
+          <Link to={`/profile/${post.author?.username}`} className={styles.postAvatar}>
+            {post.author?.name?.charAt(0) || '?'}
+          </Link>
           <div>
-            <span className={styles.postAuthorName}>{post.author?.name || 'Anonymous'}</span>
+            <Link to={`/profile/${post.author?.username}`} className={styles.postAuthorName}>
+              {post.author?.name || 'Anonymous'}
+            </Link>
             <span className={styles.postTime}>{new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
           </div>
         </div>
-        <span className={styles.postCategory}>{post.category}</span>
-        {user && (post.author?._id === user.id || user.role === 'admin') && (
-          <button className={styles.postDeleteBtn} onClick={() => onDelete(post._id)}><FiTrash2 /></button>
-        )}
+        <div className={styles.postHeaderActions}>
+          {post.isPinned && <span className={styles.pinnedBadge}><FiMapPin /> Pinned</span>}
+          <span className={styles.postCategory}>{post.category}</span>
+          {user && (post.author?._id === user.id || user.role === 'admin') && (
+            <button className={styles.postDeleteBtn} onClick={() => onDelete(post._id)}><FiTrash2 /></button>
+          )}
+        </div>
       </div>
 
       <h3 className={styles.postTitle}>{post.title}</h3>
@@ -438,6 +603,15 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
         </div>
       )}
 
+      {/* Polls */}
+      {post.polls && post.polls.length > 0 && (
+        <div className={styles.pollsContainer}>
+          {post.polls.map((poll) => (
+            <PollWidget key={poll._id} poll={poll} postId={post._id} user={user} onVote={onVotePoll} />
+          ))}
+        </div>
+      )}
+
       {/* Reactions bar */}
       <div className={styles.reactionsBar}>
         {post.upvotes?.length > 0 && (
@@ -449,6 +623,9 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
         {post.comments?.length > 0 && (
           <span className={styles.commentCount}>{post.comments.length} comment{post.comments.length > 1 ? 's' : ''}</span>
         )}
+        {post.pinnedBy?.length > 0 && (
+          <span className={styles.pinCount}><FiMapPin /> {post.pinnedBy.length}</span>
+        )}
       </div>
 
       {/* Action buttons */}
@@ -459,24 +636,120 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
         <button className={styles.actionBtn} onClick={() => setShowComments(!showComments)}>
           <FiMessageCircle /> <span>Comment</span>
         </button>
-        <button className={styles.actionBtn} onClick={() => { navigator.clipboard.writeText(window.location.href); }}>
-          <FiShare2 /> <span>Share</span>
+        <div className={styles.shareWrapper}>
+          <button className={styles.actionBtn} onClick={() => setShowShareMenu(!showShareMenu)}>
+            <FiShare2 /> <span>Share</span>
+          </button>
+          {showShareMenu && (
+            <div className={styles.shareMenu}>
+              <a href={shareLinks.twitter} target="_blank" rel="noopener noreferrer" className={styles.shareLink}>
+                <FaXTwitter /> Twitter
+              </a>
+              <a href={shareLinks.facebook} target="_blank" rel="noopener noreferrer" className={styles.shareLink}>
+                <FaFacebook /> Facebook
+              </a>
+              <a href={shareLinks.whatsapp} target="_blank" rel="noopener noreferrer" className={styles.shareLink}>
+                <FaWhatsapp /> WhatsApp
+              </a>
+              <button className={styles.shareLink} onClick={() => { navigator.clipboard.writeText(shareUrl); setShowShareMenu(false); }}>
+                📋 Copy Link
+              </button>
+            </div>
+          )}
+        </div>
+        <button className={`${styles.actionBtn} ${isPinned ? styles.actionActive : ''}`} onClick={() => onPin(post._id)}>
+          <FiMapPin /> <span>Pin</span>
         </button>
-        <button className={styles.actionBtn}>
+        <button className={styles.actionBtn} onClick={() => onBookmark(post._id)}>
           <FiBookmark /> <span>Save</span>
         </button>
       </div>
 
-      {/* Comments */}
+      {/* Comments Section */}
       <AnimatePresence>
         {showComments && (
           <motion.div className={styles.commentsSection} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-            {post.comments?.map((c) => (
-              <div key={c._id} className={styles.comment}>
-                <div className={styles.commentAvatar}>{c.user?.name?.charAt(0) || '?'}</div>
-                <div className={styles.commentBody}>
-                  <strong>{c.user?.name || 'User'}</strong>
-                  <p>{c.text}</p>
+            {sortedComments.map((c) => (
+              <div key={c._id} className={`${styles.comment} ${c.isPinned ? styles.pinnedComment : ''}`}>
+                {c.isPinned && <div className={styles.pinnedLabel}><FiMapPin /> Pinned</div>}
+                <div className={styles.commentMain}>
+                  <div className={styles.commentAvatar}>{c.user?.name?.charAt(0) || '?'}</div>
+                  <div className={styles.commentBody}>
+                    {editingComment === c._id ? (
+                      <form onSubmit={handleSubmitEdit} className={styles.editForm}>
+                        <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus />
+                        <button type="submit"><FiSend /></button>
+                        <button type="button" onClick={() => setEditingComment(null)}><FiX /></button>
+                      </form>
+                    ) : (
+                      <>
+                        <strong>{c.user?.name || 'User'}</strong>
+                        <p>{c.text}</p>
+                      </>
+                    )}
+
+                    {/* Comment Reactions */}
+                    {c.reactions && c.reactions.length > 0 && (
+                      <div className={styles.commentReactions}>
+                        {Object.entries(c.reactions.reduce((acc, r) => {
+                          acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                          return acc;
+                        }, {})).map(([emoji, count]) => (
+                          <span key={emoji} className={styles.reactionChip}>{emoji} {count}</span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Comment Actions */}
+                    <div className={styles.commentActions}>
+                      <button onClick={() => { setReplyingTo(c._id); setReplyText(''); }}><FiCornerDownRight /> Reply</button>
+                      <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}>😊 React</button>
+                      {user && c.user?._id === user.id && (
+                        <>
+                          <button onClick={() => { setEditingComment(c._id); setEditText(c.text); }}><FiEdit2 /> Edit</button>
+                          <button onClick={() => onDeleteComment(post._id, c._id)}><FiTrash2 /> Delete</button>
+                        </>
+                      )}
+                      {user && (post.author?._id === user.id || user.role === 'admin') && (
+                        <button onClick={() => onPinComment(post._id, c._id)}><FiMapPin /> {c.isPinned ? 'Unpin' : 'Pin'}</button>
+                      )}
+                    </div>
+
+                    {/* Reaction Picker */}
+                    {showReactions === c._id && (
+                      <div className={styles.reactionPicker}>
+                        {COMMENT_REACTIONS.map(emoji => (
+                          <button key={emoji} onClick={() => { onReact(post._id, c._id, emoji); setShowReactions(null); }}>
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Reply Form */}
+                    {replyingTo === c._id && (
+                      <form onSubmit={handleSubmitReply} className={styles.replyForm}>
+                        <input placeholder={`Reply to ${c.user?.name}...`} value={replyText} onChange={(e) => setReplyText(e.target.value)} autoFocus />
+                        <button type="submit" disabled={!replyText.trim()}><FiSend /></button>
+                        <button type="button" onClick={() => setReplyingTo(null)}><FiX /></button>
+                      </form>
+                    )}
+
+                    {/* Nested Replies */}
+                    {c.replies && c.replies.length > 0 && (
+                      <div className={styles.replies}>
+                        {c.replies.map((reply, rIdx) => (
+                          <div key={rIdx} className={styles.reply}>
+                            <div className={styles.replyAvatar}>{reply.user?.name?.charAt(0) || '?'}</div>
+                            <div className={styles.replyBody}>
+                              <strong>{reply.user?.name || 'User'}</strong>
+                              <p>{reply.text}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -491,5 +764,39 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
         )}
       </AnimatePresence>
     </motion.article>
+  );
+}
+
+function PollWidget({ poll, postId, user, onVote }) {
+  const totalVotes = poll.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
+  const userVotedIndex = user ? poll.options.findIndex(opt => opt.votes?.includes(user.id)) : -1;
+
+  return (
+    <div className={styles.poll}>
+      <div className={styles.pollHeader}>
+        <FiBarChart2 />
+        <span className={styles.pollQuestion}>{poll.question}</span>
+      </div>
+      <div className={styles.pollOptions}>
+        {poll.options.map((option, idx) => {
+          const voteCount = option.votes?.length || 0;
+          const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
+          const isSelected = userVotedIndex === idx;
+
+          return (
+            <button
+              key={option._id || idx}
+              className={`${styles.pollOption} ${isSelected ? styles.pollOptionSelected : ''}`}
+              onClick={() => onVote(postId, poll._id, idx)}
+            >
+              <div className={styles.pollBar} style={{ width: `${percentage}%` }} />
+              <span className={styles.pollOptionText}>{option.text}</span>
+              <span className={styles.pollOptionPercent}>{percentage}%</span>
+            </button>
+          );
+        })}
+      </div>
+      <div className={styles.pollMeta}>{totalVotes} vote{totalVotes !== 1 ? 's' : ''}</div>
+    </div>
   );
 }

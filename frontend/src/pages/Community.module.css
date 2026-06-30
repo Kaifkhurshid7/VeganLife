@@ -175,3 +175,64 @@
 .fab { display: flex; position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--color-earth); color: var(--color-cream); border: none; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 8px 24px rgba(87,61,33,0.25); z-index: 100; transition: all 0.3s ease; }
 .fab:hover { background: var(--color-orange); color: var(--color-earth); transform: scale(1.1); }
 @media (min-width: 1024px) { .fab { display: none; } }
+
+/* Post Header Actions */
+.postHeaderActions { display: flex; align-items: center; gap: 8px; }
+.pinnedBadge { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: var(--color-orange); background: rgba(227,163,110,0.1); padding: 3px 8px; border-radius: var(--radius-full); }
+
+/* Share Menu */
+.shareWrapper { position: relative; flex: 1; }
+.shareMenu { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: var(--color-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); box-shadow: 0 8px 24px rgba(0,0,0,0.1); z-index: 50; min-width: 160px; padding: 8px; margin-bottom: 8px; }
+.shareLink { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 12px; border: none; background: none; border-radius: var(--radius-sm); cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--color-earth); text-decoration: none; transition: background 0.2s; }
+.shareLink:hover { background: rgba(87,61,33,0.05); }
+
+/* Pin Count */
+.pinCount { display: flex; align-items: center; gap: 4px; font-size: 0.8rem; color: var(--color-text-secondary); opacity: 0.7; }
+
+/* Pinned Comment */
+.pinnedComment { border: 1px solid rgba(227,163,110,0.2); border-radius: var(--radius-md); padding: 12px; background: rgba(227,163,110,0.03); }
+.pinnedLabel { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: var(--color-orange); margin-bottom: 8px; }
+
+/* Comment Enhancements */
+.commentMain { display: flex; gap: 10px; width: 100%; }
+.commentActions { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.commentActions button { background: none; border: none; font-size: 0.72rem; font-weight: 600; color: var(--color-earth); cursor: pointer; opacity: 0.6; display: flex; align-items: center; gap: 3px; padding: 2px 6px; border-radius: var(--radius-sm); transition: all 0.2s; }
+.commentActions button:hover { opacity: 1; background: rgba(87,61,33,0.05); }
+
+/* Comment Reactions */
+.commentReactions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.reactionChip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; background: rgba(87,61,33,0.04); border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 600; }
+
+/* Reaction Picker */
+.reactionPicker { display: flex; gap: 4px; margin-top: 8px; padding: 8px; background: var(--color-bg); border: 1px solid var(--glass-border); border-radius: var(--radius-md); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+.reactionPicker button { background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; border-radius: var(--radius-sm); transition: transform 0.2s, background 0.2s; }
+.reactionPicker button:hover { transform: scale(1.3); background: rgba(87,61,33,0.05); }
+
+/* Reply Form */
+.replyForm, .editForm { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+.replyForm input, .editForm input { flex: 1; padding: 8px 12px; border: 1px solid var(--glass-border); border-radius: var(--radius-full); background: rgba(255,255,255,0.5); font-size: 0.82rem; font-family: var(--font-body); }
+.replyForm input:focus, .editForm input:focus { outline: none; border-color: var(--color-earth); }
+.replyForm button, .editForm button { width: 28px; height: 28px; border-radius: 50%; background: var(--color-earth); color: var(--color-cream); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.8rem; flex-shrink: 0; }
+.replyForm button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Nested Replies */
+.replies { margin-top: 10px; padding-left: 16px; border-left: 2px solid var(--glass-border); display: flex; flex-direction: column; gap: 8px; }
+.reply { display: flex; gap: 8px; }
+.replyAvatar { width: 22px; height: 22px; border-radius: 50%; background: var(--color-clay); color: var(--color-earth); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; flex-shrink: 0; }
+.replyBody { background: rgba(255,255,255,0.2); padding: 6px 12px; border-radius: var(--radius-md); }
+.replyBody strong { font-size: 0.72rem; color: var(--color-earth); display: block; }
+.replyBody p { font-size: 0.8rem; color: var(--color-text-secondary); margin: 2px 0 0; }
+
+/* Poll Widget */
+.pollsContainer { margin-bottom: 14px; display: flex; flex-direction: column; gap: 12px; }
+.poll { background: rgba(255,255,255,0.3); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 16px; }
+.pollHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; color: var(--color-earth); font-weight: 700; font-size: 0.9rem; }
+.pollQuestion { flex: 1; }
+.pollOptions { display: flex; flex-direction: column; gap: 8px; }
+.pollOption { position: relative; display: flex; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.4); border: 1px solid var(--glass-border); border-radius: var(--radius-md); cursor: pointer; overflow: hidden; transition: all 0.2s; text-align: left; color: var(--color-earth); font-weight: 600; font-size: 0.85rem; }
+.pollOption:hover { border-color: var(--color-earth); }
+.pollOptionSelected { border-color: var(--color-sage); background: rgba(166,180,143,0.08); }
+.pollBar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(166,180,143,0.12); border-radius: var(--radius-md); transition: width 0.5s ease; }
+.pollOptionText { position: relative; flex: 1; z-index: 1; }
+.pollOptionPercent { position: relative; font-size: 0.75rem; font-weight: 800; z-index: 1; color: var(--color-sage); }
+.pollMeta { margin-top: 10px; font-size: 0.75rem; color: var(--color-text-secondary); opacity: 0.6; text-align: right; }
