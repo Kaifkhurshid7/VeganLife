@@ -9,6 +9,7 @@ import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler.j
 import { logger } from './utils/logger.js';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
+import userRoutes from './routes/users.js';
 
 dotenv.config();
 
@@ -65,6 +66,7 @@ connectDB();
 // Routes
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

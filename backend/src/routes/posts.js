@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import Post from '../models/Post.js';
+import User from '../models/User.js';
 import { authenticate, adminOnly, optionalAuth } from '../middleware/auth.js';
 import { postLimiter } from '../middleware/security.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
+import { upload } from '../config/multer.js';
+import { extractHashtags, extractMentions } from '../utils/textParser.js';
 
 const router = Router();
 
@@ -38,11 +41,46 @@ router.get('/:id', asyncHandler(async (req, res) => {
 }));
 
 // Create post
-router.post('/', authenticate, postLimiter, asyncHandler(async (req, res) => {
-  const { title, content, category, image } = req.body;
+router.post('/', authenticate, postLimiter, upload.single('image'), asyncHandler(async (req, res) => {
+  const { title, content, category } = req.body;
 
   if (!title?.trim() || !content?.trim() || !category) {
     throw ApiError.badRequest('Title, content, and category are required');
+  }
+
+  // If file was uploaded, use the file path; otherwise check for base64 image
+  let image = '';
+  if (req.file) {
+    image = `/uploads/${req.file.filename}`;
+  } else if (req.body.image) {
+    image = req.body.image;
+  }
+
+  // Extract hashtags and mentions from content
+  const hashtags = extractHashtags(content);
+  const mentionedUsernames = extractMentions(content);
+
+  // Find mentioned users
+  let mentionedUsers = [];
+  if (mentionedUsernames.length > 0) {
+    const users = await User.find({ username: { $in: mentionedUsernames } }).select('_id');
+    mentionedUsers = users.map(u => u._id);
+
+    // Notify mentioned users
+    for (const user of users) {
+      await User.updateOne(
+        { _id: user._id },
+        {
+          $push: {
+            mentions: {
+              post: undefined, // Will set after post is created
+              mentionedBy: req.user._id,
+              createdAt: new Date()
+            }
+          }
+        }
+      );
+    }
   }
 
   const post = await Post.create({
@@ -50,9 +88,22 @@ router.post('/', authenticate, postLimiter, asyncHandler(async (req, res) => {
     title: title.trim(),
     content: content.trim(),
     category,
-    image: image || '',
+    image,
+    hashtags,
+    mentions: mentionedUsers,
     status: 'approved',
   });
+
+  // Update mentions with post reference
+  if (mentionedUsers.length > 0) {
+    await User.updateMany(
+      { _id: { $in: mentionedUsers } },
+      {
+        $set: { 'mentions.$[elem].post': post._id }
+      },
+      { arrayFilters: [{ 'elem.post': undefined }] }
+    );
+  }
 
   await post.populate('author', 'name username avatar');
   res.status(201).json({ success: true, data: post });
@@ -137,6 +188,42 @@ router.delete('/:id', authenticate, adminOnly, asyncHandler(async (req, res) => 
   const post = await Post.findByIdAndDelete(req.params.id);
   if (!post) throw ApiError.notFound('Post not found');
   res.json({ success: true, message: 'Post deleted' });
+}));
+
+// Search posts by hashtag
+router.get('/hashtag/:tag', asyncHandler(async (req, res) => {
+  const tag = req.params.tag.toLowerCase();
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const skip = (page - 1) * limit;
+
+  const [posts, total] = await Promise.all([
+    Post.find({ status: 'approved', hashtags: tag })
+      .populate('author', 'name username avatar')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Post.countDocuments({ status: 'approved', hashtags: tag }),
+  ]);
+
+  res.json({ success: true, data: posts, hashtag: tag, pagination: { page, limit, total, pages: Math.ceil(total / limit) } });
+}));
+
+// Get trending hashtags
+router.get('/trending/hashtags', asyncHandler(async (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  const trending = await Post.aggregate([
+    { $match: { status: 'approved' } },
+    { $unwind: '$hashtags' },
+    { $group: { _id: '$hashtags', count: { $sum: 1 } } },
+    { $sort: { count: -1 } },
+    { $limit: limit },
+    { $project: { _id: 0, tag: '$_id', count: 1 } }
+  ]);
+
+  res.json({ success: true, data: trending });
 }));
 
 export default router;
