@@ -113,6 +113,11 @@
 .postImageContainer { margin-bottom: 14px; border-radius: var(--radius-md); overflow: hidden; background: rgba(255,255,255,0.3); max-height: 400px; }
 .postImage { width: 100%; height: auto; object-fit: cover; display: block; }
 
+/* Hashtags */
+.hashtagsContainer { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.hashtag { display: inline-block; padding: 6px 12px; background: rgba(166,180,143,0.12); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 700; color: var(--color-sage); text-decoration: none; transition: all 0.2s ease; }
+.hashtag:hover { background: rgba(166,180,143,0.2); }
+
 .reactionsBar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); margin-bottom: 10px; font-size: 0.8rem; color: var(--color-text-secondary); }
 .reactionSummary { display: flex; align-items: center; gap: 6px; }
 .reactionIcons { display: flex; align-items: center; gap: 3px; font-size: 0.9rem; color: var(--color-sage); }

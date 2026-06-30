@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2 } from 'react-icons/fi';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
+import RichTextEditor from '../components/ui/RichTextEditor';
+import UserSearch from '../components/ui/UserSearch';
 import styles from './Community.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -250,17 +252,7 @@ export default function Community() {
 
           {/* Search */}
           <div className={styles.searchBar}>
-            <FiSearch className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search posts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchQuery && (
-              <button className={styles.searchClear} onClick={() => setSearchQuery('')}><FiX /></button>
-            )}
+            <UserSearch />
           </div>
 
           {/* Composer Modal */}
@@ -274,7 +266,12 @@ export default function Community() {
                   </div>
                   <form onSubmit={handleCreatePost} className={styles.composerForm}>
                     <input type="text" placeholder="Post title" value={newPost.title} onChange={(e) => setNewPost({ ...newPost, title: e.target.value })} required />
-                    <textarea placeholder="Share your thoughts, recipes, or sustainability tips..." value={newPost.content} onChange={(e) => setNewPost({ ...newPost, content: e.target.value })} required rows={5} />
+                    
+                    <RichTextEditor 
+                      value={newPost.content}
+                      onChange={(content) => setNewPost({ ...newPost, content })}
+                      placeholder="Share your thoughts, recipes, or sustainability tips... Use #hashtags and @mentions"
+                    />
                     
                     {/* Image Preview */}
                     {imagePreview && (
@@ -422,6 +419,17 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete }) {
 
       <h3 className={styles.postTitle}>{post.title}</h3>
       <p className={styles.postContent}>{post.content}</p>
+
+      {/* Hashtags */}
+      {post.hashtags && post.hashtags.length > 0 && (
+        <div className={styles.hashtagsContainer}>
+          {post.hashtags.map(tag => (
+            <Link key={tag} to={`/hashtag/${tag}`} className={styles.hashtag}>
+              #{tag}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Image */}
       {post.image && (
