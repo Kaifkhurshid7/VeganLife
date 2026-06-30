@@ -17,6 +17,22 @@ const userSchema = new mongoose.Schema({
   completedChallenges: [{ type: String }],
   bookmarks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
 
+  // Collections
+  collections: [{
+    name: { type: String, required: true, maxlength: 100 },
+    description: { type: String, default: '', maxlength: 300 },
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Post' }],
+    createdAt: { type: Date, default: Date.now },
+  }],
+
+  // Badges & Achievements
+  badges: [{
+    name: { type: String, required: true },
+    description: { type: String },
+    icon: { type: String },
+    achievedAt: { type: Date, default: Date.now },
+  }],
+
   // Social
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
