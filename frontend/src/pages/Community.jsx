@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2 } from 'react-icons/fi';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2, FiSmile, FiCopy } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb, FaXTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa6';
+import { COMMENT_REACTIONS, resolveIcon } from '../utils/iconMap';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
@@ -32,8 +33,6 @@ const BADGES = [
   { level: 300, name: 'Planet Guardian', icon: <FaEarthAmericas style={{ color: '#9d82ab' }} /> },
   { level: 500, name: 'Sustainability Mentor', icon: <FaHandHoldingHeart style={{ color: '#e3a36e' }} /> },
 ];
-
-const COMMENT_REACTIONS = ['👍', '❤️', '🌱', '🔥', '😂', '👏'];
 
 function getUserBadge(score) {
   return [...BADGES].reverse().find((b) => score >= b.level) || BADGES[0];
@@ -302,13 +301,15 @@ export default function Community() {
           {/* Feed Tabs */}
           <div className={styles.feedTabs}>
             {FEED_TABS.map((tab) => (
-              <button
+              <motion.button
                 key={tab.id}
                 className={`${styles.feedTab} ${activeTab === tab.id ? styles.feedTabActive : ''}`}
                 onClick={() => setActiveTab(tab.id)}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.95 }}
               >
                 {tab.icon} {tab.label}
-              </button>
+              </motion.button>
             ))}
           </div>
 
@@ -484,6 +485,7 @@ function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVo
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
+      whileHover={{ y: -4, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
       id={`post-${post._id}`}
     >
       <div className={styles.postHeader}>
@@ -577,7 +579,7 @@ function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVo
                 <FaWhatsapp /> WhatsApp
               </a>
               <button className={styles.shareLink} onClick={() => { navigator.clipboard.writeText(shareUrl); setShowShareMenu(false); }}>
-                📋 Copy Link
+                <FiCopy /> Copy Link
               </button>
             </div>
           )}
@@ -724,13 +726,13 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
     } catch (err) { toast.error(err.message); }
   }
 
-  async function reactTo(commentId, emoji) {
+  async function reactTo(commentId, reactionKey) {
     if (!user) { toast.warning('Login to react'); return; }
     try {
       const res = await apiFetch(`/posts/${postId}/comments/${commentId}/react`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emoji }),
+        body: JSON.stringify({ emoji: reactionKey }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || 'Failed to react');
@@ -780,16 +782,21 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
                       {Object.entries(c.reactions.reduce((acc, r) => {
                         acc[r.emoji] = (acc[r.emoji] || 0) + 1;
                         return acc;
-                      }, {})).map(([emoji, count]) => (
-                        <span key={emoji} className={styles.reactionChip}>{emoji} {count}</span>
-                      ))}
+                      }, {})).map(([emoji, count]) => {
+                        const Icon = resolveIcon(emoji);
+                        return (
+                          <span key={emoji} className={styles.reactionChip}>
+                            <Icon /> {count}
+                          </span>
+                        );
+                      })}
                     </div>
                   )}
 
                   {/* Comment Actions */}
                   <div className={styles.commentActions}>
                     <button onClick={() => { setReplyingTo(c._id); setReplyText(''); }}><FiCornerDownRight /> Reply</button>
-                    <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}>😊 React</button>
+                    <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}><FiSmile /> React</button>
                     {user && c.user?._id === user.id && (
                       <>
                         <button onClick={() => { setEditingComment(c._id); setEditText(c.text); }}><FiEdit2 /> Edit</button>
@@ -804,9 +811,9 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
                   {/* Reaction Picker */}
                   {showReactions === c._id && (
                     <div className={styles.reactionPicker}>
-                      {COMMENT_REACTIONS.map(emoji => (
-                        <button key={emoji} onClick={() => { reactTo(c._id, emoji); setShowReactions(null); }}>
-                          {emoji}
+                      {COMMENT_REACTIONS.map(({ key, label, Icon }) => (
+                        <button key={key} title={label} aria-label={label} onClick={() => { reactTo(c._id, key); setShowReactions(null); }}>
+                          <Icon />
                         </button>
                       ))}
                     </div>

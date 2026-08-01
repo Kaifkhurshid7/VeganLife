@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiHash, FiTrendingUp } from 'react-icons/fi';
+import { FiArrowUp, FiMessageCircle, FiHash, FiTrendingUp, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { FaLeaf, FaSeedling } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
@@ -114,7 +114,7 @@ export default function Hashtag() {
                       onClick={() => setPage(page - 1)}
                       className={styles.paginationBtn}
                     >
-                      ← Previous
+                      <FiChevronLeft /> Previous
                     </button>
                     <span className={styles.pageInfo}>
                       Page {pagination.page} of {pagination.pages}
@@ -124,7 +124,7 @@ export default function Hashtag() {
                       onClick={() => setPage(page + 1)}
                       className={styles.paginationBtn}
                     >
-                      Next →
+                      Next <FiChevronRight />
                     </button>
                   </div>
                 )}
@@ -140,7 +140,13 @@ export default function Hashtag() {
 
           {/* Sidebar */}
           <aside className={styles.sidebar}>
-            <div className={styles.trendingCard}>
+            <motion.div
+              className={styles.trendingCard}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <div className={styles.cardHeader}>
                 <FiTrendingUp />
                 <h3>Trending Hashtags</h3>
@@ -148,28 +154,39 @@ export default function Hashtag() {
               <div className={styles.trendingList}>
                 {trending.length > 0 ? (
                   trending.map((item, idx) => (
-                    <button
+                    <motion.button
                       key={item.tag}
                       className={styles.trendingItem}
                       onClick={() => navigate(`/hashtag/${item.tag}`)}
+                      whileHover={{ x: 4 }}
+                      initial={{ opacity: 0, x: 10 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.35, delay: idx * 0.06 }}
                     >
                       <span className={styles.trendingRank}>#{idx + 1}</span>
                       <span className={styles.trendingTag}>#{item.tag}</span>
                       <span className={styles.trendingCount}>{item.count} posts</span>
-                    </button>
+                    </motion.button>
                   ))
                 ) : (
                   <p className={styles.empty}>No trending hashtags</p>
                 )}
               </div>
-            </div>
+            </motion.div>
 
-            <div className={styles.infoCard}>
+            <motion.div
+              className={styles.infoCard}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
               <h4>About Hashtags</h4>
               <p>
                 Use hashtags to categorize posts and make them discoverable. Click on any hashtag to explore related content.
               </p>
-            </div>
+            </motion.div>
           </aside>
         </div>
       </div>
@@ -184,7 +201,8 @@ function PostCard({ post, idx, user, onUpvote }) {
     <motion.article
       className={styles.postCard}
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.4, delay: idx * 0.05 }}
     >
       <div className={styles.postHeader}>
@@ -216,15 +234,17 @@ function PostCard({ post, idx, user, onUpvote }) {
       )}
 
       <div className={styles.actions}>
-        <button 
-          className={`${styles.actionBtn} ${hasUpvoted ? styles.active : ''}`} 
+        <motion.button
+          className={`${styles.actionBtn} ${hasUpvoted ? styles.active : ''}`}
           onClick={() => onUpvote(post._id)}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.95 }}
         >
           <FiArrowUp /> Upvote ({post.upvoteCount || 0})
-        </button>
-        <button className={styles.actionBtn}>
+        </motion.button>
+        <motion.button className={styles.actionBtn} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>
           <FiMessageCircle /> Comments ({post.commentCount || 0})
-        </button>
+        </motion.button>
       </div>
     </motion.article>
   );
