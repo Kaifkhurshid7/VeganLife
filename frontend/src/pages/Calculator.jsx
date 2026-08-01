@@ -120,8 +120,8 @@ export default function Calculator() {
             <div className={styles.inputGroup}>
               <label>Gender</label>
               <div className={styles.toggleGroup}>
-                <button type="button" className={gender === 'male' ? styles.active : ''} onClick={() => setGender('male')}>Male</button>
-                <button type="button" className={gender === 'female' ? styles.active : ''} onClick={() => setGender('female')}>Female</button>
+                <motion.button type="button" className={gender === 'male' ? styles.active : ''} onClick={() => setGender('male')} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>Male</motion.button>
+                <motion.button type="button" className={gender === 'female' ? styles.active : ''} onClick={() => setGender('female')} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>Female</motion.button>
               </div>
             </div>
 
@@ -139,9 +139,9 @@ export default function Calculator() {
             <div className={styles.inputGroup}>
               <label>Goal</label>
               <div className={styles.toggleGroup}>
-                <button type="button" className={goal === 'lose' ? styles.active : ''} onClick={() => setGoal('lose')}>Lose</button>
-                <button type="button" className={goal === 'maintain' ? styles.active : ''} onClick={() => setGoal('maintain')}>Maintain</button>
-                <button type="button" className={goal === 'gain' ? styles.active : ''} onClick={() => setGoal('gain')}>Gain</button>
+                <motion.button type="button" className={goal === 'lose' ? styles.active : ''} onClick={() => setGoal('lose')} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>Lose</motion.button>
+                <motion.button type="button" className={goal === 'maintain' ? styles.active : ''} onClick={() => setGoal('maintain')} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>Maintain</motion.button>
+                <motion.button type="button" className={goal === 'gain' ? styles.active : ''} onClick={() => setGoal('gain')} whileHover={{ y: -2 }} whileTap={{ scale: 0.95 }}>Gain</motion.button>
               </div>
             </div>
 
@@ -151,55 +151,85 @@ export default function Calculator() {
           </motion.form>
 
           {results && (
-            <motion.div
-              className={styles.results}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <div className={`glass-card ${styles.resultCard}`}>
+            <div className={styles.results}>
+              <motion.div
+                className={`glass-card ${styles.resultCard}`}
+                initial={{ opacity: 0, y: 20, x: 20 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+              >
                 <FaWeight className={styles.resultIcon} />
                 <h4>BMI</h4>
                 <p className={styles.resultValue}>{results.bmi}</p>
                 <span className={styles.resultBadge} style={{ color: results.bmiCategory.color }}>
                   {results.bmiCategory.label}
                 </span>
-              </div>
+              </motion.div>
 
-              <div className={`glass-card ${styles.resultCard}`}>
+              <motion.div
+                className={`glass-card ${styles.resultCard}`}
+                initial={{ opacity: 0, y: 20, x: 20 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.18 }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+              >
                 <FaFire className={styles.resultIcon} />
                 <h4>Daily Calories</h4>
                 <p className={styles.resultValue}>{results.targetCalories}</p>
                 <span className={styles.resultBadge}>kcal/day</span>
-              </div>
+              </motion.div>
 
-              <div className={`glass-card ${styles.macroCard}`}>
+              <motion.div
+                className={`glass-card ${styles.macroCard}`}
+                initial={{ opacity: 0, y: 20, x: 20 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.26 }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+              >
                 <h4>Macro Split (Vegan Optimized)</h4>
                 <div className={styles.macros}>
-                  <div className={styles.macro}>
-                    <span className={styles.macroValue}>{results.protein}g</span>
-                    <span className={styles.macroLabel}>Protein</span>
-                  </div>
-                  <div className={styles.macro}>
-                    <span className={styles.macroValue}>{results.carbs}g</span>
-                    <span className={styles.macroLabel}>Carbs</span>
-                  </div>
-                  <div className={styles.macro}>
-                    <span className={styles.macroValue}>{results.fats}g</span>
-                    <span className={styles.macroLabel}>Fats</span>
-                  </div>
+                  {[
+                    { value: `${results.protein}g`, label: 'Protein' },
+                    { value: `${results.carbs}g`, label: 'Carbs' },
+                    { value: `${results.fats}g`, label: 'Fats' },
+                  ].map((m) => (
+                    <motion.div
+                      key={m.label}
+                      className={styles.macro}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, delay: 0.4 }}
+                    >
+                      <span className={styles.macroValue}>{m.value}</span>
+                      <span className={styles.macroLabel}>{m.label}</span>
+                    </motion.div>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
 
-              <div className={`glass-card ${styles.mealsCard}`}>
+              <motion.div
+                className={`glass-card ${styles.mealsCard}`}
+                initial={{ opacity: 0, y: 20, x: 20 }}
+                animate={{ opacity: 1, y: 0, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.34 }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+              >
                 <h4><FaLeaf /> Suggested Vegan Meals</h4>
                 <ul className={styles.mealList}>
                   {results.meals.map((meal) => (
-                    <li key={meal}>{meal}</li>
+                    <motion.li
+                      key={meal}
+                      initial={{ opacity: 0, x: -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      {meal}
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           )}
         </div>
       </div>
