@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2 } from 'react-icons/fi';
@@ -8,9 +8,8 @@ import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
 import RichTextEditor from '../components/ui/RichTextEditor';
 import UserSearch from '../components/ui/UserSearch';
+import { apiFetch } from '../utils/api';
 import styles from './Community.module.css';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const FEED_TABS = [
   { id: 'trending', label: 'Trending', icon: <FiTrendingUp /> },
@@ -34,87 +33,101 @@ const BADGES = [
   { level: 500, name: 'Sustainability Mentor', icon: <FaHandHoldingHeart style={{ color: '#e3a36e' }} /> },
 ];
 
+const COMMENT_REACTIONS = ['👍', '❤️', '🌱', '🔥', '😂', '👏'];
+
 function getUserBadge(score) {
   return [...BADGES].reverse().find((b) => score >= b.level) || BADGES[0];
 }
 
 export default function Community() {
-  const { user, accessToken, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const toast = useToast();
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState('latest');
   const [showComposer, setShowComposer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [pagination, setPagination] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General', image: '' });
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const sentinelRef = useRef(null);
 
-  useEffect(() => { fetchPosts(); }, [activeTab]);
+  useEffect(() => { setPagination(null); fetchPosts(); }, [activeTab]);
 
   const filteredPosts = searchQuery
     ? posts.filter((p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.content?.toLowerCase().includes(searchQuery.toLowerCase()))
     : posts;
 
-  async function fetchPosts() {
-    setLoading(true);
+  // Server-paginated feed; appends the next page on infinite scroll
+  async function fetchPosts({ append = false } = {}) {
+    const targetPage = append ? (pagination?.page || 1) + 1 : 1;
+    setLoading(!append);
+    if (append) setLoadingMore(true);
     try {
-      const res = await fetch(`${API_URL}/posts`);
+      const params = new URLSearchParams({ page: String(targetPage), limit: '20' });
+      if (activeTab === 'trending') params.set('sort', 'popular');
+      if (activeTab === 'challenges') params.set('categories', 'Sustainability,Fitness');
+      if (activeTab === 'recipes') params.set('categories', 'Recipes,Nutrition');
+      const res = await apiFetch(`/posts?${params}`);
       if (res.ok) {
         const json = await res.json();
-        let data = Array.isArray(json) ? json : (json.data || []);
-        if (activeTab === 'trending') data.sort((a, b) => (b.upvotes?.length || 0) - (a.upvotes?.length || 0));
-        if (activeTab === 'challenges') data = data.filter((p) => p.category === 'Sustainability' || p.category === 'Fitness');
-        if (activeTab === 'recipes') data = data.filter((p) => p.category === 'Recipes' || p.category === 'Nutrition');
-        setPosts(data);
+        const data = Array.isArray(json) ? json : (json.data || []);
+        setPosts((prev) => (append ? [...prev, ...data] : data));
+        setPagination(json.pagination);
       }
     } catch {}
-    finally { setLoading(false); }
+    finally { setLoading(false); setLoadingMore(false); }
+  }
+
+  // Infinite scroll — load the next page when the sentinel enters the viewport
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting
+        && pagination && pagination.page < pagination.pages
+        && !loadingMore && !loading) {
+        fetchPosts({ append: true });
+      }
+    }, { rootMargin: '300px' });
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [pagination, loadingMore, loading, activeTab]);
+
+  // Update a single post in place instead of refetching the whole feed
+  function patchPost(postId, patchOrFn) {
+    setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, ...(typeof patchOrFn === 'function' ? patchOrFn(p) : patchOrFn) } : p));
+  }
+
+  function handleCountChange(postId, delta) {
+    setPosts((prev) => prev.map((p) => p._id === postId ? { ...p, commentCount: Math.max(0, (p.commentCount || 0) + delta) } : p));
   }
 
   async function handleUpvote(postId) {
-    if (!accessToken) { toast.warning('Login to upvote'); return; }
+    if (!isAuthenticated) { toast.warning('Login to upvote'); return; }
     try {
-      await fetch(`${API_URL}/posts/${postId}/upvote`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      fetchPosts();
+      const res = await apiFetch(`/posts/${postId}/upvote`, { method: 'POST' });
+      const json = await res.json();
+      if (res.ok) patchPost(postId, { upvoteCount: json.upvoteCount, hasUpvoted: json.hasUpvoted });
+      else toast.error(json.message || 'Failed to upvote');
     } catch { toast.error('Failed to upvote'); }
-  }
-
-  async function handleComment(postId, text) {
-    if (!accessToken || !text.trim()) return;
-    try {
-      await fetch(`${API_URL}/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ text }),
-      });
-      toast.success('Comment added');
-      fetchPosts();
-    } catch { toast.error('Failed to comment'); }
   }
 
   async function handleDeletePost(postId) {
     if (!confirm('Delete this post?')) return;
     try {
-      const res = await fetch(`${API_URL}/posts/${postId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const res = await apiFetch(`/posts/${postId}`, { method: 'DELETE' });
       if (res.ok) { toast.success('Post deleted'); fetchPosts(); }
       else toast.error('Cannot delete this post');
     } catch { toast.error('Network error'); }
   }
 
   async function handleBookmark(postId) {
-    if (!accessToken) { toast.warning('Login to bookmark'); return; }
+    if (!isAuthenticated) { toast.warning('Login to bookmark'); return; }
     try {
-      const res = await fetch(`${API_URL}/users/bookmarks/${postId}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const res = await apiFetch(`/users/bookmarks/${postId}`, { method: 'POST' });
       if (res.ok) {
         const json = await res.json();
         toast.success(json.isBookmarked ? 'Saved to bookmarks' : 'Removed from bookmarks');
@@ -123,112 +136,62 @@ export default function Community() {
   }
 
   async function handlePinPost(postId) {
-    if (!accessToken) { toast.warning('Login to pin'); return; }
+    if (!isAuthenticated) { toast.warning('Login to pin'); return; }
     try {
-      const res = await fetch(`${API_URL}/posts/${postId}/pin`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const res = await apiFetch(`/posts/${postId}/pin`, { method: 'POST' });
+      const json = await res.json();
       if (res.ok) {
-        const json = await res.json();
+        patchPost(postId, (p) => ({
+          isPinned: json.isPinned,
+          pinCount: json.pinCount,
+          pinnedBy: json.isPinned
+            ? [...(p.pinnedBy || []), user?.id]
+            : (p.pinnedBy || []).filter((id) => id !== user?.id),
+        }));
         toast.success(json.isPinned ? 'Post pinned!' : 'Post unpinned');
-        fetchPosts();
-      }
+      } else toast.error(json.message || 'Failed to pin');
     } catch { toast.error('Failed to pin'); }
   }
 
-  async function handleReplyComment(postId, commentId, text) {
-    if (!accessToken || !text.trim()) return;
-    try {
-      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/reply`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ text }),
-      });
-      if (res.ok) { toast.success('Reply added'); fetchPosts(); }
-    } catch { toast.error('Failed to reply'); }
-  }
-
-  async function handleReactComment(postId, commentId, emoji) {
-    if (!accessToken) { toast.warning('Login to react'); return; }
-    try {
-      await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/react`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ emoji }),
-      });
-      fetchPosts();
-    } catch { toast.error('Failed to react'); }
-  }
-
-  async function handleEditComment(postId, commentId, text) {
-    if (!accessToken || !text.trim()) return;
-    try {
-      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
-        body: JSON.stringify({ text }),
-      });
-      if (res.ok) { toast.success('Comment updated'); fetchPosts(); }
-    } catch { toast.error('Failed to edit'); }
-  }
-
-  async function handleDeleteComment(postId, commentId) {
-    if (!confirm('Delete this comment?')) return;
-    try {
-      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (res.ok) { toast.success('Comment deleted'); fetchPosts(); }
-    } catch { toast.error('Failed to delete'); }
-  }
-
-  async function handlePinComment(postId, commentId) {
-    if (!accessToken) return;
-    try {
-      const res = await fetch(`${API_URL}/posts/${postId}/comments/${commentId}/pin`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (res.ok) { toast.success('Comment pin toggled'); fetchPosts(); }
-    } catch { toast.error('Failed to pin comment'); }
-  }
-
   async function handleVotePoll(postId, pollId, optionIndex) {
-    if (!accessToken) { toast.warning('Login to vote'); return; }
+    if (!isAuthenticated) { toast.warning('Login to vote'); return; }
     try {
-      const res = await fetch(`${API_URL}/posts/${postId}/polls/${pollId}/vote`, {
+      const res = await apiFetch(`/posts/${postId}/polls/${pollId}/vote`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ optionIndex }),
       });
-      if (res.ok) { toast.success('Vote recorded!'); fetchPosts(); }
+      const json = await res.json();
+      if (res.ok) {
+        patchPost(postId, (p) => ({
+          polls: (p.polls || []).map((poll) => (String(poll._id) === String(pollId) ? json.data : poll)),
+        }));
+        toast.success('Vote recorded!');
+      } else toast.error(json.message || 'Failed to vote');
     } catch { toast.error('Failed to vote'); }
   }
 
   async function handleCreatePost(e) {
     e.preventDefault();
-    if (!accessToken || !newPost.title || !newPost.content) return;
-    
+    if (!isAuthenticated || !newPost.title || !newPost.content) return;
+
     setUploading(true);
     try {
       const formData = new FormData();
       formData.append('title', newPost.title);
       formData.append('content', newPost.content);
       formData.append('category', newPost.category);
-      
+
       // If there's a file, append it
       if (imagePreview && imagePreview.file) {
         formData.append('image', imagePreview.file);
       }
 
-      const res = await fetch(`${API_URL}/posts`, {
+      const res = await apiFetch('/posts', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
         body: formData,
       });
-      
+
       if (res.ok) {
         setShowComposer(false);
         setNewPost({ title: '', content: '', category: 'General', image: '' });
@@ -365,13 +328,13 @@ export default function Community() {
                   </div>
                   <form onSubmit={handleCreatePost} className={styles.composerForm}>
                     <input type="text" placeholder="Post title" value={newPost.title} onChange={(e) => setNewPost({ ...newPost, title: e.target.value })} required />
-                    
-                    <RichTextEditor 
+
+                    <RichTextEditor
                       value={newPost.content}
                       onChange={(content) => setNewPost({ ...newPost, content })}
                       placeholder="Share your thoughts, recipes, or sustainability tips... Use #hashtags and @mentions"
                     />
-                    
+
                     {/* Image Preview */}
                     {imagePreview && (
                       <div className={styles.imagePreviewContainer}>
@@ -425,25 +388,25 @@ export default function Community() {
           ) : (
             <div className={styles.feed}>
               {filteredPosts.map((post, idx) => (
-                <PostCard 
-                  key={post._id} 
-                  post={post} 
-                  idx={idx} 
-                  user={user} 
-                  onUpvote={handleUpvote} 
-                  onComment={handleComment} 
+                <PostCard
+                  key={post._id}
+                  post={post}
+                  idx={idx}
+                  user={user}
+                  onUpvote={handleUpvote}
                   onDelete={handleDeletePost}
                   onBookmark={handleBookmark}
                   onPin={handlePinPost}
-                  onReply={handleReplyComment}
-                  onReact={handleReactComment}
-                  onEditComment={handleEditComment}
-                  onDeleteComment={handleDeleteComment}
-                  onPinComment={handlePinComment}
                   onVotePoll={handleVotePoll}
-                  accessToken={accessToken}
+                  onCountChange={(delta) => handleCountChange(post._id, delta)}
                 />
               ))}
+
+              {pagination && pagination.page < pagination.pages && (
+                <div ref={sentinelRef} className={styles.loadMore}>
+                  {loadingMore ? 'Loading more…' : ''}
+                </div>
+              )}
             </div>
           )}
         </main>
@@ -500,42 +463,11 @@ export default function Community() {
   );
 }
 
-function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, onPin, onReply, onReact, onEditComment, onDeleteComment, onPinComment, onVotePoll, accessToken }) {
+function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVotePoll, onCountChange }) {
   const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState('');
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [replyText, setReplyText] = useState('');
-  const [editingComment, setEditingComment] = useState(null);
-  const [editText, setEditText] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const [showReactions, setShowReactions] = useState(null);
-  const hasUpvoted = user && post.upvotes?.includes(user.id);
+  const hasUpvoted = user && post.hasUpvoted;
   const isPinned = post.pinnedBy?.includes(user?.id);
-
-  const COMMENT_REACTIONS = ['👍', '❤️', '🌱', '🔥', '😂', '👏'];
-
-  const handleSubmitComment = (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    onComment(post._id, commentText);
-    setCommentText('');
-  };
-
-  const handleSubmitReply = (e) => {
-    e.preventDefault();
-    if (!replyText.trim() || !replyingTo) return;
-    onReply(post._id, replyingTo, replyText);
-    setReplyText('');
-    setReplyingTo(null);
-  };
-
-  const handleSubmitEdit = (e) => {
-    e.preventDefault();
-    if (!editText.trim() || !editingComment) return;
-    onEditComment(post._id, editingComment, editText);
-    setEditText('');
-    setEditingComment(null);
-  };
 
   const shareUrl = `${window.location.origin}/community#post-${post._id}`;
   const shareText = `${post.title} - VeganLife Community`;
@@ -545,13 +477,6 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, 
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
     whatsapp: `https://wa.me/?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`,
   };
-
-  // Sort comments: pinned first
-  const sortedComments = [...(post.comments || [])].sort((a, b) => {
-    if (a.isPinned && !b.isPinned) return -1;
-    if (!a.isPinned && b.isPinned) return 1;
-    return 0;
-  });
 
   return (
     <motion.article
@@ -614,17 +539,17 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, 
 
       {/* Reactions bar */}
       <div className={styles.reactionsBar}>
-        {post.upvotes?.length > 0 && (
+        {(post.upvoteCount || 0) > 0 && (
           <div className={styles.reactionSummary}>
             <span className={styles.reactionIcons}><FaSeedling /><FiHeart /></span>
-            <span>{post.upvotes.length} reaction{post.upvotes.length > 1 ? 's' : ''}</span>
+            <span>{post.upvoteCount} reaction{post.upvoteCount > 1 ? 's' : ''}</span>
           </div>
         )}
-        {post.comments?.length > 0 && (
-          <span className={styles.commentCount}>{post.comments.length} comment{post.comments.length > 1 ? 's' : ''}</span>
+        {(post.commentCount || 0) > 0 && (
+          <span className={styles.commentCount}>{post.commentCount} comment{post.commentCount > 1 ? 's' : ''}</span>
         )}
-        {post.pinnedBy?.length > 0 && (
-          <span className={styles.pinCount}><FiMapPin /> {post.pinnedBy.length}</span>
+        {(post.pinCount || 0) > 0 && (
+          <span className={styles.pinCount}><FiMapPin /> {post.pinCount}</span>
         )}
       </div>
 
@@ -669,97 +594,12 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, 
       <AnimatePresence>
         {showComments && (
           <motion.div className={styles.commentsSection} initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}>
-            {sortedComments.map((c) => (
-              <div key={c._id} className={`${styles.comment} ${c.isPinned ? styles.pinnedComment : ''}`}>
-                {c.isPinned && <div className={styles.pinnedLabel}><FiMapPin /> Pinned</div>}
-                <div className={styles.commentMain}>
-                  <div className={styles.commentAvatar}>{c.user?.name?.charAt(0) || '?'}</div>
-                  <div className={styles.commentBody}>
-                    {editingComment === c._id ? (
-                      <form onSubmit={handleSubmitEdit} className={styles.editForm}>
-                        <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus />
-                        <button type="submit"><FiSend /></button>
-                        <button type="button" onClick={() => setEditingComment(null)}><FiX /></button>
-                      </form>
-                    ) : (
-                      <>
-                        <strong>{c.user?.name || 'User'}</strong>
-                        <p>{c.text}</p>
-                      </>
-                    )}
-
-                    {/* Comment Reactions */}
-                    {c.reactions && c.reactions.length > 0 && (
-                      <div className={styles.commentReactions}>
-                        {Object.entries(c.reactions.reduce((acc, r) => {
-                          acc[r.emoji] = (acc[r.emoji] || 0) + 1;
-                          return acc;
-                        }, {})).map(([emoji, count]) => (
-                          <span key={emoji} className={styles.reactionChip}>{emoji} {count}</span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Comment Actions */}
-                    <div className={styles.commentActions}>
-                      <button onClick={() => { setReplyingTo(c._id); setReplyText(''); }}><FiCornerDownRight /> Reply</button>
-                      <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}>😊 React</button>
-                      {user && c.user?._id === user.id && (
-                        <>
-                          <button onClick={() => { setEditingComment(c._id); setEditText(c.text); }}><FiEdit2 /> Edit</button>
-                          <button onClick={() => onDeleteComment(post._id, c._id)}><FiTrash2 /> Delete</button>
-                        </>
-                      )}
-                      {user && (post.author?._id === user.id || user.role === 'admin') && (
-                        <button onClick={() => onPinComment(post._id, c._id)}><FiMapPin /> {c.isPinned ? 'Unpin' : 'Pin'}</button>
-                      )}
-                    </div>
-
-                    {/* Reaction Picker */}
-                    {showReactions === c._id && (
-                      <div className={styles.reactionPicker}>
-                        {COMMENT_REACTIONS.map(emoji => (
-                          <button key={emoji} onClick={() => { onReact(post._id, c._id, emoji); setShowReactions(null); }}>
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Reply Form */}
-                    {replyingTo === c._id && (
-                      <form onSubmit={handleSubmitReply} className={styles.replyForm}>
-                        <input placeholder={`Reply to ${c.user?.name}...`} value={replyText} onChange={(e) => setReplyText(e.target.value)} autoFocus />
-                        <button type="submit" disabled={!replyText.trim()}><FiSend /></button>
-                        <button type="button" onClick={() => setReplyingTo(null)}><FiX /></button>
-                      </form>
-                    )}
-
-                    {/* Nested Replies */}
-                    {c.replies && c.replies.length > 0 && (
-                      <div className={styles.replies}>
-                        {c.replies.map((reply, rIdx) => (
-                          <div key={rIdx} className={styles.reply}>
-                            <div className={styles.replyAvatar}>{reply.user?.name?.charAt(0) || '?'}</div>
-                            <div className={styles.replyBody}>
-                              <strong>{reply.user?.name || 'User'}</strong>
-                              <p>{reply.text}</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-            {user && (
-              <form onSubmit={handleSubmitComment} className={styles.commentForm}>
-                <div className={styles.commentInputAvatar}>{user.name.charAt(0)}</div>
-                <input type="text" placeholder="Write a comment..." value={commentText} onChange={(e) => setCommentText(e.target.value)} />
-                <button type="submit" disabled={!commentText.trim()}><FiSend /></button>
-              </form>
-            )}
+            <CommentsSection
+              postId={post._id}
+              postAuthorId={post.author?._id}
+              user={user}
+              onCountChange={onCountChange}
+            />
           </motion.div>
         )}
       </AnimatePresence>
@@ -767,9 +607,261 @@ function PostCard({ post, idx, user, onUpvote, onComment, onDelete, onBookmark, 
   );
 }
 
+function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
+  const toast = useToast();
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [nextCursor, setNextCursor] = useState(null);
+  const [commentText, setCommentText] = useState('');
+  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyText, setReplyText] = useState('');
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState('');
+  const [showReactions, setShowReactions] = useState(null);
+
+  async function loadComments({ before } = {}) {
+    const params = new URLSearchParams({ limit: '20' });
+    if (before) params.set('before', before);
+    const res = await apiFetch(`/posts/${postId}/comments?${params}`);
+    if (!res.ok) throw new Error('Failed to load comments');
+    return res.json();
+  }
+
+  function sortComments(list) {
+    return [...list].sort((a, b) => {
+      if (a.isPinned && !b.isPinned) return -1;
+      if (!a.isPinned && b.isPinned) return 1;
+      return 0;
+    });
+  }
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    loadComments()
+      .then((json) => {
+        if (cancelled) return;
+        setComments(sortComments(json.data || []));
+        setHasMore(json.hasMore);
+        setNextCursor(json.nextCursor);
+      })
+      .catch(() => toast.error('Failed to load comments'))
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [postId]);
+
+  async function loadOlder() {
+    if (!hasMore) return;
+    try {
+      const json = await loadComments({ before: nextCursor });
+      setComments((prev) => sortComments([...prev, ...(json.data || [])]));
+      setHasMore(json.hasMore);
+      setNextCursor(json.nextCursor);
+    } catch { toast.error('Failed to load more comments'); }
+  }
+
+  async function addComment(e) {
+    e.preventDefault();
+    if (!user || !commentText.trim()) return;
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: commentText }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to comment');
+      setComments((prev) => sortComments([...prev, json.data]));
+      setCommentText('');
+      onCountChange(1);
+      toast.success('Comment added');
+    } catch (err) { toast.error(err.message); }
+  }
+
+  async function addReply(commentId) {
+    if (!user || !replyText.trim()) return;
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: replyText }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to reply');
+      setComments((prev) => prev.map((c) => c._id === commentId ? { ...c, replies: [...(c.replies || []), json.data] } : c));
+      setReplyText('');
+      setReplyingTo(null);
+      toast.success('Reply added');
+    } catch (err) { toast.error(err.message); }
+  }
+
+  async function editComment(commentId) {
+    if (!editText.trim()) return;
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: editText }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to edit');
+      setComments((prev) => prev.map((c) => c._id === commentId ? json.data : c));
+      setEditingComment(null);
+      setEditText('');
+      toast.success('Comment updated');
+    } catch (err) { toast.error(err.message); }
+  }
+
+  async function deleteComment(commentId) {
+    if (!confirm('Delete this comment?')) return;
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Cannot delete this comment');
+      setComments((prev) => prev.filter((c) => c._id !== commentId));
+      onCountChange(-1);
+      toast.success('Comment deleted');
+    } catch (err) { toast.error(err.message); }
+  }
+
+  async function reactTo(commentId, emoji) {
+    if (!user) { toast.warning('Login to react'); return; }
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}/react`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emoji }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to react');
+      setComments((prev) => prev.map((c) => c._id === commentId ? { ...c, reactions: json.reactions } : c));
+    } catch (err) { toast.error(err.message); }
+  }
+
+  async function togglePin(commentId) {
+    if (!user) return;
+    try {
+      const res = await apiFetch(`/posts/${postId}/comments/${commentId}/pin`, { method: 'POST' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || 'Failed to pin comment');
+      setComments((prev) => sortComments(prev.map((c) => c._id === commentId ? { ...c, isPinned: json.isPinned } : c)));
+      toast.success(json.isPinned ? 'Comment pinned' : 'Comment unpinned');
+    } catch (err) { toast.error(err.message); }
+  }
+
+  return (
+    <>
+      {loading ? (
+        <div className={styles.loadingComments}>Loading comments…</div>
+      ) : (
+        <>
+          {comments.map((c) => (
+            <div key={c._id} className={`${styles.comment} ${c.isPinned ? styles.pinnedComment : ''}`}>
+              {c.isPinned && <div className={styles.pinnedLabel}><FiMapPin /> Pinned</div>}
+              <div className={styles.commentMain}>
+                <div className={styles.commentAvatar}>{c.user?.name?.charAt(0) || '?'}</div>
+                <div className={styles.commentBody}>
+                  {editingComment === c._id ? (
+                    <form onSubmit={(e) => { e.preventDefault(); editComment(c._id); }} className={styles.editForm}>
+                      <input value={editText} onChange={(e) => setEditText(e.target.value)} autoFocus />
+                      <button type="submit"><FiSend /></button>
+                      <button type="button" onClick={() => setEditingComment(null)}><FiX /></button>
+                    </form>
+                  ) : (
+                    <>
+                      <strong>{c.user?.name || 'User'}</strong>
+                      <p>{c.text}</p>
+                    </>
+                  )}
+
+                  {/* Comment Reactions */}
+                  {c.reactions && c.reactions.length > 0 && (
+                    <div className={styles.commentReactions}>
+                      {Object.entries(c.reactions.reduce((acc, r) => {
+                        acc[r.emoji] = (acc[r.emoji] || 0) + 1;
+                        return acc;
+                      }, {})).map(([emoji, count]) => (
+                        <span key={emoji} className={styles.reactionChip}>{emoji} {count}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Comment Actions */}
+                  <div className={styles.commentActions}>
+                    <button onClick={() => { setReplyingTo(c._id); setReplyText(''); }}><FiCornerDownRight /> Reply</button>
+                    <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}>😊 React</button>
+                    {user && c.user?._id === user.id && (
+                      <>
+                        <button onClick={() => { setEditingComment(c._id); setEditText(c.text); }}><FiEdit2 /> Edit</button>
+                        <button onClick={() => deleteComment(c._id)}><FiTrash2 /> Delete</button>
+                      </>
+                    )}
+                    {user && (postAuthorId === user.id || user.role === 'admin') && (
+                      <button onClick={() => togglePin(c._id)}><FiMapPin /> {c.isPinned ? 'Unpin' : 'Pin'}</button>
+                    )}
+                  </div>
+
+                  {/* Reaction Picker */}
+                  {showReactions === c._id && (
+                    <div className={styles.reactionPicker}>
+                      {COMMENT_REACTIONS.map(emoji => (
+                        <button key={emoji} onClick={() => { reactTo(c._id, emoji); setShowReactions(null); }}>
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Reply Form */}
+                  {replyingTo === c._id && (
+                    <form onSubmit={(e) => { e.preventDefault(); addReply(c._id); }} className={styles.replyForm}>
+                      <input placeholder={`Reply to ${c.user?.name}...`} value={replyText} onChange={(e) => setReplyText(e.target.value)} autoFocus />
+                      <button type="submit" disabled={!replyText.trim()}><FiSend /></button>
+                      <button type="button" onClick={() => setReplyingTo(null)}><FiX /></button>
+                    </form>
+                  )}
+
+                  {/* Nested Replies */}
+                  {c.replies && c.replies.length > 0 && (
+                    <div className={styles.replies}>
+                      {c.replies.map((reply, rIdx) => (
+                        <div key={reply._id || rIdx} className={styles.reply}>
+                          <div className={styles.replyAvatar}>{reply.user?.name?.charAt(0) || '?'}</div>
+                          <div className={styles.replyBody}>
+                            <strong>{reply.user?.name || 'User'}</strong>
+                            <p>{reply.text}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {hasMore && (
+            <button className={styles.loadMoreComments} onClick={loadOlder}>Load more comments</button>
+          )}
+
+          {user ? (
+            <form onSubmit={addComment} className={styles.commentForm}>
+              <div className={styles.commentInputAvatar}>{user.name.charAt(0)}</div>
+              <input type="text" placeholder="Write a comment..." value={commentText} onChange={(e) => setCommentText(e.target.value)} />
+              <button type="submit" disabled={!commentText.trim()}><FiSend /></button>
+            </form>
+          ) : (
+            <Link to="/auth" className={styles.loginToComment}>Login to comment</Link>
+          )}
+        </>
+      )}
+    </>
+  );
+}
+
 function PollWidget({ poll, postId, user, onVote }) {
-  const totalVotes = poll.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
-  const userVotedIndex = user ? poll.options.findIndex(opt => opt.votes?.includes(user.id)) : -1;
+  const totalVotes = poll.totalVotes || poll.options.reduce((sum, opt) => sum + (opt.voteCount || 0), 0);
+  const votedIdx = poll.hasVoted ?? -1;
 
   return (
     <div className={styles.poll}>
@@ -779,9 +871,9 @@ function PollWidget({ poll, postId, user, onVote }) {
       </div>
       <div className={styles.pollOptions}>
         {poll.options.map((option, idx) => {
-          const voteCount = option.votes?.length || 0;
+          const voteCount = option.voteCount || 0;
           const percentage = totalVotes > 0 ? Math.round((voteCount / totalVotes) * 100) : 0;
-          const isSelected = userVotedIndex === idx;
+          const isSelected = votedIdx === idx || option.hasVoted;
 
           return (
             <button
