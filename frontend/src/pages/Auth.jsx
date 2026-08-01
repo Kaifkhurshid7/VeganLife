@@ -4,7 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaLeaf, FaSeedling, FaEarthAmericas } from 'react-icons/fa6';
 import { FiMail, FiLock, FiUser, FiKey, FiEye, FiEyeOff, FiAtSign } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import { useCounter } from '../hooks';
 import styles from './Auth.module.css';
+
+function StatCount({ value, suffix }) {
+  const { ref, count } = useCounter(value);
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
 function PasswordStrength({ password }) {
   const getStrength = () => {
@@ -27,7 +33,14 @@ function PasswordStrength({ password }) {
     <div className={styles.strengthMeter}>
       <div className={styles.strengthBars}>
         {[1, 2, 3, 4, 5].map((i) => (
-          <div key={i} className={styles.strengthBar} style={{ backgroundColor: i <= strength ? colors[strength] : 'rgba(87,61,33,0.1)' }} />
+          <motion.div
+            key={i}
+            className={styles.strengthBar}
+            style={{ backgroundColor: i <= strength ? colors[strength] : 'rgba(87,61,33,0.1)' }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ duration: 0.3, delay: i * 0.05 }}
+          />
         ))}
       </div>
       <span className={styles.strengthLabel} style={{ color: colors[strength] }}>{labels[strength]}</span>
@@ -124,16 +137,22 @@ export default function Auth() {
             <p className={styles.leftDesc}>
               Be part of a global community making conscious food choices for a healthier planet.
             </p>
-            <div className={styles.leftStats}>
+            <motion.div
+              className={styles.leftStats}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25, duration: 0.6 }}
+            >
               <div className={styles.leftStat}>
                 <FaEarthAmericas />
-                <span>12,000+ members</span>
+                <StatCount value="12,000" suffix="+ members" />
               </div>
               <div className={styles.leftStat}>
                 <FaSeedling />
-                <span>50,000+ meals tracked</span>
+                <StatCount value="50,000" suffix="+ meals tracked" />
               </div>
-            </div>
+            </motion.div>
           </div>
           {/* Decorative floating elements */}
           <motion.div className={styles.floatingOrb1} animate={{ y: [0, -20, 0] }} transition={{ duration: 6, repeat: Infinity }} />
@@ -153,9 +172,21 @@ export default function Auth() {
             </h1>
 
             <div className={styles.tabs}>
-              <button className={`${styles.tab} ${mode === 'login' ? styles.tabActive : ''}`} onClick={() => setMode('login')}>Login</button>
-              <button className={`${styles.tab} ${mode === 'signup' ? styles.tabActive : ''}`} onClick={() => setMode('signup')}>Sign Up</button>
-              <button className={`${styles.tab} ${mode === 'admin' ? styles.tabActive : ''}`} onClick={() => setMode('admin')}>Admin</button>
+              {[
+                { id: 'login', label: 'Login' },
+                { id: 'signup', label: 'Sign Up' },
+                { id: 'admin', label: 'Admin' },
+              ].map((t) => (
+                <motion.button
+                  key={t.id}
+                  className={`${styles.tab} ${mode === t.id ? styles.tabActive : ''}`}
+                  onClick={() => setMode(t.id)}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {t.label}
+                </motion.button>
+              ))}
             </div>
 
             <AnimatePresence mode="wait">

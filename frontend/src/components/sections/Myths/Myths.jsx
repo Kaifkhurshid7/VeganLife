@@ -44,10 +44,11 @@ export default function Myths() {
       />
 
       <div className={styles.grid}>
-        {MYTHS.map((item) => (
+        {MYTHS.map((item, idx) => (
           <div
             key={item.id}
-            className={styles.cardContainer}
+            className={`${styles.cardContainer} animate-bob`}
+            style={{ animationDelay: `${idx * -1.6}s`, animationDuration: '6s' }}
             onClick={() => toggleFlip(item.id)}
           >
             <motion.div

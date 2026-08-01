@@ -53,7 +53,13 @@ export default function Testimonials() {
         >
           {STORIES.map((story) => (
             <SwiperSlide key={story.name}>
-              <motion.div className={`glass-card ${styles.card}`}>
+              <motion.div
+                className={`glass-card ${styles.card}`}
+                initial={{ opacity: 0, y: 30, scale: 0.97 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
+              >
                 <FaQuoteLeft className={styles.quoteIcon} style={{ color: story.color }} />
                 <p className={styles.storyText}>"{story.story}"</p>
                 <hr className={styles.divider} style={{ borderColor: story.color }} />
