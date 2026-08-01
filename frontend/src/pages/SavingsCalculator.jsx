@@ -121,13 +121,15 @@ export default function SavingsCalculator() {
             <div className={styles.periodToggle}>
               <span className={styles.periodLabel}>View savings:</span>
               {['day', 'week', 'month'].map((p) => (
-                <button
+                <motion.button
                   key={p}
                   className={`${styles.periodBtn} ${period === p ? styles.periodBtnActive : ''}`}
                   onClick={() => setPeriod(p)}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.94 }}
                 >
                   Per {p}
-                </button>
+                </motion.button>
               ))}
             </div>
 
@@ -139,38 +141,43 @@ export default function SavingsCalculator() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className={`glass-card ${styles.statCard}`}>
-                  <div className={styles.statIconWrap} style={{ background: 'rgba(157,130,171,0.12)' }}>
-                    <FaCloud style={{ color: 'var(--color-purple)' }} />
-                  </div>
-                  <span className={styles.statValue}>{scaled.co2}</span>
-                  <span className={styles.statUnit}>kg CO₂ saved</span>
-                  <div className={styles.statEquiv}>
-                    <FaChartLine /> ≈ {Math.round(scaled.co2 * 6)} km not driven
-                  </div>
-                </div>
-
-                <div className={`glass-card ${styles.statCard}`}>
-                  <div className={styles.statIconWrap} style={{ background: 'rgba(166,180,143,0.15)' }}>
-                    <FaDroplet style={{ color: 'var(--color-sage)' }} />
-                  </div>
-                  <span className={styles.statValue}>{scaled.water.toLocaleString()}</span>
-                  <span className={styles.statUnit}>liters water saved</span>
-                  <div className={styles.statEquiv}>
-                    <FaDroplet /> ≈ {Math.round(scaled.water / 80)} showers worth
-                  </div>
-                </div>
-
-                <div className={`glass-card ${styles.statCard}`}>
-                  <div className={styles.statIconWrap} style={{ background: 'rgba(227,163,110,0.12)' }}>
-                    <FaTree style={{ color: 'var(--color-orange)' }} />
-                  </div>
-                  <span className={styles.statValue}>{scaled.land}</span>
-                  <span className={styles.statUnit}>sq.ft land preserved</span>
-                  <div className={styles.statEquiv}>
-                    <FaLeaf /> ≈ {(scaled.land / 9).toFixed(1)} sq.m of forest
-                  </div>
-                </div>
+                {[
+                  {
+                    icon: <FaCloud style={{ color: 'var(--color-purple)' }} />,
+                    bg: 'rgba(157,130,171,0.12)',
+                    value: scaled.co2,
+                    unit: 'kg CO₂ saved',
+                    equiv: <><FaChartLine /> ≈ {Math.round(scaled.co2 * 6)} km not driven</>,
+                  },
+                  {
+                    icon: <FaDroplet style={{ color: 'var(--color-sage)' }} />,
+                    bg: 'rgba(166,180,143,0.15)',
+                    value: scaled.water.toLocaleString(),
+                    unit: 'liters water saved',
+                    equiv: <><FaDroplet /> ≈ {Math.round(scaled.water / 80)} showers worth</>,
+                  },
+                  {
+                    icon: <FaTree style={{ color: 'var(--color-orange)' }} />,
+                    bg: 'rgba(227,163,110,0.12)',
+                    value: scaled.land,
+                    unit: 'sq.ft land preserved',
+                    equiv: <><FaLeaf /> ≈ {(scaled.land / 9).toFixed(1)} sq.m of forest</>,
+                  },
+                ].map((s, i) => (
+                  <motion.div
+                    key={s.unit}
+                    className={`glass-card ${styles.statCard}`}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.1 + i * 0.09 }}
+                    whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+                  >
+                    <div className={styles.statIconWrap} style={{ background: s.bg }}>{s.icon}</div>
+                    <span className={styles.statValue}>{s.value}</span>
+                    <span className={styles.statUnit}>{s.unit}</span>
+                    <div className={styles.statEquiv}>{s.equiv}</div>
+                  </motion.div>
+                ))}
               </motion.div>
             </AnimatePresence>
 
