@@ -1,4 +1,16 @@
 import rateLimit from 'express-rate-limit';
+import { RedisStore } from 'rate-limit-redis';
+import Redis from 'ioredis';
+
+// When REDIS_URL is set, rate-limit counters live in Redis so they're shared
+// across instances; otherwise each process keeps its own in-memory counters.
+const REDIS_URL = process.env.REDIS_URL;
+const redisClient = REDIS_URL ? new Redis(REDIS_URL, { maxRetriesPerRequest: null }) : null;
+
+function createStore(prefix) {
+  if (!redisClient) return undefined; // express-rate-limit's default in-memory store
+  return new RedisStore({ sendCommand: (...args) => redisClient.call(...args), prefix });
+}
 
 // Strict rate limit for auth routes (login, signup, password reset)
 export const authLimiter = rateLimit({
@@ -7,6 +19,7 @@ export const authLimiter = rateLimit({
   message: { success: false, message: 'Too many authentication attempts. Try again in 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: createStore('rl:auth:'),
 });
 
 // General API rate limit
@@ -16,6 +29,7 @@ export const apiLimiter = rateLimit({
   message: { success: false, message: 'Too many requests. Slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: createStore('rl:api:'),
 });
 
 // Strict limit for post creation / comments
@@ -25,6 +39,7 @@ export const postLimiter = rateLimit({
   message: { success: false, message: 'Posting too fast. Wait a moment.' },
   standardHeaders: true,
   legacyHeaders: false,
+  store: createStore('rl:post:'),
 });
 
 // Sanitize user input to prevent NoSQL injection
