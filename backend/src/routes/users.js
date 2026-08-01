@@ -167,7 +167,6 @@ router.get('/:userId/posts', asyncHandler(async (req, res) => {
   const [posts, total] = await Promise.all([
     Post.find({ author: req.params.userId, status: 'approved' })
       .populate('author', 'name username avatar')
-      .populate('comments.user', 'name username')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
