@@ -5,9 +5,15 @@ import { FiArrowLeft, FiUserPlus, FiUserCheck, FiMail } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
+import { useCounter } from '../hooks';
 import BackButton from '../components/ui/BackButton';
 import { apiFetch } from '../utils/api';
 import styles from './Profile.module.css';
+
+function StatCount({ value }) {
+  const { ref, count } = useCounter(String(value));
+  return <span className={styles.statValue} ref={ref}>{count}</span>;
+}
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -119,16 +125,26 @@ export default function Profile() {
           
           <div className={styles.profileContent}>
             <div className={styles.avatarSection}>
-              <div className={styles.avatar}>
+              <motion.div
+                className={styles.avatar}
+                initial={{ scale: 0, rotate: -12 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 220, damping: 16, delay: 0.15 }}
+              >
                 {profile.avatar ? (
                   <img src={profile.avatar} alt={profile.name} />
                 ) : (
                   <span>{profile.name.charAt(0)}</span>
                 )}
-              </div>
+              </motion.div>
             </div>
 
-            <div className={styles.info}>
+            <motion.div
+              className={styles.info}
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.25 }}
+            >
               <div>
                 <h1 className={styles.name}>{profile.name}</h1>
                 <p className={styles.username}>@{profile.username}</p>
@@ -142,7 +158,7 @@ export default function Profile() {
                   </button>
                 ) : (
                   <>
-                    <button 
+                    <button
                       className={`${styles.followBtn} ${isFollowing ? styles.following : ''}`}
                       onClick={handleFollowToggle}
                       disabled={following}
@@ -156,39 +172,55 @@ export default function Profile() {
                   </>
                 )}
               </div>
-            </div>
+            </motion.div>
 
             {/* Stats */}
-            <div className={styles.stats}>
-              <div className={styles.stat}>
-                <span className={styles.statValue}>{profile.stats?.posts || 0}</span>
-                <span className={styles.statLabel}>Posts</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statValue}>{profile.stats?.followers || 0}</span>
-                <span className={styles.statLabel}>Followers</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statValue}>{profile.stats?.following || 0}</span>
-                <span className={styles.statLabel}>Following</span>
-              </div>
-              <div className={styles.stat}>
-                <span className={styles.statValue}>{profile.stats?.score || 0}</span>
-                <span className={styles.statLabel}>XP</span>
-              </div>
-            </div>
+            <motion.div
+              className={styles.stats}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+            >
+              {[
+                { value: profile.stats?.posts || 0, label: 'Posts' },
+                { value: profile.stats?.followers || 0, label: 'Followers' },
+                { value: profile.stats?.following || 0, label: 'Following' },
+                { value: profile.stats?.score || 0, label: 'XP' },
+              ].map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  className={styles.stat}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: 0.4 + i * 0.08 }}
+                >
+                  <StatCount value={s.value} />
+                  <span className={styles.statLabel}>{s.label}</span>
+                </motion.div>
+              ))}
+            </motion.div>
 
             {/* Badge */}
-            <div className={styles.badge}>
+            <motion.div
+              className={styles.badge}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
               <span className={styles.badgeIcon}>{badge.icon}</span>
               <span className={styles.badgeName}>{badge.name}</span>
-            </div>
+            </motion.div>
 
             {/* Streak */}
             {profile.streak > 0 && (
-              <div className={styles.streak}>
+              <motion.div
+                className={styles.streak}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
                 <FaFire /> {profile.streak} day streak
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
@@ -204,8 +236,9 @@ export default function Profile() {
                   key={post._id}
                   className={styles.postCard}
                   initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.05 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.4, delay: idx * 0.05 }}
                 >
                   <h3 className={styles.postTitle}>{post.title}</h3>
                   <p className={styles.postContent}>{post.content.substring(0, 150)}...</p>

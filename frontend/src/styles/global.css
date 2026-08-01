@@ -92,6 +92,23 @@ section {
   opacity: 0.85;
 }
 
+/* Leaf flourish + gradient underline that draws in on scroll (motion-driven in SectionHeader) */
+.section-header .accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px auto 22px;
+  color: var(--color-sage);
+}
+
+.section-header .accent-bar {
+  width: 64px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--color-sage), var(--color-orange), var(--color-purple));
+  transform-origin: left center;
+}
+
 /* Glass Card */
 .glass-card {
   background: var(--glass-bg);
@@ -109,6 +126,24 @@ section {
   background: var(--glass-bg-hover);
   border-color: var(--glass-border-hover);
   transform: translateY(-8px);
+}
+
+/* Shine sweep across glass cards on hover */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: translateX(-140%) skewX(-15deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.glass-card:hover::after {
+  animation: shineSweep 0.9s var(--ease-out);
 }
 
 /* Glow effect on mouse-tracked cards */
@@ -133,6 +168,8 @@ section {
 
 /* Buttons */
 .btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -148,6 +185,23 @@ section {
   transition: var(--transition-elastic);
   text-decoration: none;
   border: none;
+}
+
+/* Shine sweep across buttons on hover */
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-140%) skewX(-15deg);
+  pointer-events: none;
+}
+
+.btn:hover::after {
+  animation: shineSweep 0.8s var(--ease-out);
 }
 
 .btn-primary {
