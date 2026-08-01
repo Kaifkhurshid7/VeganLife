@@ -2,34 +2,243 @@
   position: fixed;
   inset: 0;
   z-index: 99999;
-  background: var(--color-bg);
+  background: radial-gradient(120% 90% at 50% 40%, var(--color-cream) 0%, var(--color-bg) 55%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-family: var(--font-body);
+}
+
+/* ————— ambient blobs ————— */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+  pointer-events: none;
+}
+.blobA {
+  width: 420px;
+  height: 420px;
+  background: rgba(166, 180, 143, 0.5);
+  top: -120px;
+  left: -110px;
+}
+.blobB {
+  width: 380px;
+  height: 380px;
+  background: rgba(227, 163, 110, 0.45);
+  bottom: -110px;
+  right: -90px;
+}
+
+/* ————— drifting leaves ————— */
+.floating {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.floatingLeaf {
+  position: absolute;
+  opacity: 0.55;
+}
+
+/* ————— center column ————— */
+.center {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ————— ring + seedling ————— */
+.ringWrap {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  margin-bottom: 28px;
+}
+.ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+.ringTrack {
+  fill: none;
+  stroke: rgba(87, 61, 33, 0.12);
+  stroke-width: 6;
+}
+.ringProgress {
+  fill: none;
+  stroke: url(#splashRingGrad);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.ringBadge {
+  position: absolute;
+  inset: 0;
+}
+.ringBadgeIcon {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  margin-left: -7px;
+  width: 14px;
+  height: 14px;
+  color: var(--color-orange);
+  filter: drop-shadow(0 1px 2px rgba(87, 61, 33, 0.25));
+}
+.plantWrap {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.content { text-align: center; }
-
-.icon { font-size: 3.5rem; color: var(--color-sage); margin-bottom: 20px; }
-
-.title {
-  font-size: 2.2rem;
-  font-family: var(--font-heading);
-  color: var(--color-earth);
-  margin-bottom: 24px;
+.seedling {
+  width: 118px;
+  height: 118px;
 }
 
-.loader {
-  width: 180px;
-  height: 4px;
-  background: rgba(87, 61, 33, 0.1);
-  border-radius: 2px;
-  margin: 0 auto;
+/* ————— title ————— */
+.title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  color: var(--color-earth);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  margin: 0;
+}
+.letter {
+  display: inline-block;
+}
+.titleLeaf {
+  margin-left: 10px;
+  font-size: 0.55em;
+  color: var(--color-orange);
+}
+
+/* ————— tagline ————— */
+.taglineWrap {
+  height: 24px;
+  margin-top: 12px;
   overflow: hidden;
 }
+.tagline {
+  font-size: 0.85rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin: 0;
+  white-space: nowrap;
+}
 
-.loaderBar {
-  height: 100%;
-  background: linear-gradient(to right, var(--color-sage), var(--color-orange));
-  border-radius: 2px;
+/* ————— status row ————— */
+.status {
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+.word {
+  white-space: nowrap;
+}
+.dots {
+  display: inline-flex;
+  gap: 3px;
+}
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-sage);
+  animation: dotBounce 1.1s infinite;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes dotBounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.35;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+.percent {
+  color: var(--color-orange);
+  font-weight: 600;
+  min-width: 36px;
+  text-align: right;
+}
+
+.hint {
+  margin-top: 14px;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(87, 61, 33, 0.45);
+}
+
+/* ————— click bursts ————— */
+.burst {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+.burstPetal {
+  position: absolute;
+  color: var(--color-sage);
+}
+
+/* ————— pointer trail ————— */
+.trail {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.trailLeaf {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--color-sage);
+  filter: drop-shadow(0 1px 1px rgba(87, 61, 33, 0.15));
+}
+
+/* ————— papery grain ————— */
+.grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: radial-gradient(rgba(87, 61, 33, 0.07) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+    opacity: 0.6;
+  }
 }

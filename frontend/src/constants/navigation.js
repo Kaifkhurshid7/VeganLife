@@ -3,6 +3,7 @@ export const NAV_LINKS = [
   { name: 'Impact', href: '/#impact' },
   { name: 'Nutrition', href: '/#nutrition' },
   { name: 'Community', href: '/community' },
+  { name: 'Chat', href: '/chat' },
 ];
 
 export const EXPLORE_LINKS = [
