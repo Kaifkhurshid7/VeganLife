@@ -43,13 +43,18 @@ export default function SeasonalProduce() {
 
         <div className={styles.monthGrid}>
           {MONTHS.map((month, idx) => (
-            <button
+            <motion.button
               key={month}
               className={`${styles.monthBtn} ${activeMonth === month ? styles.monthBtnActive : ''}`}
               onClick={() => setActiveMonth(month)}
+              whileHover={{ y: -3 }}
+              whileTap={{ scale: 0.94 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: idx * 0.03 }}
             >
               {month}
-            </button>
+            </motion.button>
           ))}
         </div>
 
@@ -62,19 +67,33 @@ export default function SeasonalProduce() {
             exit={{ opacity: 0, y: -15 }}
             transition={{ duration: 0.4 }}
           >
-            {Object.entries(data).map(([category, items]) => (
-              <div key={category} className={`glass-card ${styles.categoryCard}`}>
+            {Object.entries(data).map(([category, items], idx) => (
+              <motion.div
+                key={category}
+                className={`glass-card ${styles.categoryCard}`}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: 0.1 + idx * 0.1 }}
+                whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+              >
                 <h3 className={styles.categoryTitle} style={{ color: CATEGORY_COLORS[category] }}>
                   {category.charAt(0).toUpperCase() + category.slice(1)}
                 </h3>
                 <div className={styles.itemList}>
-                  {items.map((item) => (
-                    <span key={item} className={styles.item} style={{ borderColor: CATEGORY_COLORS[category] }}>
+                  {items.map((item, iIdx) => (
+                    <motion.span
+                      key={item}
+                      className={styles.item}
+                      style={{ borderColor: CATEGORY_COLORS[category] }}
+                      initial={{ opacity: 0, scale: 0.85 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: 0.2 + idx * 0.1 + iIdx * 0.04 }}
+                    >
                       {item}
-                    </span>
+                    </motion.span>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </AnimatePresence>

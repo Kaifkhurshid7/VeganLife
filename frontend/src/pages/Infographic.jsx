@@ -62,7 +62,10 @@ function StoryBlock({ section, index }) {
 
   return (
     <motion.div ref={ref} className={styles.storyBlock} style={{ opacity, y, scale }}>
-      <div className={styles.storyIcon} style={{ color: section.color }}>
+      <div
+        className={`${styles.storyIcon} animate-bob`}
+        style={{ color: section.color, animationDelay: `${index * -1.3}s` }}
+      >
         {section.icon}
       </div>
       <div className={styles.storyContent}>
@@ -81,6 +84,7 @@ export default function Infographic() {
   const containerRef = useRef(null);
   const { scrollYProgress } = useScroll({ target: containerRef });
   const progressWidth = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+  const lineScale = useTransform(scrollYProgress, [0.05, 0.95], [0, 1]);
 
   return (
     <section className={styles.section} ref={containerRef}>
@@ -103,7 +107,7 @@ export default function Infographic() {
         </motion.div>
 
         <div className={styles.timeline}>
-          <div className={styles.timelineLine} />
+          <motion.div className={styles.timelineLine} style={{ scaleY: lineScale, originY: 0 }} />
           {STORY_SECTIONS.map((section, idx) => (
             <StoryBlock key={section.title} section={section} index={idx} />
           ))}
