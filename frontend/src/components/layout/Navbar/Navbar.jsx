@@ -6,6 +6,7 @@ import { FaLeaf } from 'react-icons/fa6';
 import { useScrollPosition } from '../../../hooks';
 import { NAV_LINKS, EXPLORE_LINKS } from '../../../constants';
 import { useAuth } from '../../../context/AuthContext';
+import { useChat } from '../../../context/ChatContext';
 import styles from './Navbar.module.css';
 
 function NavLink({ href, className, onClick, children }) {
@@ -20,6 +21,7 @@ export default function Navbar() {
   const [exploreOpen, setExploreOpen] = useState(false);
   const isScrolled = useScrollPosition(40);
   const { user, logout, isAdmin } = useAuth();
+  const { totalUnread } = useChat();
 
   return (
     <>
@@ -38,6 +40,9 @@ export default function Navbar() {
           {NAV_LINKS.map((link) => (
             <NavLink key={link.name} href={link.href} className={styles.navLink}>
               {link.name}
+              {link.href === '/chat' && totalUnread > 0 && (
+                <span className={styles.unreadBadge}>{totalUnread > 9 ? '9+' : totalUnread}</span>
+              )}
             </NavLink>
           ))}
 
@@ -147,6 +152,9 @@ export default function Navbar() {
               {NAV_LINKS.map((link) => (
                 <NavLink key={link.name} href={link.href} className={styles.drawerLink} onClick={() => setIsOpen(false)}>
                   {link.name}
+                  {link.href === '/chat' && totalUnread > 0 && (
+                    <span className={styles.unreadBadge}>{totalUnread > 9 ? '9+' : totalUnread}</span>
+                  )}
                 </NavLink>
               ))}
 
