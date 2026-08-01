@@ -11,6 +11,17 @@
   overflow: hidden;
 }
 
+/* Animated aurora wash over the hero background */
+.aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(120deg, rgba(157, 130, 171, 0.3), rgba(227, 163, 110, 0.28), rgba(166, 180, 143, 0.32), rgba(157, 130, 171, 0.3));
+  background-size: 260% 260%;
+  animation: gradientPan 18s ease-in-out infinite;
+}
+
 .orb {
   position: absolute;
   border-radius: 50%;
@@ -58,6 +69,26 @@
   opacity: 0.5;
 }
 
+.petal {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.petalOne {
+  left: 20%;
+  top: 18%;
+  width: 26px;
+  height: 26px;
+}
+
+.petalTwo {
+  right: 16%;
+  top: 54%;
+  width: 20px;
+  height: 20px;
+}
+
 .butterfly {
   position: absolute;
   right: 25%;
@@ -91,6 +122,13 @@
   line-height: 1.05;
   text-shadow: 0 4px 16px rgba(87, 61, 33, 0.15);
   margin-bottom: 24px;
+  perspective: 900px;
+}
+
+.titleWord {
+  display: inline-block;
+  margin-right: 0.3em;
+  transform-style: preserve-3d;
 }
 
 .subtitle {

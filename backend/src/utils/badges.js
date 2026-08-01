@@ -8,7 +8,7 @@ const BADGE_DEFINITIONS = [
     id: 'first_post',
     name: 'First Step',
     description: 'Published your first post',
-    icon: '🌱',
+    icon: 'seedling',
     check: async (userId) => {
       const count = await Post.countDocuments({ author: userId, status: 'approved' });
       return count >= 1;
@@ -18,7 +18,7 @@ const BADGE_DEFINITIONS = [
     id: 'five_posts',
     name: 'Storyteller',
     description: 'Published 5 posts',
-    icon: '📝',
+    icon: 'pencil',
     check: async (userId) => {
       const count = await Post.countDocuments({ author: userId, status: 'approved' });
       return count >= 5;
@@ -28,7 +28,7 @@ const BADGE_DEFINITIONS = [
     id: 'ten_upvotes',
     name: 'Crowd Favorite',
     description: 'Received 10 total upvotes',
-    icon: '⭐',
+    icon: 'star',
     check: async (userId) => {
       const posts = await Post.find({ author: userId, upvoteCount: { $gt: 0 } }).select('upvoteCount').lean();
       const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvoteCount || 0), 0);
@@ -39,7 +39,7 @@ const BADGE_DEFINITIONS = [
     id: 'fifty_upvotes',
     name: 'Community Star',
     description: 'Received 50 total upvotes',
-    icon: '🌟',
+    icon: 'sparkle',
     check: async (userId) => {
       const posts = await Post.find({ author: userId, upvoteCount: { $gt: 0 } }).select('upvoteCount').lean();
       const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvoteCount || 0), 0);
@@ -50,7 +50,7 @@ const BADGE_DEFINITIONS = [
     id: 'first_comment',
     name: 'Engaged',
     description: 'Left your first comment',
-    icon: '💬',
+    icon: 'comment',
     check: async (userId) => {
       const comment = await Comment.findOne({ user: userId });
       return !!comment;
@@ -60,7 +60,7 @@ const BADGE_DEFINITIONS = [
     id: 'ten_followers',
     name: 'Influencer',
     description: 'Gained 10 followers',
-    icon: '👥',
+    icon: 'users',
     check: async (userId) => {
       const user = await User.findById(userId).lean();
       return (user?.followers?.length || 0) >= 10;
@@ -70,7 +70,7 @@ const BADGE_DEFINITIONS = [
     id: 'streak_7',
     name: 'Consistent',
     description: 'Maintained a 7-day streak',
-    icon: '🔥',
+    icon: 'fire',
     check: async (userId) => {
       const user = await User.findById(userId).lean();
       return (user?.streak || 0) >= 7;
@@ -80,7 +80,7 @@ const BADGE_DEFINITIONS = [
     id: 'eco_warrior',
     name: 'Eco Warrior',
     description: 'Reached 100 sustainability XP',
-    icon: '🌍',
+    icon: 'globe',
     check: async (userId) => {
       const user = await User.findById(userId).lean();
       return (user?.sustainabilityScore || 0) >= 100;
