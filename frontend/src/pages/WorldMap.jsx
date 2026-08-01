@@ -49,22 +49,21 @@ export default function WorldMap() {
           >
             {/* Simplified world map background */}
             <svg viewBox="0 0 100 80" className={styles.worldSvg}>
-              <path
-                d="M5,35 C8,30 15,28 20,30 C25,32 28,35 22,40 C18,44 25,50 28,55 C30,60 32,65 28,68 C24,70 20,65 18,60 C15,55 10,50 8,45 C6,40 4,38 5,35Z"
-                fill="rgba(87,61,33,0.06)"
-              />
-              <path
-                d="M42,20 C45,18 50,17 55,20 C58,22 60,25 58,30 C56,35 52,38 48,40 C44,42 42,38 43,34 C44,30 40,25 42,20Z"
-                fill="rgba(87,61,33,0.06)"
-              />
-              <path
-                d="M55,30 C60,28 68,30 75,32 C82,34 88,36 90,40 C92,44 88,48 82,46 C76,44 70,42 65,44 C60,46 55,42 54,38 C53,34 53,32 55,30Z"
-                fill="rgba(87,61,33,0.06)"
-              />
-              <path
-                d="M75,55 C78,52 82,54 85,58 C88,62 86,68 82,70 C78,72 75,68 76,64 C77,60 73,57 75,55Z"
-                fill="rgba(87,61,33,0.06)"
-              />
+              {[
+                'M5,35 C8,30 15,28 20,30 C25,32 28,35 22,40 C18,44 25,50 28,55 C30,60 32,65 28,68 C24,70 20,65 18,60 C15,55 10,50 8,45 C6,40 4,38 5,35Z',
+                'M42,20 C45,18 50,17 55,20 C58,22 60,25 58,30 C56,35 52,38 48,40 C44,42 42,38 43,34 C44,30 40,25 42,20Z',
+                'M55,30 C60,28 68,30 75,32 C82,34 88,36 90,40 C92,44 88,48 82,46 C76,44 70,42 65,44 C60,46 55,42 54,38 C53,34 53,32 55,30Z',
+                'M75,55 C78,52 82,54 85,58 C88,62 86,68 82,70 C78,72 75,68 76,64 C77,60 73,57 75,55Z',
+              ].map((d, i) => (
+                <motion.path
+                  key={i}
+                  d={d}
+                  fill="rgba(87,61,33,0.06)"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 + i * 0.12 }}
+                />
+              ))}
             </svg>
 
             {/* Country markers */}
@@ -105,22 +104,23 @@ export default function WorldMap() {
               >
                 <h3 className={styles.countryName}>{data.name}</h3>
                 <div className={styles.stats}>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{data.co2}</span>
-                    <span className={styles.statLabel}>CO₂ tons/capita/yr</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{data.water.toLocaleString()}</span>
-                    <span className={styles.statLabel}>Liters water/day (food)</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{data.land}</span>
-                    <span className={styles.statLabel}>Sq.ft land/day (food)</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <span className={styles.statValue}>{data.veganPop}</span>
-                    <span className={styles.statLabel}>Vegan population</span>
-                  </div>
+                  {[
+                    { value: data.co2, label: 'CO₂ tons/capita/yr' },
+                    { value: data.water.toLocaleString(), label: 'Liters water/day (food)' },
+                    { value: data.land, label: 'Sq.ft land/day (food)' },
+                    { value: data.veganPop, label: 'Vegan population' },
+                  ].map((s, i) => (
+                    <motion.div
+                      key={s.label}
+                      className={styles.stat}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: 0.1 + i * 0.08 }}
+                    >
+                      <span className={styles.statValue}>{s.value}</span>
+                      <span className={styles.statLabel}>{s.label}</span>
+                    </motion.div>
+                  ))}
                 </div>
                 <p className={styles.insight}>
                   If {data.name} shifted to plant-based diets, it could reduce food-related emissions by up to 70%.

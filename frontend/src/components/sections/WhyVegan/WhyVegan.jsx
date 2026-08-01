@@ -40,12 +40,19 @@ export default function WhyVegan() {
             key={card.title}
             className="glass-card glow-card"
             onMouseMove={handleMouseMove}
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            variants={{
+              hidden: { opacity: 0, y: 40 },
+              show: { opacity: 1, y: 0, transition: { duration: 0.8, delay: idx * 0.1 } },
+            }}
+            initial="hidden"
+            whileInView="show"
             viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.8, delay: idx * 0.1 }}
+            whileHover={{ y: -12, scale: 1.02, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
           >
-            <div className={styles.iconBox} style={{ color: card.color }}>
+            <div
+              className={`${styles.iconBox} animate-bob`}
+              style={{ color: card.color, animationDelay: `${idx * -0.8}s` }}
+            >
               {ICON_MAP[card.icon] || <FaSeedling />}
             </div>
             <h3 className={styles.cardTitle}>{card.title}</h3>

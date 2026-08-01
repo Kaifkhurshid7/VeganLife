@@ -32,6 +32,48 @@
   75% { transform: translate(-15px, -25px) scale(0.95) rotate(12deg); }
 }
 
+/* Animated gradient / aurora background pan */
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Diagonal shine sweep used on cards and buttons */
+@keyframes shineSweep {
+  from { transform: translateX(-120%) skewX(-15deg); }
+  to { transform: translateX(220%) skewX(-15deg); }
+}
+
+/* Soft pulsing glow for orbs, badges, and highlights */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.06); }
+}
+
+/* Gentle vertical bob */
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Slow rotation (badges, accent rings) */
+@keyframes spinSlow {
+  to { transform: rotate(360deg); }
+}
+
+/* Horizontal drift for wave dividers */
+@keyframes waveDrift {
+  from { background-position: 0 0; }
+  to { background-position: -200px 0; }
+}
+
+/* Draws in a horizontal bar (section underlines) */
+@keyframes drawBar {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 /* Utility classes */
 .animate-float {
   animation: organicFloat 6s ease-in-out infinite;
@@ -43,4 +85,44 @@
 
 .animate-butterfly {
   animation: butterflyFlight 12s ease-in-out infinite;
+}
+
+.animate-bob {
+  animation: bob 5s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.animate-gradient {
+  background-size: 220% 220%;
+  animation: gradientPan 14s ease-in-out infinite;
+}
+
+/* Shine sweep — apply to a positioned parent; the ::after runs on hover */
+.animate-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shine::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: translateX(-120%) skewX(-15deg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.animate-shine:hover::after {
+  animation: shineSweep 0.9s var(--ease-out);
 }
