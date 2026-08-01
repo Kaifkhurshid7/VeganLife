@@ -301,3 +301,20 @@
   .desktopMenu { display: flex; }
   .mobileToggle { display: none; }
 }
+
+.unreadBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--color-orange);
+  color: var(--color-earth);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: middle;
+}

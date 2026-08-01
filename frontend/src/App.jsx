@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Lenis from 'lenis';
 import { AuthProvider } from './context/AuthContext';
+import { ChatProvider } from './context/ChatContext';
 import { ToastProvider } from './components/ui/Toast';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 import SplashScreen from './components/ui/SplashScreen';
@@ -16,6 +17,7 @@ import Compare from './pages/Compare';
 import SavingsCalculator from './pages/SavingsCalculator';
 import Auth from './pages/Auth';
 import Community from './pages/Community';
+import Chat from './pages/Chat';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
 import Hashtag from './pages/Hashtag';
@@ -38,6 +40,8 @@ function AnimatedRoutes() {
         <Route path="/savings" element={<PageTransition><SavingsCalculator /></PageTransition>} />
         <Route path="/auth" element={<PageTransition><Auth /></PageTransition>} />
         <Route path="/community" element={<PageTransition><Community /></PageTransition>} />
+        <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
+        <Route path="/chat/:roomSlug" element={<PageTransition><Chat /></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
         <Route path="/hashtag/:tag" element={<PageTransition><Hashtag /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
@@ -77,20 +81,22 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <ToastProvider>
-            <AnimatePresence>
-              {showSplash && <SplashScreen />}
-            </AnimatePresence>
+            <ChatProvider>
+              <AnimatePresence>
+                {showSplash && <SplashScreen />}
+              </AnimatePresence>
 
-            {!showSplash && (
-              <>
-                <ScrollIndicator />
-                <NoiseOverlay />
-                <ParallaxLayers />
-                <FloatingLeaves count={6} />
-                <CursorTrail />
-                <AnimatedRoutes />
-              </>
-            )}
+              {!showSplash && (
+                <>
+                  <ScrollIndicator />
+                  <NoiseOverlay />
+                  <ParallaxLayers />
+                  <FloatingLeaves count={6} />
+                  <CursorTrail />
+                  <AnimatedRoutes />
+                </>
+              )}
+            </ChatProvider>
           </ToastProvider>
         </AuthProvider>
       </BrowserRouter>
