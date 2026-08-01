@@ -4,12 +4,11 @@ import { motion } from 'framer-motion';
 import { FiCheck, FiX, FiTrash2 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import BackButton from '../components/ui/BackButton';
+import { apiFetch } from '../utils/api';
 import styles from './Admin.module.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-
 export default function Admin() {
-  const { user, token, isAdmin } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [posts, setPosts] = useState([]);
   const [filter, setFilter] = useState('pending');
   const [loading, setLoading] = useState(true);
@@ -21,9 +20,7 @@ export default function Admin() {
 
   async function fetchPosts() {
     try {
-      const res = await fetch(`${API_URL}/posts/admin/all`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch('/posts/admin/all');
       if (res.ok) setPosts(await res.json());
     } catch {}
     finally { setLoading(false); }
@@ -31,9 +28,9 @@ export default function Admin() {
 
   async function updateStatus(postId, status) {
     try {
-      await fetch(`${API_URL}/posts/${postId}/status`, {
+      await apiFetch(`/posts/${postId}/status`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
       fetchPosts();
@@ -43,10 +40,7 @@ export default function Admin() {
   async function deletePost(postId) {
     if (!confirm('Delete this post permanently?')) return;
     try {
-      await fetch(`${API_URL}/posts/${postId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiFetch(`/posts/${postId}`, { method: 'DELETE' });
       fetchPosts();
     } catch {}
   }
@@ -101,8 +95,8 @@ export default function Admin() {
               </div>
               <p className={styles.postContent}>{post.content.slice(0, 200)}{post.content.length > 200 ? '...' : ''}</p>
               <div className={styles.postStats}>
-                <span>{post.upvotes?.length || 0} upvotes</span>
-                <span>{post.comments?.length || 0} comments</span>
+                <span>{post.upvoteCount || 0} upvotes</span>
+                <span>{post.commentCount || 0} comments</span>
               </div>
               <div className={styles.actions}>
                 {post.status === 'pending' && (
