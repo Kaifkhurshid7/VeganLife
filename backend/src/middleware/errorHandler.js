@@ -1,4 +1,5 @@
 import { logger } from '../utils/logger.js';
+import { getSentry } from '../config/sentry.js';
 
 export function globalErrorHandler(err, req, res, next) {
   let statusCode = err.statusCode || 500;
@@ -36,9 +37,10 @@ export function globalErrorHandler(err, req, res, next) {
     message = 'Token expired';
   }
 
-  // Log server errors
+  // Log server errors and report them to Sentry when configured
   if (statusCode >= 500) {
     logger.error(message, { stack: err.stack, url: req.originalUrl, method: req.method });
+    getSentry()?.captureException(err, { extra: { url: req.originalUrl, method: req.method } });
   }
 
   res.status(statusCode).json({
