@@ -65,7 +65,14 @@ export default function Nutrition() {
               {/* Food items with progress bars */}
               <div className={styles.progressList}>
                 {selectedCategory.items.map((item, idx) => (
-                  <div key={item.food} className={styles.progressItem}>
+                  <motion.div
+                    key={item.food}
+                    className={styles.progressItem}
+                    initial={{ opacity: 0, y: 14 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.45, delay: idx * 0.06 }}
+                  >
                     <div
                       className={styles.progressHeader}
                       onClick={() => setExpandedItem(expandedItem === idx ? null : idx)}
@@ -126,7 +133,7 @@ export default function Nutrition() {
                         </motion.div>
                       )}
                     </AnimatePresence>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 

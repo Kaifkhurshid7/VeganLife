@@ -47,6 +47,7 @@ export default function Impact() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.7, delay: idx * 0.1 }}
+            whileHover={{ y: -10, scale: 1.03, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
             style={{ textAlign: 'center' }}
           >
             <div className={styles.statIcon} style={{ color: stat.color }}>
