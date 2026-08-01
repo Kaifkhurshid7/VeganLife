@@ -6,6 +6,7 @@ import { FaLeaf, FaSeedling, FaFire } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
+import { apiFetch } from '../utils/api';
 import styles from './Profile.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -25,7 +26,7 @@ function getUserBadge(score) {
 export default function Profile() {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser, accessToken } = useAuth();
+  const { user: currentUser, isAuthenticated } = useAuth();
   const toast = useToast();
   
   const [profile, setProfile] = useState(null);
@@ -57,17 +58,14 @@ export default function Profile() {
   }
 
   async function handleFollowToggle() {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       toast.warning('Login to follow users');
       return;
     }
 
     setFollowing(true);
     try {
-      const res = await fetch(`${API_URL}/users/${profile._id}/follow`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` }
-      });
+      const res = await apiFetch(`/users/${profile._id}/follow`, { method: 'POST' });
 
       if (res.ok) {
         const json = await res.json();
