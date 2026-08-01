@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema({
   // Settings
   isVerified: { type: Boolean, default: false },
   lastLogin: { type: Date },
+
+  // Chat read cursors — per-room last-read time, drives unread counts
+  chatReads: [{
+    room: { type: mongoose.Schema.Types.ObjectId, ref: 'Room' },
+    at: { type: Date, default: Date.now },
+  }],
 }, { timestamps: true });
 
 // Indexes for query performance
