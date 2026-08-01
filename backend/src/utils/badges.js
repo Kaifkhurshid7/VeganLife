@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
 
 // Badge definitions
 const BADGE_DEFINITIONS = [
@@ -29,8 +30,8 @@ const BADGE_DEFINITIONS = [
     description: 'Received 10 total upvotes',
     icon: '⭐',
     check: async (userId) => {
-      const posts = await Post.find({ author: userId }).lean();
-      const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvotes?.length || 0), 0);
+      const posts = await Post.find({ author: userId, upvoteCount: { $gt: 0 } }).select('upvoteCount').lean();
+      const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvoteCount || 0), 0);
       return totalUpvotes >= 10;
     }
   },
@@ -40,8 +41,8 @@ const BADGE_DEFINITIONS = [
     description: 'Received 50 total upvotes',
     icon: '🌟',
     check: async (userId) => {
-      const posts = await Post.find({ author: userId }).lean();
-      const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvotes?.length || 0), 0);
+      const posts = await Post.find({ author: userId, upvoteCount: { $gt: 0 } }).select('upvoteCount').lean();
+      const totalUpvotes = posts.reduce((sum, p) => sum + (p.upvoteCount || 0), 0);
       return totalUpvotes >= 50;
     }
   },
@@ -51,8 +52,8 @@ const BADGE_DEFINITIONS = [
     description: 'Left your first comment',
     icon: '💬',
     check: async (userId) => {
-      const post = await Post.findOne({ 'comments.user': userId });
-      return !!post;
+      const comment = await Comment.findOne({ user: userId });
+      return !!comment;
     }
   },
   {
