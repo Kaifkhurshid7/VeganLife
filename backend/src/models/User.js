@@ -55,9 +55,7 @@ const userSchema = new mongoose.Schema({
   }],
 }, { timestamps: true });
 
-// Indexes for query performance
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
+// Indexes for query performance (email/username already indexed via `unique: true`)
 userSchema.index({ role: 1 });
 
 userSchema.pre('save', async function (next) {
