@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import User from '../models/User.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../config/tokens.js';
+import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, accessCookieOptions, refreshCookieOptions } from '../config/cookies.js';
 import { authenticate } from '../middleware/auth.js';
 import { signupValidation, loginValidation } from '../middleware/validate.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
@@ -8,12 +9,17 @@ import { ApiError } from '../utils/ApiError.js';
 
 const router = Router();
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-  maxAge: 7 * 24 * 60 * 60 * 1000,
-};
+// Set both tokens as httpOnly cookies; the access token is also returned in the
+// body for non-browser clients (tests, API consumers).
+function setAuthCookies(res, accessToken, refreshToken) {
+  res.cookie(ACCESS_TOKEN_COOKIE, accessToken, accessCookieOptions);
+  res.cookie(REFRESH_TOKEN_COOKIE, refreshToken, refreshCookieOptions);
+}
+
+function clearAuthCookies(res) {
+  res.clearCookie(ACCESS_TOKEN_COOKIE, accessCookieOptions);
+  res.clearCookie(REFRESH_TOKEN_COOKIE, refreshCookieOptions);
+}
 
 // Signup
 router.post('/signup', signupValidation, asyncHandler(async (req, res) => {
@@ -34,7 +40,7 @@ router.post('/signup', signupValidation, asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save();
 
-  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+  setAuthCookies(res, accessToken, refreshToken);
   res.status(201).json({ success: true, accessToken, user: user.toPublicJSON() });
 }));
 
@@ -54,7 +60,7 @@ router.post('/login', loginValidation, asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save();
 
-  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+  setAuthCookies(res, accessToken, refreshToken);
   res.json({ success: true, accessToken, user: user.toPublicJSON() });
 }));
 
@@ -82,11 +88,11 @@ router.post('/admin-login', loginValidation, asyncHandler(async (req, res) => {
   user.lastLogin = new Date();
   await user.save();
 
-  res.cookie('refreshToken', refreshToken, COOKIE_OPTIONS);
+  setAuthCookies(res, accessToken, refreshToken);
   res.json({ success: true, accessToken, user: user.toPublicJSON() });
 }));
 
-// Refresh token
+// Refresh token (rotation: each refresh issues a new refresh token)
 router.post('/refresh', asyncHandler(async (req, res) => {
   const token = req.cookies?.refreshToken || req.body.refreshToken;
   if (!token) throw ApiError.unauthorized('Refresh token required');
@@ -104,7 +110,7 @@ router.post('/refresh', asyncHandler(async (req, res) => {
   user.refreshToken = newRefreshToken;
   await user.save();
 
-  res.cookie('refreshToken', newRefreshToken, COOKIE_OPTIONS);
+  setAuthCookies(res, accessToken, newRefreshToken);
   res.json({ success: true, accessToken });
 }));
 
@@ -152,14 +158,14 @@ router.patch('/change-password', authenticate, asyncHandler(async (req, res) => 
 // Logout
 router.post('/logout', authenticate, asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(req.user._id, { refreshToken: null });
-  res.clearCookie('refreshToken', COOKIE_OPTIONS);
+  clearAuthCookies(res);
   res.json({ success: true, message: 'Logged out' });
 }));
 
 // Delete account
 router.delete('/account', authenticate, asyncHandler(async (req, res) => {
   await User.findByIdAndDelete(req.user._id);
-  res.clearCookie('refreshToken', COOKIE_OPTIONS);
+  clearAuthCookies(res);
   res.json({ success: true, message: 'Account deleted' });
 }));
 
