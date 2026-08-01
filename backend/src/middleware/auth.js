@@ -1,14 +1,25 @@
 import { verifyAccessToken } from '../config/tokens.js';
+import { ACCESS_TOKEN_COOKIE } from '../config/cookies.js';
 import User from '../models/User.js';
 
-export async function authenticate(req, res, next) {
+// Prefer the httpOnly access-token cookie (browser clients); fall back to the
+// Authorization header for API consumers and tests.
+function extractToken(req) {
+  const fromCookie = req.cookies?.[ACCESS_TOKEN_COOKIE];
+  if (fromCookie) return fromCookie;
+
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
+  if (authHeader?.startsWith('Bearer ')) return authHeader.split(' ')[1];
+  return null;
+}
+
+export async function authenticate(req, res, next) {
+  const token = extractToken(req);
+  if (!token) {
     return res.status(401).json({ message: 'Access token required' });
   }
 
   try {
-    const token = authHeader.split(' ')[1];
     const decoded = verifyAccessToken(token);
     const user = await User.findById(decoded.id).select('-password -refreshToken');
     if (!user) return res.status(401).json({ message: 'User not found' });
@@ -30,16 +41,15 @@ export function adminOnly(req, res, next) {
 }
 
 export function optionalAuth(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return next();
+  const token = extractToken(req);
+  if (!token) return next();
 
   try {
-    const token = authHeader.split(' ')[1];
     const decoded = verifyAccessToken(token);
     User.findById(decoded.id).select('-password -refreshToken').then((user) => {
-      req.user = user;
+      if (user) req.user = user;
       next();
-    });
+    }).catch(() => next());
   } catch {
     next();
   }
