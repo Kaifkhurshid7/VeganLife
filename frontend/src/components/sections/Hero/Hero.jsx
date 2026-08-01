@@ -16,6 +16,9 @@ export default function Hero() {
 
   return (
     <section ref={containerRef} className={styles.hero} id="hero">
+      {/* Aurora gradient overlay */}
+      <div className={styles.aurora} aria-hidden="true" />
+
       {/* Ambient nature animations */}
       <Butterflies count={5} />
       <FloatingBirds count={4} />
@@ -40,6 +43,24 @@ export default function Hero() {
         <path d="M50,0 C65,35 90,45 100,65 C90,85 75,95 50,100 C25,95 10,85 0,65 C10,45 35,35 50,0 Z" />
       </motion.svg>
 
+      {/* Drifting petals */}
+      <motion.svg
+        viewBox="0 0 24 24"
+        className={`${styles.petal} ${styles.petalOne}`}
+        animate={{ y: [0, -16, 0], rotate: [0, 24, -16, 0] }}
+        transition={{ repeat: Infinity, duration: 9, ease: 'easeInOut' }}
+      >
+        <circle cx="12" cy="12" r="7" fill="#e3a36e" opacity="0.5" />
+      </motion.svg>
+      <motion.svg
+        viewBox="0 0 24 24"
+        className={`${styles.petal} ${styles.petalTwo}`}
+        animate={{ y: [0, -20, 0], rotate: [0, -20, 18, 0] }}
+        transition={{ repeat: Infinity, duration: 11, ease: 'easeInOut' }}
+      >
+        <circle cx="12" cy="12" r="7" fill="#9d82ab" opacity="0.4" />
+      </motion.svg>
+
       <motion.div
         className={`${styles.butterfly} animate-butterfly`}
         style={{ x: mouse.x * 0.8, y: mouse.y * 0.8 }}
@@ -58,7 +79,19 @@ export default function Hero() {
         transition={{ duration: 1.2, ease: 'easeOut' }}
       >
         <span className={styles.tagline}>A Return To Earth</span>
-        <h1 className={styles.title}>It's Natural</h1>
+        <motion.h1 className={styles.title} aria-label="It's Natural">
+          {['It’s', 'Natural'].map((word, i) => (
+            <motion.span
+              key={i}
+              className={styles.titleWord}
+              initial={{ opacity: 0, y: 70, rotateX: 90 }}
+              animate={{ opacity: 1, y: 0, rotateX: 0 }}
+              transition={{ duration: 0.9, delay: 0.25 + i * 0.16, ease: 'easeOut' }}
+            >
+              {word}
+            </motion.span>
+          ))}
+        </motion.h1>
         <p className={styles.subtitle}>
           Promoting sustainable living and conscious food choices for a healthier, more balanced planet.
         </p>
@@ -68,14 +101,18 @@ export default function Hero() {
         </div>
       </motion.div>
 
-      <div className={styles.mountains}>
+      <motion.div
+        className={styles.mountains}
+        animate={{ x: [0, -24, 0] }}
+        transition={{ repeat: Infinity, duration: 24, ease: 'easeInOut' }}
+      >
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className={styles.mountainBack}>
           <path d="M0,0 C150,90 350,10 600,70 C850,130 1050,40 1200,10 L1200,120 L0,120 Z" />
         </svg>
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className={styles.mountainFront}>
           <path d="M0,40 C200,110 450,10 700,80 C950,150 1100,50 1200,30 L1200,120 L0,120 Z" />
         </svg>
-      </div>
+      </motion.div>
 
       <motion.a
         href="#why-vegan"

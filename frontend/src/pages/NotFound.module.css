@@ -13,6 +13,12 @@
   opacity: 0.1;
   line-height: 1;
   margin-bottom: -20px;
+  perspective: 600px;
+}
+
+.digit {
+  display: inline-block;
+  margin-right: 0.05em;
 }
 
 .title { font-size: 2rem; color: var(--color-earth); margin-bottom: 16px; }
@@ -33,7 +39,7 @@
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
-.primaryBtn:hover { background: var(--color-orange); color: var(--color-earth); }
+.primaryBtn:hover { background: var(--color-orange); color: var(--color-earth); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(87,61,33,0.15); }
 
 .secondaryBtn {
   display: inline-flex;
@@ -49,4 +55,4 @@
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
-.secondaryBtn:hover { background: rgba(87,61,33,0.06); }
+.secondaryBtn:hover { background: rgba(87,61,33,0.06); transform: translateY(-2px); }
