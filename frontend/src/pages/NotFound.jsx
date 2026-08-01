@@ -22,7 +22,19 @@ export default function NotFound() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className={styles.code}>404</h1>
+          <motion.h1 className={styles.code} aria-label="404">
+            {['4', '0', '4'].map((d, i) => (
+              <motion.span
+                key={i}
+                className={styles.digit}
+                initial={{ opacity: 0, y: 50, rotateX: 90 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ duration: 0.7, delay: 0.25 + i * 0.14, ease: 'easeOut' }}
+              >
+                {d}
+              </motion.span>
+            ))}
+          </motion.h1>
           <h2 className={styles.title}>Page Not Found</h2>
           <p className={styles.desc}>
             This path doesn't lead anywhere in our garden. Let's get you back to familiar ground.

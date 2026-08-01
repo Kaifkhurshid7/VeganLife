@@ -7,9 +7,15 @@ import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { useToast } from '../components/ui/Toast';
 import { apiFetch } from '../utils/api';
+import { ROOM_ICONS, resolveIcon } from '../utils/iconMap';
 import styles from './Chat.module.css';
 
 const HISTORY_LIMIT = 30;
+
+function RoomIcon({ icon }) {
+  const Icon = resolveIcon(icon);
+  return <Icon />;
+}
 
 function formatTime(iso) {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -46,7 +52,7 @@ export default function Chat() {
   const [sending, setSending] = useState(false);
   const [showRooms, setShowRooms] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
-  const [newRoom, setNewRoom] = useState({ name: '', description: '', icon: '🌱' });
+  const [newRoom, setNewRoom] = useState({ name: '', description: '', icon: ROOM_ICONS[0].key });
   const [creating, setCreating] = useState(false);
 
   const listRef = useRef(null);
@@ -206,7 +212,7 @@ export default function Chat() {
       const room = await createRoom({ ...newRoom });
       toast.success('Room created');
       setShowCreate(false);
-      setNewRoom({ name: '', description: '', icon: '🌱' });
+      setNewRoom({ name: '', description: '', icon: ROOM_ICONS[0].key });
       navigate(`/chat/${room.slug}`);
     } catch (err) {
       toast.error(err.message || 'Failed to create room');
@@ -272,15 +278,16 @@ export default function Chat() {
             {!connected && <div className={styles.connecting}>Reconnecting…</div>}
             <div className={styles.roomList}>
               {rooms.map((room) => (
-                <button
+                <motion.button
                   key={room._id}
                   className={`${styles.roomItem} ${activeRoomId === room._id ? styles.roomActive : ''}`}
                   onClick={() => {
                     if (room._id !== activeRoomId) navigate(`/chat/${room.slug}`);
                     setShowRooms(false);
                   }}
+                  whileHover={{ x: 4 }}
                 >
-                  <span className={styles.roomIcon}>{room.icon}</span>
+                  <span className={styles.roomIcon}><RoomIcon icon={room.icon} /></span>
                   <span className={styles.roomInfo}>
                     <span className={styles.roomName}>{room.name}</span>
                     <span className={styles.roomPreview}>{room.lastMessage || 'No messages yet'}</span>
@@ -291,7 +298,7 @@ export default function Chat() {
                       <span className={styles.unreadBadge}>{room.unreadCount > 9 ? '9+' : room.unreadCount}</span>
                     )}
                   </span>
-                </button>
+                </motion.button>
               ))}
             </div>
           </aside>
@@ -304,7 +311,7 @@ export default function Chat() {
                   <button className={styles.mobileRoomsBtn} onClick={() => setShowRooms(true)} aria-label="Show rooms">
                     <FiMenu />
                   </button>
-                  <span className={styles.chatHeaderIcon}>{activeRoom.icon}</span>
+                  <span className={styles.chatHeaderIcon}><RoomIcon icon={activeRoom.icon} /></span>
                   <div className={styles.chatHeaderInfo}>
                     <h2 className={styles.chatTitle}>{activeRoom.name}</h2>
                     <span className={styles.onlineCount}>
@@ -318,7 +325,7 @@ export default function Chat() {
                     <div className={styles.stateMsg}>Loading messages…</div>
                   ) : messages.length === 0 ? (
                     <div className={styles.emptyChat}>
-                      <span className={styles.emptyChatIcon}>{activeRoom.icon}</span>
+                      <span className={styles.emptyChatIcon}><RoomIcon icon={activeRoom.icon} /></span>
                       <p>Be the first to say hello in #{activeRoom.name}.</p>
                     </div>
                   ) : (
@@ -342,9 +349,9 @@ export default function Chat() {
                     maxLength={1000}
                     autoComplete="off"
                   />
-                  <button type="submit" disabled={!input.trim() || sending} aria-label="Send">
+                  <motion.button type="submit" disabled={!input.trim() || sending} aria-label="Send" whileTap={{ scale: 0.92 }}>
                     <FiSend />
-                  </button>
+                  </motion.button>
                 </form>
               </>
             ) : roomError ? (
@@ -396,12 +403,21 @@ export default function Chat() {
                 onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
                 maxLength={200}
               />
-              <input
-                placeholder="Icon (emoji)"
-                value={newRoom.icon}
-                onChange={(e) => setNewRoom({ ...newRoom, icon: e.target.value })}
-                maxLength={4}
-              />
+              <label className={styles.iconPickerLabel}>Channel icon</label>
+              <div className={styles.iconPicker}>
+                {ROOM_ICONS.map(({ key, label, Icon }) => (
+                  <button
+                    type="button"
+                    key={key}
+                    title={label}
+                    aria-label={label}
+                    className={`${styles.iconOption} ${newRoom.icon === key ? styles.iconOptionActive : ''}`}
+                    onClick={() => setNewRoom({ ...newRoom, icon: key })}
+                  >
+                    <Icon />
+                  </button>
+                ))}
+              </div>
               <button type="submit" className={styles.modalSubmit} disabled={creating}>
                 {creating ? 'Creating…' : 'Create Channel'}
               </button>

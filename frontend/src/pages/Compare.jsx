@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { FaCloud, FaDroplet, FaMountain, FaCow, FaTree, FaFish } from 'react-icons/fa6';
 import BackButton from '../components/ui/BackButton';
 import styles from './Compare.module.css';
 
 const COMPARISONS = [
-  { metric: 'CO₂ Emissions', unit: 'kg/year', vegan: 1500, omnivore: 3300, icon: '🌍' },
-  { metric: 'Water Usage', unit: 'liters/day', vegan: 1100, omnivore: 15000, icon: '💧' },
-  { metric: 'Land Use', unit: 'sq.m/year', vegan: 650, omnivore: 3200, icon: '🌱' },
-  { metric: 'Animals Saved', unit: 'per year', vegan: 365, omnivore: 0, icon: '🐄' },
-  { metric: 'Deforestation', unit: 'sq.ft/year', vegan: 120, omnivore: 1800, icon: '🌳' },
-  { metric: 'Ocean Dead Zones', unit: 'contribution %', vegan: 5, omnivore: 45, icon: '🐟' },
+  { metric: 'CO₂ Emissions', unit: 'kg/year', vegan: 1500, omnivore: 3300, icon: <FaCloud /> },
+  { metric: 'Water Usage', unit: 'liters/day', vegan: 1100, omnivore: 15000, icon: <FaDroplet /> },
+  { metric: 'Land Use', unit: 'sq.m/year', vegan: 650, omnivore: 3200, icon: <FaMountain /> },
+  { metric: 'Animals Saved', unit: 'per year', vegan: 365, omnivore: 0, icon: <FaCow /> },
+  { metric: 'Deforestation', unit: 'sq.ft/year', vegan: 120, omnivore: 1800, icon: <FaTree /> },
+  { metric: 'Ocean Dead Zones', unit: 'contribution %', vegan: 5, omnivore: 45, icon: <FaFish /> },
 ];
 
 function ComparisonSlider({ data }) {
