@@ -1,26 +1,8 @@
 import multer from 'multer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.join(__dirname, '../../uploads');
-
-// Ensure uploads directory exists
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, 'img-' + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+// Memory storage: the file buffer is passed to uploadImage() which decides
+// between Cloudinary (production) and a local disk write (dev fallback).
+const storage = multer.memoryStorage();
 
 // File filter - only images
 const fileFilter = (req, file, cb) => {
@@ -32,7 +14,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-// Multer middleware
 const upload = multer({
   storage,
   fileFilter,

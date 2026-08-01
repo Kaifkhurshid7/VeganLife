@@ -55,11 +55,6 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 1800);
-    return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
     const lenis = new Lenis({
       duration: 1.3,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -83,7 +78,9 @@ export default function App() {
           <ToastProvider>
             <ChatProvider>
               <AnimatePresence>
-                {showSplash && <SplashScreen />}
+                {showSplash && (
+                  <SplashScreen onFinish={() => setShowSplash(false)} />
+                )}
               </AnimatePresence>
 
               {!showSplash && (
