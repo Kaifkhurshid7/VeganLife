@@ -6,6 +6,7 @@ import { FaLeaf, FaSeedling } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
+import { apiFetch } from '../utils/api';
 import styles from './Hashtag.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -13,7 +14,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 export default function Hashtag() {
   const { tag } = useParams();
   const navigate = useNavigate();
-  const { user, accessToken } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const toast = useToast();
 
   const [posts, setPosts] = useState([]);
@@ -56,15 +57,12 @@ export default function Hashtag() {
   }
 
   async function handleUpvote(postId) {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       toast.warning('Login to upvote');
       return;
     }
     try {
-      await fetch(`${API_URL}/posts/${postId}/upvote`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      await apiFetch(`/posts/${postId}/upvote`, { method: 'POST' });
       fetchHashtagPosts();
     } catch {
       toast.error('Failed to upvote');
@@ -180,7 +178,7 @@ export default function Hashtag() {
 }
 
 function PostCard({ post, idx, user, onUpvote }) {
-  const hasUpvoted = user && post.upvotes?.includes(user.id);
+  const hasUpvoted = user && post.hasUpvoted;
 
   return (
     <motion.article
@@ -222,10 +220,10 @@ function PostCard({ post, idx, user, onUpvote }) {
           className={`${styles.actionBtn} ${hasUpvoted ? styles.active : ''}`} 
           onClick={() => onUpvote(post._id)}
         >
-          <FiArrowUp /> Upvote ({post.upvotes?.length || 0})
+          <FiArrowUp /> Upvote ({post.upvoteCount || 0})
         </button>
         <button className={styles.actionBtn}>
-          <FiMessageCircle /> Comments ({post.comments?.length || 0})
+          <FiMessageCircle /> Comments ({post.commentCount || 0})
         </button>
       </div>
     </motion.article>
