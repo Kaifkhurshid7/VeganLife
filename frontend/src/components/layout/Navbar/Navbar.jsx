@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiMenu, FiX, FiChevronDown, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiMenu, FiX, FiChevronDown, FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
 import { FaLeaf } from 'react-icons/fa6';
 import { useScrollPosition } from '../../../hooks';
 import { NAV_LINKS, EXPLORE_LINKS } from '../../../constants';
@@ -77,13 +77,16 @@ export default function Navbar() {
           {/* Auth section */}
           {user ? (
             <div className={styles.userSection}>
-              <Link to="/profile" className={styles.userBadge}>
+              <Link to={`/profile/${user.username}`} className={styles.userBadge}>
                 <span className={styles.userAvatar}>{user.name.charAt(0)}</span>
                 <span className={styles.userName}>{user.name.split(' ')[0]}</span>
               </Link>
               {isAdmin && (
                 <Link to="/admin" className={styles.adminLink}>Admin</Link>
               )}
+              <Link to="/settings/profile" className={styles.logoutBtn} aria-label="Edit profile">
+                <FiSettings />
+              </Link>
               <button className={styles.logoutBtn} onClick={logout} aria-label="Logout">
                 <FiLogOut />
               </button>
@@ -168,6 +171,8 @@ export default function Navbar() {
               {user && (
                 <>
                   <span className={styles.drawerSection}>Account</span>
+                  <Link to={`/profile/${user.username}`} className={styles.drawerLink} onClick={() => setIsOpen(false)}>My Profile</Link>
+                  <Link to="/settings/profile" className={styles.drawerLink} onClick={() => setIsOpen(false)}>Edit Profile</Link>
                   <Link to="/community" className={styles.drawerLink} onClick={() => setIsOpen(false)}>Community</Link>
                   {isAdmin && <Link to="/admin" className={styles.drawerLink} onClick={() => setIsOpen(false)}>Admin Panel</Link>}
                   <button className={styles.drawerLogout} onClick={() => { logout(); setIsOpen(false); }}>

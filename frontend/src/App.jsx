@@ -20,6 +20,7 @@ import Community from './pages/Community';
 import Chat from './pages/Chat';
 import Admin from './pages/Admin';
 import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
 import Hashtag from './pages/Hashtag';
 import NotFound from './pages/NotFound';
 import { NoiseOverlay, ScrollIndicator } from './components/ui';
@@ -43,6 +44,7 @@ function AnimatedRoutes() {
         <Route path="/chat" element={<PageTransition><Chat /></PageTransition>} />
         <Route path="/chat/:roomSlug" element={<PageTransition><Chat /></PageTransition>} />
         <Route path="/profile/:username" element={<PageTransition><Profile /></PageTransition>} />
+        <Route path="/settings/profile" element={<PageTransition><EditProfile /></PageTransition>} />
         <Route path="/hashtag/:tag" element={<PageTransition><Hashtag /></PageTransition>} />
         <Route path="/admin" element={<PageTransition><Admin /></PageTransition>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
