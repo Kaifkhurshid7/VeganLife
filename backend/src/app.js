@@ -10,6 +10,9 @@ import postRoutes from './routes/posts.js';
 import userRoutes from './routes/users.js';
 import collectionsRoutes from './routes/collections.js';
 import roomsRoutes from './routes/rooms.js';
+import adminRoutes from './routes/admin.js';
+import reportRoutes from './routes/reports.js';
+import pushRoutes from './routes/push.js';
 
 // Build the Express app without binding a port, so tests can mount it directly.
 export function createApp() {
@@ -61,6 +64,9 @@ export function createApp() {
   app.use('/api/users', userRoutes);
   app.use('/api/collections', collectionsRoutes);
   app.use('/api/rooms', roomsRoutes);
+  app.use('/api/admin', adminRoutes);
+  app.use('/api/reports', reportRoutes);
+  app.use('/api/push', pushRoutes);
 
   // Health check
   app.get('/api/health', (req, res) => {
