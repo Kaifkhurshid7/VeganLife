@@ -85,6 +85,8 @@
 /* Post delete */
 .postDeleteBtn { background: none; border: none; color: #c0392b; opacity: 0.5; cursor: pointer; font-size: 0.95rem; padding: 4px; transition: opacity 0.2s; }
 .postDeleteBtn:hover { opacity: 1; }
+.postReportBtn { background: none; border: none; color: var(--color-text-secondary); opacity: 0.5; cursor: pointer; font-size: 0.9rem; padding: 4px; transition: opacity 0.2s, color 0.2s; }
+.postReportBtn:hover { opacity: 1; color: #c0392b; }
 
 /* Empty State */
 .emptyState { text-align: center; padding: 80px 30px; }

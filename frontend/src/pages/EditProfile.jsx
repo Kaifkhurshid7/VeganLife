@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiCamera, FiEye, FiEyeOff, FiAtSign, FiUser, FiLock, FiSave, FiKey } from 'react-icons/fi';
+import { FiCamera, FiEye, FiEyeOff, FiAtSign, FiUser, FiLock, FiSave, FiKey, FiBell } from 'react-icons/fi';
 import { FaLeaf, FaSeedling } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import { SectionHeader, PasswordStrength } from '../components/ui';
 import BackButton from '../components/ui/BackButton';
+import { requestPushPermission, VAPID_PUBLIC_KEY } from '../utils/push';
 import styles from './EditProfile.module.css';
 
 const MAX_BIO = 300;
@@ -43,6 +44,26 @@ export default function EditProfile() {
 
   const [submittingProfile, setSubmittingProfile] = useState(false);
   const [submittingPw, setSubmittingPw] = useState(false);
+
+  // Web push notifications
+  const [pushState, setPushState] = useState(window.Notification?.permission || 'unsupported');
+  const [pushBusy, setPushBusy] = useState(false);
+  const pushSupported = 'serviceWorker' in navigator && 'PushManager' in window && !!VAPID_PUBLIC_KEY;
+
+  const handleEnablePush = async () => {
+    setPushBusy(true);
+    try {
+      const result = await requestPushPermission();
+      setPushState(result.state || Notification?.permission || 'denied');
+      if (result.state === 'granted') toast.success('Notifications enabled');
+      else if (result.state === 'denied') toast.warning('Notifications are blocked in your browser');
+      else toast.error('Could not enable notifications');
+    } catch {
+      toast.error('Could not enable notifications');
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   // Seed form once the user is available (and whenever it changes)
   useEffect(() => {
@@ -399,6 +420,42 @@ export default function EditProfile() {
               <FiLock /> {submittingPw ? 'Updating…' : 'Update Password'}
             </button>
           </motion.form>
+
+          {/* Notifications card */}
+          <motion.div
+            className={`glass-card ${styles.card}`}
+            variants={cardVariants}
+            initial="hidden"
+            animate="show"
+            custom={3}
+          >
+            <div className={styles.cardHeader}>
+              <FiBell className={styles.cardIcon} />
+              <div>
+                <h3 className={styles.cardTitle}>Notifications</h3>
+                <p className={styles.cardSub}>Get pinged when someone replies, mentions you, or chats.</p>
+              </div>
+            </div>
+
+            {!pushSupported ? (
+              <p className={styles.hint}>Web notifications aren't available in this browser.</p>
+            ) : pushState === 'granted' ? (
+              <p className={styles.pushOn}><FiBell /> Notifications enabled</p>
+            ) : pushState === 'denied' ? (
+              <p className={styles.pushBlocked}>
+                Notifications are blocked in your browser. Allow them from the site settings (the lock icon next to the address bar), then refresh.
+              </p>
+            ) : (
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleEnablePush}
+                disabled={pushBusy}
+              >
+                <FiBell /> {pushBusy ? 'Enabling…' : 'Enable notifications'}
+              </button>
+            )}
+          </motion.div>
         </div>
 
         <p className={styles.footerNote}>
