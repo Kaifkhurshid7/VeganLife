@@ -13,6 +13,7 @@ export const EXPLORE_LINKS = [
   { name: 'Our Story', href: '/infographic', desc: 'Scroll-driven storytelling' },
   { name: 'Seasonal Produce', href: '/seasonal', desc: "What's fresh this month" },
   { name: 'Vegan vs Omnivore', href: '/compare', desc: 'Side-by-side comparison' },
+  { name: 'Meal Planner', href: '/planner', desc: '7-day plans + auto grocery list' },
 ];
 
 export const FOOTER_LINKS = [
