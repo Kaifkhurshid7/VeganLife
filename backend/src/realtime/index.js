@@ -6,6 +6,7 @@ import Room from '../models/Room.js';
 import Message from '../models/Message.js';
 import { verifyAccessToken } from '../config/tokens.js';
 import { ACCESS_TOKEN_COOKIE } from '../config/cookies.js';
+import { sendPushToUsers } from '../utils/pushNotifications.js';
 
 const MESSAGE_RATE_LIMIT_MS = 1500;
 const RATE_LIMIT_CLEANUP_MS = 60 * 1000;
@@ -64,6 +65,10 @@ export function initRealtime(server, redisPubSub) {
         username: user.username,
         avatar: user.avatar,
       };
+      // fetchSockets() returns RemoteSocket objects that expose socket.data but NOT
+      // socket.user — mirror the id here so the chat push hook can exclude anyone
+      // currently online in a room.
+      socket.data = { user: { id: user._id.toString() } };
       next();
     } catch {
       next(new Error('unauthorized'));
@@ -183,6 +188,27 @@ export function initRealtime(server, redisPubSub) {
 
         io.to(roomId).emit('message:new', { message });
         reply({ ok: true, message });
+
+        // Push to users who have ever engaged with this room (chatReads cursor),
+        // minus the sender, minus anyone they blocked, minus anyone currently
+        // online in the room. Fire-and-forget so it never blocks the reply.
+        User.find({ 'chatReads.room': roomId, _id: { $ne: user.id }, blockedUsers: { $ne: user.id } })
+          .select('_id').lean()
+          .then(async (readers) => {
+            if (readers.length === 0) return;
+            const sockets = await io.in(roomId).fetchSockets();
+            const onlineIds = new Set(sockets.map((s) => String(s.data?.user?.id)).filter(Boolean));
+            const targets = readers
+              .filter((r) => !onlineIds.has(String(r._id)))
+              .map((r) => String(r._id));
+            if (targets.length === 0) return;
+            return sendPushToUsers(targets, {
+              title: room.name,
+              body: `${user.name}: ${text}`,
+              url: `/chat/${room.slug}`,
+            });
+          })
+          .catch(() => {});
       } catch {
         reply({ ok: false, error: 'Failed to send message.' });
       }

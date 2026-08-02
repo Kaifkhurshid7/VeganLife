@@ -36,7 +36,12 @@ const userSchema = new mongoose.Schema({
   // Social
   followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-  
+
+  // Privacy — users the current user has blocked (full interaction ban) or muted
+  // (feed content hidden only; follow relationship stays intact).
+  blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  mutedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+
   // Hashtags & Mentions
   mentions: [{ 
     post: { type: mongoose.Schema.Types.ObjectId, ref: 'Post' },
@@ -81,6 +86,8 @@ userSchema.methods.toPublicJSON = function () {
     streak: this.streak,
     completedChallenges: this.completedChallenges,
     bookmarks: this.bookmarks,
+    blockedUsers: this.blockedUsers,
+    mutedUsers: this.mutedUsers,
     isVerified: this.isVerified,
     createdAt: this.createdAt,
   };
