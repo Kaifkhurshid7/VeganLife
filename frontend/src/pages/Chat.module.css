@@ -1,6 +1,18 @@
-.section { min-height: 100vh; background: var(--color-bg); }
+.section {
+  min-height: 100vh;
+  min-height: 100dvh; /* mobile browsers: accounts for the URL bar so the composer stays on screen */
+  background: var(--color-bg);
+}
 
-.chatLayout { display: grid; grid-template-columns: 280px 1fr; height: calc(100vh - 80px); max-width: 1400px; margin: 0 auto; padding-top: 80px; }
+.chatLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100vh - 80px);
+  height: calc(100dvh - 80px);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding-top: 80px;
+}
 @media (max-width: 1023px) { .chatLayout { grid-template-columns: 1fr; } }
 
 /* Sidebar */

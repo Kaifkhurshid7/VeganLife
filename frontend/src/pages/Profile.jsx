@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiArrowLeft, FiUserPlus, FiUserCheck, FiMail } from 'react-icons/fi';
+import { FiArrowLeft, FiUserPlus, FiUserCheck, FiMail, FiUserX, FiVolumeX, FiFlag } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import { useCounter } from '../hooks';
 import BackButton from '../components/ui/BackButton';
+import ReportModal from '../components/ui/ReportModal';
 import { apiFetch } from '../utils/api';
 import styles from './Profile.module.css';
 
@@ -14,8 +15,6 @@ function StatCount({ value }) {
   const { ref, count } = useCounter(String(value));
   return <span className={styles.statValue} ref={ref}>{count}</span>;
 }
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const BADGES = [
   { level: 0, name: 'Seedling', icon: <FaSeedling style={{ color: '#a6b48f' }} /> },
@@ -32,13 +31,14 @@ function getUserBadge(score) {
 export default function Profile() {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser, isAuthenticated } = useAuth();
+  const { user: currentUser, isAuthenticated, refreshUser } = useAuth();
   const toast = useToast();
-  
+
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [following, setFollowing] = useState(false);
+  const [reportingUser, setReportingUser] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -47,7 +47,7 @@ export default function Profile() {
   async function fetchProfile() {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/users/profile/${username}`);
+      const res = await apiFetch(`/users/profile/${username}`);
       if (res.ok) {
         const json = await res.json();
         setProfile(json.data);
@@ -61,6 +61,32 @@ export default function Profile() {
     } finally {
       setLoading(false);
     }
+  }
+
+  const isBlocked = currentUser?.blockedUsers?.map(String).includes(String(profile?._id));
+  const isMuted = currentUser?.mutedUsers?.map(String).includes(String(profile?._id));
+
+  async function toggleBlock() {
+    if (!isAuthenticated) { toast.warning('Login to block users'); return; }
+    try {
+      const res = await apiFetch(`/users/${profile._id}/block`, { method: 'POST' });
+      if (res.ok) {
+        toast.success(isBlocked ? `${profile.name} unblocked` : `${profile.name} blocked`);
+        await refreshUser();
+        setIsFollowing(false);
+      }
+    } catch (err) { toast.error('Failed to update block status'); }
+  }
+
+  async function toggleMute() {
+    if (!isAuthenticated) { toast.warning('Login to mute users'); return; }
+    try {
+      const res = await apiFetch(`/users/${profile._id}/mute`, { method: 'POST' });
+      if (res.ok) {
+        toast.success(isMuted ? `${profile.name} unmuted` : `${profile.name} muted`);
+        await refreshUser();
+      }
+    } catch (err) { toast.error('Failed to update mute status'); }
   }
 
   async function handleFollowToggle() {
@@ -158,16 +184,28 @@ export default function Profile() {
                   </button>
                 ) : (
                   <>
-                    <button
-                      className={`${styles.followBtn} ${isFollowing ? styles.following : ''}`}
-                      onClick={handleFollowToggle}
-                      disabled={following}
-                    >
-                      {isFollowing ? (
-                        <><FiUserCheck /> Following</>
-                      ) : (
-                        <><FiUserPlus /> Follow</>
-                      )}
+                    {!isBlocked && (
+                      <button
+                        className={`${styles.followBtn} ${isFollowing ? styles.following : ''}`}
+                        onClick={handleFollowToggle}
+                        disabled={following}
+                      >
+                        {isFollowing ? (
+                          <><FiUserCheck /> Following</>
+                        ) : (
+                          <><FiUserPlus /> Follow</>
+                        )}
+                      </button>
+                    )}
+                    {isBlocked && <span className={styles.blockedChip}><FiUserX /> Blocked</span>}
+                    <button className={styles.blockBtn} onClick={toggleBlock}>
+                      <FiUserX /> {isBlocked ? 'Unblock' : 'Block'}
+                    </button>
+                    <button className={styles.muteBtn} onClick={toggleMute}>
+                      <FiVolumeX /> {isMuted ? 'Unmute' : 'Mute'}
+                    </button>
+                    <button className={styles.reportBtn} onClick={() => setReportingUser(true)}>
+                      <FiFlag /> Report
                     </button>
                   </>
                 )}
@@ -268,6 +306,10 @@ export default function Profile() {
           )}
         </div>
       </motion.div>
+
+      {reportingUser && (
+        <ReportModal targetType="user" targetId={profile._id} onClose={() => setReportingUser(false)} />
+      )}
     </section>
   );
 }
