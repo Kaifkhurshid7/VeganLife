@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2, FiSmile, FiCopy } from 'react-icons/fi';
+import { FiArrowUp, FiMessageCircle, FiShare2, FiBookmark, FiPlus, FiTrendingUp, FiClock, FiUsers, FiAward, FiX, FiImage, FiSend, FiHeart, FiSearch, FiTrash2, FiHash, FiEdit2, FiCornerDownRight, FiMapPin, FiBarChart2, FiSmile, FiCopy, FiFlag } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaEarthAmericas, FaHandHoldingHeart, FaLightbulb, FaXTwitter, FaFacebook, FaWhatsapp } from 'react-icons/fa6';
 import { COMMENT_REACTIONS, resolveIcon } from '../utils/iconMap';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +9,7 @@ import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
 import RichTextEditor from '../components/ui/RichTextEditor';
 import UserSearch from '../components/ui/UserSearch';
+import ReportModal from '../components/ui/ReportModal';
 import { apiFetch } from '../utils/api';
 import styles from './Community.module.css';
 
@@ -467,6 +468,7 @@ export default function Community() {
 function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVotePoll, onCountChange }) {
   const [showComments, setShowComments] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [reporting, setReporting] = useState(false);
   const hasUpvoted = user && post.hasUpvoted;
   const isPinned = post.pinnedBy?.includes(user?.id);
 
@@ -503,6 +505,11 @@ function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVo
         <div className={styles.postHeaderActions}>
           {post.isPinned && <span className={styles.pinnedBadge}><FiMapPin /> Pinned</span>}
           <span className={styles.postCategory}>{post.category}</span>
+          {user && String(post.author?._id) !== String(user.id) && (
+            <button className={styles.postReportBtn} onClick={() => setReporting(true)} title="Report this post" aria-label="Report this post">
+              <FiFlag />
+            </button>
+          )}
           {user && (post.author?._id === user.id || user.role === 'admin') && (
             <button className={styles.postDeleteBtn} onClick={() => onDelete(post._id)}><FiTrash2 /></button>
           )}
@@ -605,6 +612,10 @@ function PostCard({ post, idx, user, onUpvote, onDelete, onBookmark, onPin, onVo
           </motion.div>
         )}
       </AnimatePresence>
+
+      {reporting && (
+        <ReportModal targetType="post" targetId={post._id} onClose={() => setReporting(false)} />
+      )}
     </motion.article>
   );
 }
@@ -621,6 +632,7 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
   const [editingComment, setEditingComment] = useState(null);
   const [editText, setEditText] = useState('');
   const [showReactions, setShowReactions] = useState(null);
+  const [reportCommentId, setReportCommentId] = useState(null);
 
   async function loadComments({ before } = {}) {
     const params = new URLSearchParams({ limit: '20' });
@@ -797,6 +809,9 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
                   <div className={styles.commentActions}>
                     <button onClick={() => { setReplyingTo(c._id); setReplyText(''); }}><FiCornerDownRight /> Reply</button>
                     <button onClick={() => setShowReactions(showReactions === c._id ? null : c._id)}><FiSmile /> React</button>
+                    {user && String(c.user?._id) !== String(user.id) && (
+                      <button onClick={() => setReportCommentId(c._id)}><FiFlag /> Report</button>
+                    )}
                     {user && c.user?._id === user.id && (
                       <>
                         <button onClick={() => { setEditingComment(c._id); setEditText(c.text); }}><FiEdit2 /> Edit</button>
@@ -807,6 +822,10 @@ function CommentsSection({ postId, postAuthorId, user, onCountChange }) {
                       <button onClick={() => togglePin(c._id)}><FiMapPin /> {c.isPinned ? 'Unpin' : 'Pin'}</button>
                     )}
                   </div>
+
+                  {reportCommentId === c._id && (
+                    <ReportModal targetType="comment" targetId={c._id} onClose={() => setReportCommentId(null)} />
+                  )}
 
                   {/* Reaction Picker */}
                   {showReactions === c._id && (

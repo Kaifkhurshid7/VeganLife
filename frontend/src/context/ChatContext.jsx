@@ -22,9 +22,14 @@ function applyTyping(prev, { roomId, user, isTyping }) {
 }
 
 export function ChatProvider({ children }) {
-  const { isAuthenticated, refreshSession } = useAuth();
+  const { isAuthenticated, refreshSession, user } = useAuth();
   const socketRef = useRef(null);
   const subscribers = useRef(new Map());
+
+  // Blocked user ids, refreshed every render (not an effect dep) so the socket
+  // effect never reconnects when the identity changes.
+  const blockedRef = useRef([]);
+  blockedRef.current = user?.blockedUsers || [];
 
   const [connected, setConnected] = useState(false);
   const [rooms, setRooms] = useState([]);
@@ -72,24 +77,35 @@ export function ChatProvider({ children }) {
     });
     socketRef.current = socket;
 
+    // A connect_error is either an auth failure (the 15-min access cookie
+    // expired) or a network blip. Rotating the refresh token invalidates the
+    // previous one, so socket.io's repeated reconnect attempts must not fire
+    // concurrent refreshes — rotate at most once per connect cycle.
+    let refreshedThisCycle = false;
+
     socket.on('connect', () => {
+      refreshedThisCycle = false;
       setConnected(true);
       refreshRooms();
     });
     socket.on('disconnect', () => setConnected(false));
     socket.on('connect_error', async () => {
       setConnected(false);
-      // The access cookie can expire mid-session — rotate and reconnect once
+      if (refreshedThisCycle) return; // already rotated — let socket.io keep retrying
+      refreshedThisCycle = true;
       try {
+        // The access cookie can expire mid-session — rotate and reconnect once
         await refreshSession();
         if (socketRef.current) socketRef.current.connect();
       } catch {
-        // leave disconnected
+        // No valid refresh cookie (logged out) — leave disconnected.
       }
     });
 
     socket.on('message:new', (payload) => {
       const msg = payload.message;
+      // Drop messages from users we've blocked — they shouldn't reach us at all.
+      if (blockedRef.current.some((id) => String(id) === String(msg.sender?._id))) return;
       setRooms((prev) => prev.map((room) => (
         String(room._id) === String(msg.room)
           ? { ...room, lastMessage: msg.content, lastMessageAt: msg.createdAt }
