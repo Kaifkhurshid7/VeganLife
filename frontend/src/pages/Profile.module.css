@@ -91,6 +91,24 @@
   border: 1px solid var(--color-earth);
 }
 
+.blockBtn, .muteBtn, .reportBtn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 16px; border: 1px solid var(--glass-border); border-radius: var(--radius-full);
+  background: var(--glass-bg); font-weight: 700; font-size: 0.82rem; cursor: pointer;
+  font-family: var(--font-body); transition: all 0.2s ease;
+}
+.blockBtn { color: #c0392b; }
+.blockBtn:hover { background: #c0392b; border-color: #c0392b; color: white; }
+.muteBtn { color: var(--color-text-secondary); }
+.muteBtn:hover { background: var(--color-earth); border-color: var(--color-earth); color: var(--color-cream); }
+.reportBtn { color: var(--color-text-secondary); }
+.reportBtn:hover { border-color: #c0392b; color: #c0392b; }
+.blockedChip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 16px; border-radius: var(--radius-full);
+  background: rgba(192, 57, 43, 0.1); color: #c0392b; font-weight: 700; font-size: 0.82rem;
+}
+
 .info {
   padding-top: 16px;
 }
