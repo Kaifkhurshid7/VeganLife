@@ -1,14 +1,14 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { API_URL } from '../utils/api';
+import { apiFetch, refreshAccessToken } from '../utils/api';
 
 const AuthContext = createContext(null);
 
 // Tokens live in httpOnly cookies — never in localStorage or JS memory, so an
-// XSS payload can't steal a session. Requests just carry credentials.
+// XSS payload can't steal a session. Requests just carry credentials; apiFetch
+// silently rotates an expired access cookie and retries once on 401.
 async function apiRequest(url, options = {}) {
-  const res = await fetch(`${API_URL}${url}`, {
+  const res = await apiFetch(url, {
     ...options,
-    credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
   });
   const data = await res.json().catch(() => ({}));
@@ -27,31 +27,22 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   // Rotate the tokens via the refresh cookie; used on boot and on socket reconnect.
-  const refreshSession = useCallback(async () => {
-    return apiRequest('/auth/refresh', { method: 'POST' });
+  const refreshSession = useCallback(() => {
+    return refreshAccessToken();
   }, []);
 
+  // apiRequest already refreshes an expired access cookie and retries, so on
+  // boot this either succeeds or the session is genuinely gone — no manual retry.
   const fetchUser = useCallback(async () => {
     try {
       const data = await apiRequest('/auth/me');
       setUser(data.user);
-    } catch (err) {
-      if (err.status === 401) {
-        // Access token missing/expired — try one silent refresh before giving up
-        try {
-          await refreshSession();
-          const data = await apiRequest('/auth/me');
-          setUser(data.user);
-        } catch {
-          setUser(null);
-        }
-      } else {
-        setUser(null);
-      }
+    } catch {
+      setUser(null);
     } finally {
       setLoading(false);
     }
-  }, [refreshSession]);
+  }, []);
 
   useEffect(() => { fetchUser(); }, [fetchUser]);
 
@@ -92,14 +83,14 @@ export function AuthProvider({ children }) {
   }
 
   // Avatar upload uses FormData — the browser sets the multipart boundary, so we
-  // must NOT send a JSON Content-Type header.
+  // must NOT send a JSON Content-Type header. Goes through apiFetch so an expired
+  // access cookie is refreshed and the upload retried like any other request.
   async function uploadAvatar(file) {
     const formData = new FormData();
     formData.append('avatar', file);
 
-    const res = await fetch(`${API_URL}/auth/avatar`, {
+    const res = await apiFetch('/auth/avatar', {
       method: 'POST',
-      credentials: 'include',
       body: formData,
     });
 
@@ -144,6 +135,7 @@ export function AuthProvider({ children }) {
       changePassword,
       deleteAccount,
       refreshSession,
+      refreshUser: fetchUser,
       isAdmin: user?.role === 'admin',
       isAuthenticated: !!user,
     }}>
