@@ -3,7 +3,9 @@ import User from '../models/User.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../config/tokens.js';
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE, accessCookieOptions, refreshCookieOptions } from '../config/cookies.js';
 import { authenticate } from '../middleware/auth.js';
-import { signupValidation, loginValidation } from '../middleware/validate.js';
+import { signupValidation, loginValidation, profileUpdateValidation, changePasswordValidation } from '../middleware/validate.js';
+import { upload } from '../config/multer.js';
+import { uploadImage } from '../utils/uploadService.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 
@@ -119,8 +121,8 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
   res.json({ success: true, user: req.user.toPublicJSON() });
 }));
 
-// Update profile
-router.patch('/profile', authenticate, asyncHandler(async (req, res) => {
+// Update profile (name, username, bio, avatar — all optional, validated)
+router.patch('/profile', authenticate, profileUpdateValidation, asyncHandler(async (req, res) => {
   const { name, username, bio, avatar } = req.body;
   const updates = {};
 
@@ -138,12 +140,25 @@ router.patch('/profile', authenticate, asyncHandler(async (req, res) => {
   res.json({ success: true, user: user.toPublicJSON() });
 }));
 
+// Upload avatar — image file → Cloudinary (or local uploads/ in dev), persisted
+router.post('/avatar', authenticate, upload.single('avatar'), asyncHandler(async (req, res) => {
+  if (!req.file) throw ApiError.badRequest('No image file uploaded');
+
+  const avatar = await uploadImage(req.file);
+  const user = await User.findById(req.user._id);
+  user.avatar = avatar;
+  await user.save();
+
+  res.json({ success: true, avatar, user: user.toPublicJSON() });
+}));
+
 // Change password
-router.patch('/change-password', authenticate, asyncHandler(async (req, res) => {
+router.patch('/change-password', authenticate, changePasswordValidation, asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
-  if (!currentPassword || !newPassword) throw ApiError.badRequest('Both passwords required');
-  if (newPassword.length < 6) throw ApiError.badRequest('New password must be at least 6 characters');
+  if (newPassword === currentPassword) {
+    throw ApiError.badRequest('New password must be different from the current password');
+  }
 
   const user = await User.findById(req.user._id);
   if (!(await user.comparePassword(currentPassword))) {
