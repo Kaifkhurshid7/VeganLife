@@ -5,6 +5,7 @@ import { FaLeaf, FaSeedling, FaEarthAmericas } from 'react-icons/fa6';
 import { FiMail, FiLock, FiUser, FiKey, FiEye, FiEyeOff, FiAtSign } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import { useCounter } from '../hooks';
+import { PasswordStrength } from '../components/ui';
 import styles from './Auth.module.css';
 
 function StatCount({ value, suffix }) {
@@ -12,46 +13,11 @@ function StatCount({ value, suffix }) {
   return <span ref={ref}>{count}{suffix}</span>;
 }
 
-function PasswordStrength({ password }) {
-  const getStrength = () => {
-    let score = 0;
-    if (password.length >= 6) score++;
-    if (password.length >= 10) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[^A-Za-z0-9]/.test(password)) score++;
-    return score;
-  };
-
-  const strength = getStrength();
-  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong', 'Excellent'];
-  const colors = ['', '#c0392b', '#e3a36e', '#e3a36e', '#a6b48f', '#2ecc71'];
-
-  if (!password) return null;
-
-  return (
-    <div className={styles.strengthMeter}>
-      <div className={styles.strengthBars}>
-        {[1, 2, 3, 4, 5].map((i) => (
-          <motion.div
-            key={i}
-            className={styles.strengthBar}
-            style={{ backgroundColor: i <= strength ? colors[strength] : 'rgba(87,61,33,0.1)' }}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-          />
-        ))}
-      </div>
-      <span className={styles.strengthLabel} style={{ color: colors[strength] }}>{labels[strength]}</span>
-    </div>
-  );
-}
-
 export default function Auth() {
   const [mode, setMode] = useState('login');
   const [formData, setFormData] = useState({ name: '', username: '', email: '', password: '', confirmPassword: '', secretKey: '' });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -72,15 +38,18 @@ export default function Auth() {
     const errors = {};
     if (mode === 'signup') {
       if (!formData.name.trim()) errors.name = 'Name is required';
+      else if (formData.name.trim().length > 50) errors.name = 'Max 50 characters';
       if (!formData.username.trim()) errors.username = 'Username is required';
-      else if (formData.username.length < 3) errors.username = 'Min 3 characters';
-      else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) errors.username = 'Letters, numbers, underscores only';
+      else if (formData.username.trim().length < 3 || formData.username.trim().length > 20) errors.username = '3-20 characters';
+      else if (!/^[a-zA-Z0-9_]+$/.test(formData.username.trim())) errors.username = 'Letters, numbers, underscores only';
       if (formData.password !== formData.confirmPassword) errors.confirmPassword = 'Passwords do not match';
     }
-    if (!formData.email) errors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) errors.email = 'Invalid email format';
+    if (!formData.email.trim()) errors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(formData.email.trim())) errors.email = 'Invalid email format';
     if (!formData.password) errors.password = 'Password is required';
-    else if (formData.password.length < 6) errors.password = 'Min 6 characters';
+    else if (formData.password.length < 8) errors.password = 'At least 8 characters';
+    else if (!/[A-Za-z]/.test(formData.password)) errors.password = 'Must contain a letter';
+    else if (!/\d/.test(formData.password)) errors.password = 'Must contain a number';
     if (mode === 'admin' && !formData.secretKey) errors.secretKey = 'Secret key is required';
 
     setFieldErrors(errors);
@@ -91,22 +60,35 @@ export default function Auth() {
     e.preventDefault();
     if (!validate()) return;
     setError('');
+    setFieldErrors({});
     setLoading(true);
 
     try {
       if (mode === 'login') {
-        await login(formData.email, formData.password);
+        await login(formData.email.trim(), formData.password);
       } else if (mode === 'signup') {
-        await signup(formData.name, formData.username, formData.email, formData.password);
+        await signup(formData.name.trim(), formData.username.trim(), formData.email.trim(), formData.password);
         setSuccess(true);
         setTimeout(() => navigate('/'), 1500);
         return;
       } else {
-        await adminLogin(formData.email, formData.password, formData.secretKey);
+        await adminLogin(formData.email.trim(), formData.password, formData.secretKey);
       }
       navigate(mode === 'admin' ? '/admin' : '/');
     } catch (err) {
-      setError(err.message);
+      // Surface express-validator field errors inline when present
+      const server = err.fieldErrors || [];
+      const mapped = {};
+      server.forEach(({ field, message }) => {
+        if (['name', 'username', 'email', 'password', 'confirmPassword', 'secretKey'].includes(field)) {
+          mapped[field] = message;
+        }
+      });
+      if (Object.keys(mapped).length) {
+        setFieldErrors(mapped);
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -203,30 +185,62 @@ export default function Auth() {
                   <>
                     <div className={styles.inputGroup}>
                       <FiUser className={styles.inputIcon} />
-                      <input type="text" placeholder="Full Name" value={formData.name} onChange={(e) => updateField('name', e.target.value)} />
-                      {fieldErrors.name && <span className={styles.fieldError}>{fieldErrors.name}</span>}
+                      <input
+                        type="text"
+                        placeholder="Full Name"
+                        value={formData.name}
+                        onChange={(e) => updateField('name', e.target.value)}
+                        aria-label="Full Name"
+                        aria-invalid={!!fieldErrors.name}
+                        autoComplete="name"
+                      />
+                      {fieldErrors.name && <span className={styles.fieldError} role="alert">{fieldErrors.name}</span>}
                     </div>
                     <div className={styles.inputGroup}>
                       <FiAtSign className={styles.inputIcon} />
-                      <input type="text" placeholder="Username" value={formData.username} onChange={(e) => updateField('username', e.target.value)} />
-                      {fieldErrors.username && <span className={styles.fieldError}>{fieldErrors.username}</span>}
+                      <input
+                        type="text"
+                        placeholder="Username"
+                        value={formData.username}
+                        onChange={(e) => updateField('username', e.target.value)}
+                        aria-label="Username"
+                        aria-invalid={!!fieldErrors.username}
+                        autoComplete="username"
+                      />
+                      {fieldErrors.username && <span className={styles.fieldError} role="alert">{fieldErrors.username}</span>}
                     </div>
                   </>
                 )}
 
                 <div className={styles.inputGroup}>
                   <FiMail className={styles.inputIcon} />
-                  <input type="email" placeholder="Email address" value={formData.email} onChange={(e) => updateField('email', e.target.value)} />
-                  {fieldErrors.email && <span className={styles.fieldError}>{fieldErrors.email}</span>}
+                  <input
+                    type="email"
+                    placeholder="Email address"
+                    value={formData.email}
+                    onChange={(e) => updateField('email', e.target.value)}
+                    aria-label="Email address"
+                    aria-invalid={!!fieldErrors.email}
+                    autoComplete="email"
+                  />
+                  {fieldErrors.email && <span className={styles.fieldError} role="alert">{fieldErrors.email}</span>}
                 </div>
 
                 <div className={styles.inputGroup}>
                   <FiLock className={styles.inputIcon} />
-                  <input type={showPassword ? 'text' : 'password'} placeholder="Password" value={formData.password} onChange={(e) => updateField('password', e.target.value)} />
-                  <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
+                    value={formData.password}
+                    onChange={(e) => updateField('password', e.target.value)}
+                    aria-label="Password"
+                    aria-invalid={!!fieldErrors.password}
+                    autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                  />
+                  <button type="button" className={styles.eyeBtn} onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
                     {showPassword ? <FiEyeOff /> : <FiEye />}
                   </button>
-                  {fieldErrors.password && <span className={styles.fieldError}>{fieldErrors.password}</span>}
+                  {fieldErrors.password && <span className={styles.fieldError} role="alert">{fieldErrors.password}</span>}
                 </div>
 
                 {mode === 'signup' && (
@@ -234,8 +248,19 @@ export default function Auth() {
                     <PasswordStrength password={formData.password} />
                     <div className={styles.inputGroup}>
                       <FiLock className={styles.inputIcon} />
-                      <input type="password" placeholder="Confirm Password" value={formData.confirmPassword} onChange={(e) => updateField('confirmPassword', e.target.value)} />
-                      {fieldErrors.confirmPassword && <span className={styles.fieldError}>{fieldErrors.confirmPassword}</span>}
+                      <input
+                        type={showConfirm ? 'text' : 'password'}
+                        placeholder="Confirm Password"
+                        value={formData.confirmPassword}
+                        onChange={(e) => updateField('confirmPassword', e.target.value)}
+                        aria-label="Confirm Password"
+                        aria-invalid={!!fieldErrors.confirmPassword}
+                        autoComplete="new-password"
+                      />
+                      <button type="button" className={styles.eyeBtn} onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}>
+                        {showConfirm ? <FiEyeOff /> : <FiEye />}
+                      </button>
+                      {fieldErrors.confirmPassword && <span className={styles.fieldError} role="alert">{fieldErrors.confirmPassword}</span>}
                     </div>
                   </>
                 )}
@@ -243,12 +268,19 @@ export default function Auth() {
                 {mode === 'admin' && (
                   <div className={styles.inputGroup}>
                     <FiKey className={styles.inputIcon} />
-                    <input type="password" placeholder="Admin Secret Key" value={formData.secretKey} onChange={(e) => updateField('secretKey', e.target.value)} />
-                    {fieldErrors.secretKey && <span className={styles.fieldError}>{fieldErrors.secretKey}</span>}
+                    <input
+                      type="password"
+                      placeholder="Admin Secret Key"
+                      value={formData.secretKey}
+                      onChange={(e) => updateField('secretKey', e.target.value)}
+                      aria-label="Admin Secret Key"
+                      aria-invalid={!!fieldErrors.secretKey}
+                    />
+                    {fieldErrors.secretKey && <span className={styles.fieldError} role="alert">{fieldErrors.secretKey}</span>}
                   </div>
                 )}
 
-                {error && <p className={styles.error}>{error}</p>}
+                {error && <p className={styles.error} role="status">{error}</p>}
 
                 <button type="submit" className={`btn btn-primary ${styles.submitBtn}`} disabled={loading}>
                   {loading ? <span className={styles.spinner} /> : mode === 'login' ? 'Sign In' : mode === 'signup' ? 'Create Account' : 'Admin Login'}
