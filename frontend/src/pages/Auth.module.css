@@ -93,12 +93,6 @@
 
 .fieldError { position: absolute; bottom: -18px; left: 16px; font-size: 0.72rem; color: #c0392b; font-weight: 600; }
 
-/* Password Strength */
-.strengthMeter { display: flex; align-items: center; gap: 10px; }
-.strengthBars { display: flex; gap: 4px; flex: 1; }
-.strengthBar { height: 4px; flex: 1; border-radius: 2px; transform-origin: left center; transition: background-color 0.3s ease; }
-.strengthLabel { font-size: 0.72rem; font-weight: 700; min-width: 55px; }
-
 .error { color: #c0392b; font-size: 0.85rem; font-weight: 600; text-align: center; padding: 10px; background: rgba(192,57,43,0.06); border-radius: var(--radius-md); margin: 0; }
 
 .submitBtn { width: 100%; margin-top: 8px; position: relative; }

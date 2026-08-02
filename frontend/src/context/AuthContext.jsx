@@ -16,6 +16,7 @@ async function apiRequest(url, options = {}) {
     const err = new Error(data.message || 'Request failed');
     err.status = res.status;
     err.code = data.code;
+    err.fieldErrors = data.errors; // [{ field, message }] from express-validator
     throw err;
   }
   return data;
@@ -90,6 +91,29 @@ export function AuthProvider({ children }) {
     return data;
   }
 
+  // Avatar upload uses FormData — the browser sets the multipart boundary, so we
+  // must NOT send a JSON Content-Type header.
+  async function uploadAvatar(file) {
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const res = await fetch(`${API_URL}/auth/avatar`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      const err = new Error(data.message || 'Upload failed');
+      err.status = res.status;
+      throw err;
+    }
+
+    setUser(data.user);
+    return data;
+  }
+
   async function changePassword(currentPassword, newPassword) {
     return apiRequest('/auth/change-password', {
       method: 'PATCH',
@@ -116,6 +140,7 @@ export function AuthProvider({ children }) {
       adminLogin,
       logout,
       updateProfile,
+      uploadAvatar,
       changePassword,
       deleteAccount,
       refreshSession,
