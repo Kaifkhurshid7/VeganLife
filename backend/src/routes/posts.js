@@ -14,6 +14,7 @@ import { uploadImage } from '../utils/uploadService.js';
 import { extractHashtags, extractMentions } from '../utils/textParser.js';
 import { checkAndAwardBadges } from '../utils/badges.js';
 import { cache } from '../utils/cache.js';
+import { sendPushToUsers } from '../utils/pushNotifications.js';
 
 const router = Router();
 
@@ -65,7 +66,16 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
   const filter = { status: 'approved' };
   if (categories && categories.length) filter.category = { $in: categories };
 
-  const cacheKey = `feed:${await cacheVersion()}:${page}:${limit}:${sort}:${(categories || []).join(',')}`;
+  // Blocked/muted authors are hidden from the feed. The exclusion set is folded
+  // into the cache key so per-user filters never collide in the shared snapshot.
+  const excludeAuthors = [
+    ...(req.user?.blockedUsers || []),
+    ...(req.user?.mutedUsers || []),
+  ];
+  if (excludeAuthors.length) filter.author = { $nin: excludeAuthors };
+
+  const userKey = excludeAuthors.map(String).sort().join(',');
+  const cacheKey = `feed:${await cacheVersion()}:${page}:${limit}:${sort}:${(categories || []).join(',')}:${userKey}`;
 
   let posts;
   let total;
@@ -95,6 +105,14 @@ router.get('/', optionalAuth, asyncHandler(async (req, res) => {
 router.get('/:id', optionalAuth, asyncHandler(async (req, res) => {
   const post = await Post.findById(req.params.id).populate('author', 'name username avatar').lean();
   if (!post) throw ApiError.notFound('Post not found');
+
+  // Blocked/muted authors' posts are hidden as if they didn't exist
+  const excluded = new Set([
+    ...(req.user?.blockedUsers || []).map(String),
+    ...(req.user?.mutedUsers || []).map(String),
+  ]);
+  if (excluded.has(String(post.author?._id))) throw ApiError.notFound('Post not found');
+
   const [data] = await decorateForUser([post], req.user?._id);
   res.json({ success: true, data });
 }));
@@ -110,6 +128,10 @@ router.get('/:id/comments', optionalAuth, asyncHandler(async (req, res) => {
     filter._id = { $lt: new mongoose.Types.ObjectId(req.query.before) };
   }
 
+  // Blocked users' comments (and their replies) are hidden from the thread
+  const excludeCommenters = (req.user?.blockedUsers || []).map(String);
+  if (excludeCommenters.length) filter.user = { $nin: excludeCommenters };
+
   const comments = await Comment.find(filter)
     .sort({ _id: -1 })
     .limit(limit + 1)
@@ -122,7 +144,7 @@ router.get('/:id/comments', optionalAuth, asyncHandler(async (req, res) => {
 
   // Fetch replies for this page in a single query
   const topIds = page.map((c) => c._id);
-  const replies = await Comment.find({ parent: { $in: topIds } })
+  const replies = await Comment.find({ parent: { $in: topIds }, ...(excludeCommenters.length ? { user: { $nin: excludeCommenters } } : {}) })
     .sort({ _id: 1 })
     .populate('user', 'name username avatar')
     .lean();
@@ -196,6 +218,11 @@ router.post('/', authenticate, postLimiter, upload.single('image'), asyncHandler
       { $set: { 'mentions.$[elem].post': post._id } },
       { arrayFilters: [{ 'elem.post': undefined }] },
     );
+    sendPushToUsers(mentionedUsers.map(String), {
+      title: 'You were mentioned',
+      body: `${req.user.name} mentioned you in "${post.title}"`,
+      url: `/community#post-${post._id}`,
+    }).catch(() => {});
   }
 
   await post.populate('author', 'name username avatar');
@@ -240,12 +267,29 @@ router.post('/:id/comments', authenticate, postLimiter, asyncHandler(async (req,
   if (!text?.trim()) throw ApiError.badRequest('Comment text is required');
   if (text.length > 500) throw ApiError.badRequest('Comment too long (max 500 chars)');
 
-  const post = await Post.findById(req.params.id).select('_id');
+  const post = await Post.findById(req.params.id).select('_id author title');
   if (!post) throw ApiError.notFound('Post not found');
+
+  // A blocked user can't comment on the author's content
+  if (post.author && String(post.author) !== String(req.user._id)) {
+    const author = await User.findById(post.author).select('blockedUsers').lean();
+    if (author?.blockedUsers?.some((id) => String(id) === String(req.user._id))) {
+      throw ApiError.forbidden('You cannot comment here');
+    }
+  }
 
   const comment = await Comment.create({ post: post._id, user: req.user._id, text: text.trim() });
   await Post.updateOne({ _id: post._id }, { $inc: { commentCount: 1 } });
   checkAndAwardBadges(req.user._id).catch(() => {});
+
+  // Push to the post author when someone comments on their post
+  if (post.author && String(post.author) !== String(req.user._id)) {
+    sendPushToUsers([String(post.author)], {
+      title: 'New comment',
+      body: `${req.user.name} commented on "${post.title || 'your post'}"`,
+      url: `/community#post-${post._id}`,
+    }).catch(() => {});
+  }
 
   await comment.populate('user', 'name username avatar');
   res.status(201).json({ success: true, data: comment });
@@ -258,11 +302,39 @@ router.post('/:postId/comments/:commentId/reply', authenticate, postLimiter, asy
   if (!text?.trim()) throw ApiError.badRequest('Reply text is required');
   if (text.length > 500) throw ApiError.badRequest('Reply too long (max 500 chars)');
 
-  const parent = await Comment.findById(commentId).select('post');
+  const parent = await Comment.findById(commentId).select('post user');
   if (!parent || String(parent.post) !== postId) throw ApiError.notFound('Comment not found');
+
+  // Can't reply if blocked by the post author or the comment owner
+  const post = await Post.findById(postId).select('author').lean();
+  if (post?.author && String(post.author) !== String(req.user._id)) {
+    const author = await User.findById(post.author).select('blockedUsers').lean();
+    if (author?.blockedUsers?.some((id) => String(id) === String(req.user._id))) {
+      throw ApiError.forbidden('You cannot reply here');
+    }
+  }
+  if (String(parent.user) !== String(req.user._id)) {
+    const owner = await User.findById(parent.user).select('blockedUsers').lean();
+    if (owner?.blockedUsers?.some((id) => String(id) === String(req.user._id))) {
+      throw ApiError.forbidden('You cannot reply here');
+    }
+  }
 
   const reply = await Comment.create({ post: postId, user: req.user._id, parent: commentId, text: text.trim() });
   await reply.populate('user', 'name username avatar');
+
+  // Push to the comment owner + post author (minus self)
+  const recipients = new Set();
+  if (String(parent.user) !== String(req.user._id)) recipients.add(String(parent.user));
+  if (post?.author && String(post.author) !== String(req.user._id)) recipients.add(String(post.author));
+  if (recipients.size) {
+    sendPushToUsers([...recipients], {
+      title: 'New reply',
+      body: `${req.user.name} replied to your comment`,
+      url: `/community#post-${postId}`,
+    }).catch(() => {});
+  }
+
   res.status(201).json({ success: true, data: reply });
 }));
 
@@ -458,7 +530,14 @@ router.get('/hashtag/:tag', optionalAuth, asyncHandler(async (req, res) => {
   const tag = req.params.tag.toLowerCase();
   const page = Math.max(1, parseInt(req.query.page) || 1);
   const limit = Math.min(50, parseInt(req.query.limit) || 20);
-  const cacheKey = `hashtag:${await cacheVersion()}:${tag}:${page}:${limit}`;
+
+  // Same blocked/muted author exclusion as the main feed, folded into the cache key
+  const excludeAuthors = [
+    ...(req.user?.blockedUsers || []),
+    ...(req.user?.mutedUsers || []),
+  ];
+  const userKey = excludeAuthors.map(String).sort().join(',');
+  const cacheKey = `hashtag:${await cacheVersion()}:${tag}:${page}:${limit}:${userKey}`;
 
   let posts;
   let total;
@@ -467,14 +546,16 @@ router.get('/hashtag/:tag', optionalAuth, asyncHandler(async (req, res) => {
     ({ posts, total } = cached);
   } else {
     const skip = (page - 1) * limit;
+    const filter = { status: 'approved', hashtags: tag };
+    if (excludeAuthors.length) filter.author = { $nin: excludeAuthors };
     [posts, total] = await Promise.all([
-      Post.find({ status: 'approved', hashtags: tag })
+      Post.find(filter)
         .populate('author', 'name username avatar')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .lean(),
-      Post.countDocuments({ status: 'approved', hashtags: tag }),
+      Post.countDocuments(filter),
     ]);
     await cache.set(cacheKey, { posts, total }, POSTS_CACHE_TTL_MS);
   }
