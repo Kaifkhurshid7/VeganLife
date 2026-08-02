@@ -6,8 +6,13 @@ import { resolve } from 'path';
 export default defineConfig({
   plugins: [
     react(),
+    // injectManifest mode: the precache manifest + runtime caching live in
+    // src/sw.js, which also owns the push/notificationclick listeners.
     VitePWA({
-      registerType: 'autoUpdate',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.js',
+      injectRegister: 'auto',
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'VeganLife — Green Earth',
@@ -22,24 +27,11 @@ export default defineConfig({
           { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
         ],
       },
-      workbox: {
+      injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'unsplash-images',
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 30 },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: { cacheName: 'google-fonts-stylesheets' },
-          },
-        ],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
       },
+      devOptions: { enabled: true },
     }),
   ],
   resolve: {
