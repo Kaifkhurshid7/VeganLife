@@ -37,6 +37,20 @@ export function globalErrorHandler(err, req, res, next) {
     message = 'Token expired';
   }
 
+  // Multer upload errors (file size, unexpected field) → clean 400
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    message = err.code === 'LIMIT_FILE_SIZE'
+      ? 'File too large — max size is 5MB'
+      : 'Upload failed. Please try a different file.';
+  }
+
+  // Custom file-filter rejection (non-image files)
+  if (err.statusCode === undefined && err.message?.startsWith('Only image files')) {
+    statusCode = 400;
+    message = err.message;
+  }
+
   // Log server errors and report them to Sentry when configured
   if (statusCode >= 500) {
     logger.error(message, { stack: err.stack, url: req.originalUrl, method: req.method });
