@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
@@ -70,7 +71,7 @@ export default function Meals() {
             >
               {filteredRecipes.map((recipe) => (
                 <SwiperSlide key={recipe.id}>
-                  <div className={`glass-card ${styles.recipeCard}`}>
+                  <Link to={`/recipes/${recipe.id}`} className={`glass-card ${styles.recipeCard}`}>
                     <div className={styles.imageBox}>
                       <span className={styles.categoryBadge}>{recipe.category}</span>
                       <img src={recipe.image} alt={recipe.title} className={styles.recipeImg} loading="lazy" />
@@ -90,8 +91,9 @@ export default function Meals() {
                           <span key={ing} className={styles.ingredientTag}>{ing}</span>
                         ))}
                       </div>
+                      <span className={styles.recipeCta}>View recipe →</span>
                     </div>
-                  </div>
+                  </Link>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -101,6 +103,12 @@ export default function Meals() {
         <div className={`meals-prev ${styles.navBtn} ${styles.navBtnPrev}`}><FiArrowLeft /></div>
         <div className={`meals-next ${styles.navBtn} ${styles.navBtnNext}`}><FiArrowRight /></div>
         <div className={`meals-pagination ${styles.pagination}`} />
+      </div>
+
+      <div className={styles.plannerWrap}>
+        <Link to="/planner" className={styles.plannerLink}>
+          🗓️ Try the weekly meal planner + auto grocery list →
+        </Link>
       </div>
     </section>
   );

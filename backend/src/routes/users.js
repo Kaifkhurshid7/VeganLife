@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import mongoose from 'mongoose';
 import User from '../models/User.js';
 import Post from '../models/Post.js';
 import { authenticate } from '../middleware/auth.js';
@@ -110,6 +111,12 @@ router.post('/:targetUserId/follow', authenticate, asyncHandler(async (req, res)
 
   const currentUser = await User.findById(currentUserId);
 
+  // Can't follow someone who blocked you, or someone you blocked
+  const blockedByIds = (arr = []) => arr.some((id) => String(id) === targetUserId);
+  if (blockedByIds(currentUser.blockedUsers) || blockedByIds(targetUser.blockedUsers)) {
+    throw ApiError.forbidden('You cannot follow this user');
+  }
+
   // Check if already following
   const isFollowing = currentUser.following?.includes(targetUserId);
 
@@ -134,6 +141,61 @@ router.post('/:targetUserId/follow', authenticate, asyncHandler(async (req, res)
     isFollowing: !isFollowing,
     followerCount: targetUser.followers?.length || 0
   });
+}));
+
+// Block/unblock a user (toggle). Blocking severs the follow relationship in both
+// directions and removes any mute, so a blocked user can't follow you, comment on
+// your content, or have their posts/comments/chat messages visible to you.
+router.post('/:targetUserId/block', authenticate, asyncHandler(async (req, res) => {
+  const { targetUserId } = req.params;
+  if (!mongoose.isValidObjectId(targetUserId)) throw ApiError.badRequest('Invalid user id');
+
+  const me = req.user._id;
+  const targetId = new mongoose.Types.ObjectId(targetUserId);
+  if (String(targetId) === String(me)) throw ApiError.badRequest('You cannot block yourself');
+
+  const target = await User.findById(targetId);
+  if (!target) throw ApiError.notFound('User not found');
+
+  const alreadyBlocked = await User.exists({ _id: me, blockedUsers: targetId });
+  if (alreadyBlocked) {
+    await User.updateOne({ _id: me }, { $pull: { blockedUsers: targetId } });
+    return res.json({ success: true, isBlocked: false });
+  }
+
+  await User.updateOne(
+    { _id: me },
+    {
+      $addToSet: { blockedUsers: targetId },
+      $pull: { following: targetId, followers: targetId, mutedUsers: targetId },
+    },
+  );
+  await User.updateOne({ _id: targetId }, { $pull: { followers: me, following: me } });
+
+  res.json({ success: true, isBlocked: true });
+}));
+
+// Mute/unmute a user (toggle). Muting only hides their posts from your feed — the
+// follow relationship is left intact.
+router.post('/:targetUserId/mute', authenticate, asyncHandler(async (req, res) => {
+  const { targetUserId } = req.params;
+  if (!mongoose.isValidObjectId(targetUserId)) throw ApiError.badRequest('Invalid user id');
+
+  const me = req.user._id;
+  const targetId = new mongoose.Types.ObjectId(targetUserId);
+  if (String(targetId) === String(me)) throw ApiError.badRequest('You cannot mute yourself');
+
+  const target = await User.findById(targetId);
+  if (!target) throw ApiError.notFound('User not found');
+
+  const alreadyMuted = await User.exists({ _id: me, mutedUsers: targetId });
+  if (alreadyMuted) {
+    await User.updateOne({ _id: me }, { $pull: { mutedUsers: targetId } });
+    return res.json({ success: true, isMuted: false });
+  }
+
+  await User.updateOne({ _id: me }, { $addToSet: { mutedUsers: targetId } });
+  res.json({ success: true, isMuted: true });
 }));
 
 // Get user's followers
