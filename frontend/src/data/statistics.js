@@ -7,15 +7,23 @@ export const impactStats = [
     desc: 'Equivalent to 190 standard showers. Livestock production utilizes 10x more water than crops.',
     icon: 'FaDroplet',
     color: '#a6b48f',
+    references: [
+      { org: 'FAO', title: 'Livestock and Water', link: 'https://www.fao.org/' },
+      { org: 'Our World in Data', title: 'Environmental Impacts of Food', link: 'https://ourworldindata.org/environmental-impacts-of-food' }
+    ]
   },
   {
     id: 'co2',
-    title: 'CO\u2082 Reduced',
+    title: 'CO₂ Reduced',
     value: '140',
     unit: 'Kilograms',
     desc: 'Equivalent to driving 350 miles in a gas car. Animals produce immense direct methane.',
     icon: 'FaCloud',
     color: '#9d82ab',
+    references: [
+      { org: 'FAO', title: 'Greenhouse gas emissions from livestock', link: 'https://www.fao.org/' },
+      { org: 'NASA Climate', title: 'The Causes of Climate Change', link: 'https://climate.nasa.gov/' }
+    ]
   },
   {
     id: 'land',
@@ -25,6 +33,10 @@ export const impactStats = [
     desc: 'Equivalent to 5 student dorms. Plant diets require up to 90% less land than beef production.',
     icon: 'FaGlobeAmericas',
     color: '#e3a36e',
+    references: [
+      { org: 'Our World in Data', title: 'Land Use of Food', link: 'https://ourworldindata.org/land-use' },
+      { org: 'FAO', title: 'Land use in livestock systems', link: 'https://www.fao.org/' }
+    ]
   },
   {
     id: 'trees',
@@ -34,12 +46,29 @@ export const impactStats = [
     desc: 'Equivalent to shielding local campus groves. Deforestation is primarily driven by grazing cattle.',
     icon: 'FaTree',
     color: '#573d21',
+    references: [
+      { org: 'NASA Climate', title: 'Rainforest and deforestation', link: 'https://climate.nasa.gov/' },
+      { org: 'FAO', title: 'Forests and agriculture', link: 'https://www.fao.org/' }
+    ]
   },
+  {
+    id: 'grain',
+    title: 'Grain Redirected',
+    value: '1,020',
+    unit: 'Kilograms',
+    desc: 'Equivalent to a year of staples. Nearly 40% of the world’s grain is fed to livestock rather than people.',
+    icon: 'FaWheatAwn',
+    color: '#93a77b',
+    references: [
+      { org: 'FAO', title: 'Crops and livestock feed', link: 'https://www.fao.org/' },
+      { org: 'Our World in Data', title: 'How much of the world’s grain is fed to animals?', link: 'https://ourworldindata.org/land-use' }
+    ]
+  }
 ];
 
 export const resourceComparisonData = [
   { name: 'Water (L/day)', Vegan: 1200, Vegetarian: 3800, Omnivore: 15000 },
-  { name: 'CO\u2082 (kg/day)', Vegan: 2.1, Vegetarian: 4.8, Omnivore: 7.2 },
+  { name: 'CO₂ (kg/day)', Vegan: 2.1, Vegetarian: 4.8, Omnivore: 7.2 },
   { name: 'Land (sq.ft/day)', Vegan: 18, Vegetarian: 65, Omnivore: 180 },
 ];
 
@@ -52,3 +81,15 @@ export const weeklySavingsData = [
   { day: 'Sat', Water: 7200, CO2: 30, Land: 108 },
   { day: 'Sun', Water: 8400, CO2: 35, Land: 126 },
 ];
+
+// Dataset-level references for the two charts (rows are numeric points).
+export const chartReferences = {
+  comparison: [
+    { org: 'Our World in Data', title: 'Environmental Impacts of Food', link: 'https://ourworldindata.org/environmental-impacts-of-food' },
+    { org: 'FAO', title: 'Water footprint of livestock', link: 'https://www.fao.org/' }
+  ],
+  weekly: [
+    { org: 'NASA Climate', title: 'Food and Climate', link: 'https://climate.nasa.gov/' },
+    { org: 'Our World in Data', title: 'Environmental Impacts of Food', link: 'https://ourworldindata.org/environmental-impacts-of-food' }
+  ]
+};

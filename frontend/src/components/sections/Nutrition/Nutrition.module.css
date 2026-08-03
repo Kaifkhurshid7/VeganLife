@@ -289,3 +289,124 @@
 
 /* Meal meta in diet card */
 .mealMeta { display: flex; gap: 12px; font-size: 0.78rem; font-weight: 600; color: var(--color-text-secondary); opacity: 0.8; margin-top: 6px; }
+
+/* Item thumbnails */
+.itemThumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.progressLabel {
+  flex-grow: 1;
+}
+
+/* Category hero banner */
+.categoryHero {
+  position: relative;
+  height: 140px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.categoryHeroImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.categoryHeroLabel {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  background: rgba(87, 61, 33, 0.78);
+  color: var(--color-cream);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+/* Trust strip + motivation quote */
+.trustStrip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 auto 12px;
+}
+
+.trustChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(166, 180, 143, 0.35);
+  background: rgba(166, 180, 143, 0.08);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-sage);
+}
+
+.motivation {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  max-width: 720px;
+  margin: 0 auto 34px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--color-earth);
+  opacity: 0.85;
+  min-height: 44px;
+}
+
+.motivationIcon {
+  color: var(--color-orange);
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* Diet card hero */
+.dietHero {
+  height: 140px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 18px;
+}
+
+.dietHeroImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Plan link */
+.planLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-sage);
+  color: var(--color-cream);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.planLink:hover {
+  background: #8fa07a;
+  transform: translateY(-1px);
+}
