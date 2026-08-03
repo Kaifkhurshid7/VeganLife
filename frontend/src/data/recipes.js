@@ -1,3 +1,5 @@
+import { IMG } from '../constants/images';
+
 export const recipes = [
   {
     id: 1,
@@ -10,14 +12,27 @@ export const recipes = [
     time: "20 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1543353071-087092ec393d?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rChickpeaQuinoaBowl,
     desc: "Roasted chana tossed with lemony quinoa, cucumber, tomato, and a cumin-tahini dressing—wholesome, protein-rich and shelf-friendly for students.",
-    ingredients: ["1/2 cup quinoa (cooked)", "3/4 cup boiled chickpeas", "1/2 Cucumber chopped", "1 small Tomato chopped", "1 tbsp tahini dressing"]
-    ,
-    tags: ["Indian Meals","Budget Friendly","High Protein","Hostel Friendly","Study-Friendly"],
+    ingredients: ["1/2 cup quinoa (cooked)", "3/4 cup boiled chickpeas", "1/2 Cucumber chopped", "1 small Tomato chopped", "1 tbsp tahini dressing"],
+    tags: ["Indian Meals", "Budget Friendly", "High Protein", "Hostel Friendly", "Study-Friendly"],
     glycemicIndex: "Low",
     digestibility: "Good",
-    purpose: ["Energy","Muscle-building"]
+    purpose: ["Energy", "Muscle-building"],
+    nutrition: { calories: 540, protein: 22, carbs: 68, fat: 18, fiber: 12, iron: 5.2 },
+    steps: [
+      "Rinse quinoa and cook in 1 cup of water until fluffy; fluff with a fork and cool slightly.",
+      "Toss boiled chickpeas with lemon juice, a pinch of salt and 1/2 tsp roasted cumin powder.",
+      "Chop cucumber and tomato into small dice.",
+      "Whisk tahini with lemon, water and a pinch of salt into a pourable dressing.",
+      "Layer quinoa, chickpeas and vegetables in a bowl; drizzle dressing and top with coriander."
+    ],
+    allergens: [],
+    funFact: "Cooked chickpeas provide more absorbable iron per serving than raw — heat unlocks the bioavailable fraction, and pairing with lemon boosts it further.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Plant-Based Proteins", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" }
+    ]
   },
   {
     id: 2,
@@ -30,14 +45,27 @@ export const recipes = [
     time: "15 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1598511727987-9b7c0c7b5c9a?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rTofuBhurjiWrap,
     desc: "Spiced crumbled tofu sautéed with onions, tomatoes, turmeric and chilly, wrapped in a whole-wheat chapati—fast, high-protein and familiar Indian flavours.",
-    ingredients: ["150g firm tofu (crumbled)", "1 small Onion sliced", "1 small Tomato diced", "1/2 tsp turmeric & chili powder", "1 whole-wheat chapati"]
-    ,
-    tags: ["High Protein","Quick Meals","Indian Meals","Gym Meals"],
+    ingredients: ["150g firm tofu (crumbled)", "1 small Onion sliced", "1 small Tomato diced", "1/2 tsp turmeric & chili powder", "1 whole-wheat chapati"],
+    tags: ["High Protein", "Quick Meals", "Indian Meals", "Gym Meals"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Muscle-building","Recovery"]
+    purpose: ["Muscle-building", "Recovery"],
+    nutrition: { calories: 480, protein: 26, carbs: 45, fat: 20, fiber: 8, iron: 4.4 },
+    steps: [
+      "Press the tofu with a paper towel to remove excess water; crumble into bite-size pieces.",
+      "Heat oil, add mustard seeds, then sauté onion until translucent.",
+      "Add tomato, turmeric, chilli powder and salt; cook until mushy.",
+      "Fold in the crumbled tofu and cook 3-4 minutes until heated through and spiced.",
+      "Warm the chapati, spoon in the bhurji, roll tightly and serve with mint chutney."
+    ],
+    allergens: ["soy"],
+    funFact: "Tofu absorbs the flavour of everything it's cooked with — a quick 5-minute press and spice coating turns plain soy curd into a rich Indian bhurji.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Plant-Based Proteins", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "NIH Office of Dietary Supplements", title: "Calcium (calcium-set tofu)", link: "https://ods.od.nih.gov/factsheets/" }
+    ]
   },
   {
     id: 3,
@@ -50,14 +78,27 @@ export const recipes = [
     time: "35 mins",
     difficulty: "Medium",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1604908177522-5b6d9a3f2c2f?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rRajmaRiceBowl,
     desc: "Slow-cooked rajma in an onion-tomato masala served over steamed rice. A classic, economical protein-rich meal for study nights.",
-    ingredients: ["3/4 cup kidney beans (soaked & boiled)", "1 cup cooked rice", "1 Onion, 2 Tomatoes", "1 tsp garam masala", "Fresh coriander"]
-    ,
-    tags: ["Indian Meals","Budget Friendly","Hostel Friendly"],
+    ingredients: ["3/4 cup kidney beans (soaked & boiled)", "1 cup cooked rice", "1 Onion, 2 Tomatoes", "1 tsp garam masala", "Fresh coriander"],
+    tags: ["Indian Meals", "Budget Friendly", "Hostel Friendly"],
     glycemicIndex: "Medium",
     digestibility: "Moderate",
-    purpose: ["Energy","Comfort-food"]
+    purpose: ["Energy", "Comfort-food"],
+    nutrition: { calories: 620, protein: 28, carbs: 98, fat: 12, fiber: 14, iron: 6.1 },
+    steps: [
+      "Soak rajma overnight, then pressure-cook with salt until soft but whole.",
+      "Sauté onion, ginger-garlic and spices in oil; add puréed tomatoes and cook the masala down.",
+      "Add boiled rajma with a little of its cooking water; simmer 15 minutes.",
+      "Mash a few beans to thicken, season with garam masala.",
+      "Serve over steamed rice with a squeeze of lemon and coriander."
+    ],
+    allergens: [],
+    funFact: "A single bowl of rajma chawal covers more than a third of an adult's daily protein and fibre needs at a fraction of the cost of packaged snacks.",
+    references: [
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+      { org: "Harvard Nutrition Source", title: "Legumes and Pulses", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 4,
@@ -70,14 +111,27 @@ export const recipes = [
     time: "8 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1604908177523-8f48f6cfd57e?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rMasalaOats,
     desc: "Savory oats cooked with mustard seeds, curry leaves, peas and carrots—keeps you full during morning lectures and packs easily.",
-    ingredients: ["1/2 cup rolled oats", "1/4 cup mixed veggies", "1 tsp mustard seeds", "1 tsp oil", "Salt & chilies to taste"]
-    ,
-    tags: ["Breakfast","Quick Meals","Budget Friendly","Hostel Friendly","Study-Friendly"],
+    ingredients: ["1/2 cup rolled oats", "1/4 cup mixed veggies", "1 tsp mustard seeds", "1 tsp oil", "Salt & chilies to taste"],
+    tags: ["Breakfast", "Quick Meals", "Budget Friendly", "Hostel Friendly", "Study-Friendly"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Energy","Focus"]
+    purpose: ["Energy", "Focus"],
+    nutrition: { calories: 320, protein: 12, carbs: 52, fat: 8, fiber: 6, iron: 3.1 },
+    steps: [
+      "Heat oil, splutter mustard seeds and curry leaves.",
+      "Add finely chopped onion and the mixed vegetables; sauté 2 minutes.",
+      "Stir in oats and toast for a minute.",
+      "Pour in 1 cup hot water, season with salt and chilli, simmer 3-4 minutes.",
+      "Finish with a squeeze of lemon and coriander."
+    ],
+    allergens: [],
+    funFact: "Oats contain beta-glucan, a soluble fibre shown to slow digestion and help steady blood sugar — a quieter, longer-lasting 'fuel' for lectures.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Whole Grains", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "NIH Office of Dietary Supplements", title: "Fiber", link: "https://ods.od.nih.gov/factsheets/" }
+    ]
   },
   {
     id: 5,
@@ -90,14 +144,27 @@ export const recipes = [
     time: "25 mins",
     difficulty: "Medium",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1604908810795-6c4b0b8f7f1e?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rSoyaChaapBowl,
     desc: "Grilled soya chaap with bell peppers, served with lemon quinoa and salad—high protein for gym days and affordable when bought in bulk.",
-    ingredients: ["150g soya chaap", "1/2 cup quinoa", "1/2 capsicum sliced", "1 tbsp olive oil", "Lemon & herbs"]
-    ,
-    tags: ["High Protein","Gym Meals","Indian Meals"],
+    ingredients: ["150g soya chaap", "1/2 cup quinoa", "1/2 capsicum sliced", "1 tbsp olive oil", "Lemon & herbs"],
+    tags: ["High Protein", "Gym Meals", "Indian Meals"],
     glycemicIndex: "Low",
     digestibility: "Moderate",
-    purpose: ["Muscle-building"]
+    purpose: ["Muscle-building"],
+    nutrition: { calories: 560, protein: 36, carbs: 52, fat: 21, fiber: 7, iron: 5.8 },
+    steps: [
+      "Cook quinoa in salted water; fluff and set aside.",
+      "Slice soya chaap into strips; toss with lemon, herbs, salt and chilli.",
+      "Sear chaap in a lightly oiled pan with capsicum slices until charred.",
+      "Build a bowl with quinoa, chaap, peppers and a leafy salad.",
+      "Drizzle olive oil and lemon; serve warm."
+    ],
+    allergens: ["soy"],
+    funFact: "Textured soy protein delivers roughly 50g of protein per 100g dry — among the highest per-rupee protein sources in Indian markets.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Soy and Health", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "Academy of Nutrition and Dietetics", title: "Vegetarian Diets Position Paper", link: "https://www.eatright.org/" }
+    ]
   },
   {
     id: 6,
@@ -110,14 +177,27 @@ export const recipes = [
     time: "10 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1606851091417-5c9e7c8b3d6f?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rPeanutPoha,
     desc: "Flattened rice tossed with roasted peanuts, curry leaves and mustard seeds—frugal, quick and rich in plant protein and healthy fats.",
-    ingredients: ["1 cup poha (flattened rice)", "2 tbsp roasted peanuts", "1 small Onion", "1 green chilli", "Curry leaves, lemon"]
-    ,
-    tags: ["Breakfast","Budget Friendly","Quick Meals","Hostel Friendly"],
+    ingredients: ["1 cup poha (flattened rice)", "2 tbsp roasted peanuts", "1 small Onion", "1 green chilli", "Curry leaves, lemon"],
+    tags: ["Breakfast", "Budget Friendly", "Quick Meals", "Hostel Friendly"],
     glycemicIndex: "Medium",
     digestibility: "High",
-    purpose: ["Energy"]
+    purpose: ["Energy"],
+    nutrition: { calories: 300, protein: 11, carbs: 42, fat: 10, fiber: 5, iron: 3.0 },
+    steps: [
+      "Rinse poha in a colander and let it soften for 2-3 minutes.",
+      "Roast peanuts in a dry pan until golden; set aside.",
+      "Temper mustard seeds, curry leaves and chopped green chilli in oil.",
+      "Add onion and turmeric; sauté, then fold in the soft poha.",
+      "Add peanuts, salt, sugar and lemon; toss gently and serve."
+    ],
+    allergens: ["peanuts"],
+    funFact: "Poha (flattened rice) cooks in minutes and is one of the cheapest breakfast bases in India — adding peanuts turns it into a balanced protein-carb meal.",
+    references: [
+      { org: "NIN India", title: "Dietary Guidelines for Indians", link: "https://www.nin.res.in/" },
+      { org: "Harvard Nutrition Source", title: "Nuts for the Heart", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 7,
@@ -130,14 +210,27 @@ export const recipes = [
     time: "7 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1604908177521-2d6c9f6f9f3a?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rChanaSalad,
     desc: "Boiled chickpeas tossed with chopped cucumber, tomato, onion, chaat masala and lemon—perfect quick protein snack between classes.",
-    ingredients: ["3/4 cup boiled chickpeas", "1/2 Cucumber", "1 small Tomato", "1/2 Onion", "Chaat masala & lemon"]
-    ,
-    tags: ["Snacks","Budget Friendly","Hostel Friendly","Indian Meals"],
+    ingredients: ["3/4 cup boiled chickpeas", "1/2 Cucumber", "1 small Tomato", "1/2 Onion", "Chaat masala & lemon"],
+    tags: ["Snacks", "Budget Friendly", "Hostel Friendly", "Indian Meals"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Protein","Iron"]
+    purpose: ["Protein", "Iron"],
+    nutrition: { calories: 220, protein: 12, carbs: 32, fat: 6, fiber: 8, iron: 3.2 },
+    steps: [
+      "Drain and rinse boiled chickpeas.",
+      "Dice cucumber, tomato and onion finely.",
+      "Toss everything with chaat masala, black salt and a generous squeeze of lemon.",
+      "Add fresh coriander and, if you like, a pinch of roasted cumin.",
+      "Serve immediately — the crunch is the point."
+    ],
+    allergens: [],
+    funFact: "Chickpeas pair naturally with vitamin C: the lemon in a chana salad can more than double how much of the iron your body absorbs.",
+    references: [
+      { org: "NIH Office of Dietary Supplements", title: "Iron", link: "https://ods.od.nih.gov/factsheets/" },
+      { org: "WHO", title: "Iron Deficiency Anaemia", link: "https://www.who.int/" }
+    ]
   },
   {
     id: 8,
@@ -150,14 +243,27 @@ export const recipes = [
     time: "30 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rDalKhichdi,
     desc: "Comforting moong dal khichdi with mild tempering—gentle on the stomach, balanced macros and ideal for late-night study comfort meals.",
-    ingredients: ["1/2 cup moong dal", "1/2 cup rice", "1/2 tsp cumin", "1/2 tsp ghee or oil", "Salt & turmeric"]
-    ,
-    tags: ["Dinner","Comfort","Hostel Friendly"],
+    ingredients: ["1/2 cup moong dal", "1/2 cup rice", "1/2 tsp cumin", "1/2 tsp ghee or oil", "Salt & turmeric"],
+    tags: ["Dinner", "Comfort", "Hostel Friendly"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Recovery","Comfort"]
+    purpose: ["Recovery", "Comfort"],
+    nutrition: { calories: 430, protein: 18, carbs: 72, fat: 9, fiber: 6, iron: 4.5 },
+    steps: [
+      "Wash rice and moong dal together; drain.",
+      "Pressure-cook with 2.5 cups water, turmeric and salt for 3-4 whistles.",
+      "In a small pan, temper cumin, asafoetida and ginger in ghee/oil.",
+      "Pour the tempering over the khichdi and mix well.",
+      "Serve warm with pickle and a squeeze of lemon."
+    ],
+    allergens: [],
+    funFact: "Dal khichdi is one of the most digestible grain+legume combos — the combination supplies a complete amino acid profile and is easy on a stressed stomach.",
+    references: [
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+      { org: "Harvard Nutrition Source", title: "Legumes and Pulses", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 9,
@@ -170,14 +276,27 @@ export const recipes = [
     time: "18 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1598514982001-5a3c2dfd6a3f?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rTofuTikkaWrap,
     desc: "Smoky marinated tofu cubes with onion and peppers, rolled in a whole-wheat roti with mint chutney—perfect post-gym meal.",
-    ingredients: ["150g tofu cubes", "1/2 Onion", "1/2 Capsicum", "1 whole-wheat roti", "Mint chutney"]
-    ,
-    tags: ["High Protein","Quick Meals","Gym Meals"],
+    ingredients: ["150g tofu cubes", "1/2 Onion", "1/2 Capsicum", "1 whole-wheat roti", "Mint chutney"],
+    tags: ["High Protein", "Quick Meals", "Gym Meals"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Muscle-building","Post-Workout"]
+    purpose: ["Muscle-building", "Post-Workout"],
+    nutrition: { calories: 520, protein: 28, carbs: 48, fat: 22, fiber: 9, iron: 4.8 },
+    steps: [
+      "Press tofu, cut into cubes and coat with tikka spices, yoghurt-free marinade and a little oil.",
+      "Thread tofu, onion and capsicum onto skewers or just pan-sear in a hot pan.",
+      "Cook until the edges char and look smoky.",
+      "Warm the roti, spread mint chutney, pile in the tikka and roll.",
+      "Wrap in paper and it's gym-bag portable."
+    ],
+    allergens: ["soy"],
+    funFact: "Tofu provides around 15g protein per 100g and is a 'complete' protein — eating it post-workout supports muscle repair within the recovery window.",
+    references: [
+      { org: "Academy of Nutrition and Dietetics", title: "Vegetarian Diets Position Paper", link: "https://www.eatright.org/" },
+      { org: "Harvard Nutrition Source", title: "Soy and Health", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 10,
@@ -190,14 +309,26 @@ export const recipes = [
     time: "10 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1591106753614-8b7f0a3a39f1?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rSproutsChaat,
     desc: "Moong sprouts tossed with onions, tomatoes, coriander, green chilies and chaat masala—very high in digestible protein and inexpensive.",
-    ingredients: ["1 cup sprouted moong", "1 small Onion", "1 small Tomato", "Chaat masala", "Lemon & coriander"]
-    ,
-    tags: ["Snacks","High Protein","Budget Friendly","Hostel Friendly"],
+    ingredients: ["1 cup sprouted moong", "1 small Onion", "1 small Tomato", "Chaat masala", "Lemon & coriander"],
+    tags: ["Snacks", "High Protein", "Budget Friendly", "Hostel Friendly"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Protein","Brain-food"]
+    purpose: ["Protein", "Brain-food"],
+    nutrition: { calories: 180, protein: 14, carbs: 26, fat: 4, fiber: 6, iron: 3.6 },
+    steps: [
+      "Steam or lightly sauté sprouted moong for 3-4 minutes to make it digestible.",
+      "Cool, then toss with finely diced onion and tomato.",
+      "Season with chaat masala, black salt, lemon and chopped green chilli.",
+      "Finish with coriander; eat fresh."
+    ],
+    allergens: [],
+    funFact: "Sprouting increases the bioavailability of nutrients in legumes and cuts down the compounds that cause gas — cheap, protein-dense and gentle on the gut.",
+    references: [
+      { org: "NIH Office of Dietary Supplements", title: "Iron", link: "https://ods.od.nih.gov/factsheets/" },
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" }
+    ]
   },
   {
     id: 11,
@@ -210,14 +341,27 @@ export const recipes = [
     time: "12 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1617191517012-9b49b3f2a0f8?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rMilletUpma,
     desc: "Barnyard millet upma tempered with mustard seeds, curry leaves, peanuts and vegetables—gluten-free, light and energizing.",
-    ingredients: ["1/2 cup millet", "1 tbsp peanuts", "1 small Onion", "Curry leaves & mustard seeds", "Mixed veggies"]
-    ,
-    tags: ["Breakfast","Gluten-free","Budget Friendly"],
+    ingredients: ["1/2 cup millet", "1 tbsp peanuts", "1 small Onion", "Curry leaves & mustard seeds", "Mixed veggies"],
+    tags: ["Breakfast", "Gluten-free", "Budget Friendly"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Energy"]
+    purpose: ["Energy"],
+    nutrition: { calories: 310, protein: 9, carbs: 54, fat: 8, fiber: 5, iron: 3.4 },
+    steps: [
+      "Dry-roast millet until it smells nutty; set aside.",
+      "Temper mustard seeds, curry leaves, chilli and peanuts in oil.",
+      "Add onion and vegetables; sauté until just soft.",
+      "Add the roasted millet and 1 cup hot water; season and cover.",
+      "Cook 6-8 minutes until water is absorbed; fluff and serve."
+    ],
+    allergens: ["peanuts"],
+    funFact: "Millets are naturally gluten-free and lower on the glycemic index than rice — a steady-energy start for long mornings.",
+    references: [
+      { org: "ICMR India", title: "Millets in the Indian Diet", link: "https://www.icmr.gov.in/" },
+      { org: "Harvard Nutrition Source", title: "Whole Grains", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 12,
@@ -230,14 +374,27 @@ export const recipes = [
     time: "20 mins",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1604908177520-1b2b5a0f1a2b?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rMoongDalCheela,
     desc: "Savory moong dal pancakes stuffed with grated veggies and coriander—highly digestible protein and an excellent make-ahead option.",
-    ingredients: ["3/4 cup soaked moong dal (blended)", "1/4 cup grated carrot", "Green chillies & coriander", "Salt & oil for cooking"]
-    ,
-    tags: ["Breakfast","High Protein","Hostel Friendly","Quick Meals"],
+    ingredients: ["3/4 cup soaked moong dal (blended)", "1/4 cup grated carrot", "Green chillies & coriander", "Salt & oil for cooking"],
+    tags: ["Breakfast", "High Protein", "Hostel Friendly", "Quick Meals"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Protein","Digestible"]
+    purpose: ["Protein", "Digestible"],
+    nutrition: { calories: 360, protein: 20, carbs: 42, fat: 12, fiber: 6, iron: 4.0 },
+    steps: [
+      "Soak moong dal for 3-4 hours, then blend with a little water into a thick batter.",
+      "Stir in grated carrot, green chilli, coriander and salt.",
+      "Heat a non-stick pan, pour a ladle of batter and spread into a circle.",
+      "Drizzle oil around the edges and cook until golden; flip and cook the other side.",
+      "Serve with mint or coconut chutney."
+    ],
+    allergens: [],
+    funFact: "Moong dal is one of the most easily digested legumes — a cheela is a high-protein breakfast that won't weigh you down before a morning class.",
+    references: [
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+      { org: "Harvard Nutrition Source", title: "Plant-Based Proteins", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   },
   {
     id: 13,
@@ -250,13 +407,125 @@ export const recipes = [
     time: "5 mins prep + overnight",
     difficulty: "Easy",
     serves: 1,
-    image: "https://images.unsplash.com/photo-1509099836639-18ba3c46b8d3?auto=format&fit=crop&q=80&w=600",
+    image: IMG.rOvernightOats,
     desc: "Rolled oats soaked in soy milk with chia, jaggery and chopped almonds—grab-and-go, nutritionally dense and low-effort.",
-    ingredients: ["1/2 cup rolled oats", "1 cup soy milk", "1 tbsp chia seeds", "1 tsp jaggery", "10g chopped almonds"]
-  ,
-    tags: ["Breakfast","Quick Meals","Study-Friendly","Budget Friendly"],
+    ingredients: ["1/2 cup rolled oats", "1 cup soy milk", "1 tbsp chia seeds", "1 tsp jaggery", "10g chopped almonds"],
+    tags: ["Breakfast", "Quick Meals", "Study-Friendly", "Budget Friendly"],
     glycemicIndex: "Low",
     digestibility: "High",
-    purpose: ["Sustained energy","Brain-food"]
+    purpose: ["Sustained energy", "Brain-food"],
+    nutrition: { calories: 350, protein: 14, carbs: 50, fat: 12, fiber: 8, iron: 3.3 },
+    steps: [
+      "Combine oats, chia seeds and soy milk in a jar.",
+      "Stir in jaggery and a pinch of salt.",
+      "Add chopped almonds and a few berries if you have them.",
+      "Cover and refrigerate overnight (or 4+ hours).",
+      "Stir in the morning, add a splash of milk if thick, and eat cold or warm."
+    ],
+    allergens: ["soy", "nuts"],
+    funFact: "Chia seeds absorb up to 10-12 times their weight in water, so overnight oats keep you hydrated and full well past the first lecture.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Oats and Whole Grains", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "NIH Office of Dietary Supplements", title: "Omega-3 (ALA from chia)", link: "https://ods.od.nih.gov/factsheets/" }
+    ]
+  },
+  {
+    id: 14,
+    title: "Masala Chana Pulao",
+    category: "Dinner",
+    calories: "480 kcal",
+    protein: "18g",
+    fiber: "10g",
+    cost: "110",
+    time: "25 mins",
+    difficulty: "Easy",
+    serves: 1,
+    image: IMG.rMasalaChanaPulao,
+    desc: "One-pot rice cooked with boiled chana, whole spices, and fried onions — a flavourful, batch-cookable dinner with serious fibre.",
+    ingredients: ["1 cup cooked rice (or brown)", "1/2 cup boiled chana", "1 Onion sliced", "Whole spices (bay, cloves, cinnamon)", "2 tbsp oil & coriander"],
+    tags: ["One-Pot", "Budget Friendly", "High Fiber", "Hostel Friendly"],
+    glycemicIndex: "Medium",
+    digestibility: "Moderate",
+    purpose: ["Energy", "Comfort-food"],
+    nutrition: { calories: 480, protein: 18, carbs: 74, fat: 13, fiber: 10, iron: 4.6 },
+    steps: [
+      "Heat oil, add whole spices and sliced onion; fry until golden.",
+      "Add boiled chana with a little masala (turmeric, chilli, garam masala).",
+      "Fold in cooked rice and mix gently over low heat for 2-3 minutes.",
+      "Season, top with fried onion and coriander.",
+      "Serve with a simple onion-lemon salad."
+    ],
+    allergens: [],
+    funFact: "A rice+chana plate is a classic 'complementary protein' pairing — together they supply all nine essential amino acids across the meal.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Legumes and Pulses", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" }
+    ]
+  },
+  {
+    id: 15,
+    title: "Peanut Butter Banana Toast",
+    category: "Breakfast",
+    calories: "380 kcal",
+    protein: "14g",
+    fiber: "6g",
+    cost: "40",
+    time: "5 mins",
+    difficulty: "Easy",
+    serves: 1,
+    image: IMG.rPBBananaToast,
+    desc: "Toasted whole-wheat bread, a thick layer of peanut butter and sliced banana — a 5-minute, energy-dense start that tastes like a treat.",
+    ingredients: ["2 slices whole-wheat bread", "1.5 tbsp peanut butter", "1 small Banana", "1/2 tsp chia or flax (optional)", "Drizzle of honey/jaggery (optional)"],
+    tags: ["Quick Meals", "Budget Friendly", "High Energy", "Hostel Friendly"],
+    glycemicIndex: "Medium",
+    digestibility: "High",
+    purpose: ["Sustained energy", "Pre-Workout"],
+    nutrition: { calories: 380, protein: 14, carbs: 46, fat: 16, fiber: 6, iron: 2.8 },
+    steps: [
+      "Toast the bread until crisp.",
+      "Spread peanut butter generously while the toast is still warm.",
+      "Slice the banana over the top.",
+      "Sprinkle chia/flax and a touch of jaggery if desired.",
+      "Eat immediately — this one doesn't pack well."
+    ],
+    allergens: ["peanuts"],
+    funFact: "Peanut butter on whole-grain toast gives a mix of fast (banana) and slow (whole grain + fat) carbs — a steady pre-class energy release.",
+    references: [
+      { org: "Harvard Nutrition Source", title: "Nuts for the Heart", link: "https://nutritionsource.hsph.harvard.edu/" },
+      { org: "NIH Office of Dietary Supplements", title: "Potassium", link: "https://ods.od.nih.gov/factsheets/" }
+    ]
+  },
+  {
+    id: 16,
+    title: "Spinach & Tofu Curry",
+    category: "Dinner",
+    calories: "500 kcal",
+    protein: "24g",
+    fiber: "8g",
+    cost: "150",
+    time: "30 mins",
+    difficulty: "Medium",
+    serves: 1,
+    image: IMG.rSpinachTofuCurry,
+    desc: "A silky palak-style gravy with tofu cubes, served over rice or millet — iron-rich, calcium-rich and deeply comforting.",
+    ingredients: ["150g tofu", "2 cups fresh spinach", "1/2 cup chopped onion & tomato", "Garlic, ginger & spices", "1 cup cooked rice or millet"],
+    tags: ["High Protein", "Iron-Rich", "Indian Meals"],
+    glycemicIndex: "Low",
+    digestibility: "Moderate",
+    purpose: ["Iron", "Recovery"],
+    nutrition: { calories: 500, protein: 24, carbs: 55, fat: 19, fiber: 8, iron: 6.8 },
+    steps: [
+      "Blanch spinach in boiling water for 30 seconds, then cool and blend to a smooth paste.",
+      "Sauté onion, ginger, garlic and spices; add tomato and cook down.",
+      "Fold in the spinach purée and simmer 4-5 minutes.",
+      "Add tofu cubes and cook gently until warm.",
+      "Serve over rice or millet with a squeeze of lemon for iron absorption."
+    ],
+    allergens: ["soy"],
+    funFact: "Pairing spinach with lemon can significantly improve iron absorption — the vitamin C converts plant (non-heme) iron into a more absorbable form.",
+    references: [
+      { org: "NIH Office of Dietary Supplements", title: "Iron", link: "https://ods.od.nih.gov/factsheets/" },
+      { org: "Harvard Nutrition Source", title: "Soy and Health", link: "https://nutritionsource.hsph.harvard.edu/" }
+    ]
   }
 ];
