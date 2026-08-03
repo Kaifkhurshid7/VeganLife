@@ -100,3 +100,51 @@
 .card:hover .readLink {
   color: var(--color-orange);
 }
+
+/* Author */
+.author {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-sage);
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-sage);
+  color: var(--color-cream);
+  font-size: 0.72rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--color-earth);
+  opacity: 0.9;
+  margin: 0 0 8px;
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.tag {
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--glass-border);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
