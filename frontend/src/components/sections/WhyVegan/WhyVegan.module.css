@@ -6,6 +6,54 @@
   margin: 0 auto;
 }
 
+.card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.imageBox {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+}
+
+.cardImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover .cardImage {
+  transform: scale(1.06);
+}
+
+.cardBody {
+  padding: 28px;
+}
+
+.highlights {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.highlightItem {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-earth);
+}
+
+.highlightIcon {
+  flex-shrink: 0;
+}
+
 .iconBox {
   width: 60px;
   height: 60px;

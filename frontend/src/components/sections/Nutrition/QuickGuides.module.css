@@ -1,0 +1,472 @@
+.wrap {
+  margin-top: 64px;
+  padding-top: 8px;
+}
+
+.heading {
+  font-size: 1.6rem;
+  color: var(--color-earth);
+  margin-bottom: 4px;
+}
+
+.sub {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  margin-bottom: 24px;
+}
+
+/* ---- Guide card grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.guideCard {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  border-radius: var(--radius-lg);
+  padding: 0 !important;
+  overflow: hidden;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  color: inherit;
+}
+
+.cardTop {
+  position: relative;
+  height: 140px;
+  overflow: hidden;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.guideCard:hover .cardImg {
+  transform: scale(1.08);
+}
+
+.iconChip {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: rgba(87, 61, 33, 0.78);
+  color: var(--color-cream);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  font-size: 1.02rem;
+  color: var(--color-earth);
+  margin: 14px 16px 4px;
+}
+
+.cardDesc {
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0 16px 16px;
+  flex-grow: 1;
+}
+
+/* ---- Modal ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 22, 12, 0.55);
+  backdrop-filter: blur(6px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal {
+  background: var(--color-cream);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  width: min(860px, 100%);
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgba(87, 61, 33, 0.08);
+}
+
+.modalTitleWrap {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.modalIcon {
+  font-size: 1.6rem;
+  margin-top: 4px;
+}
+
+.modalTitle {
+  font-size: 1.35rem;
+  color: var(--color-earth);
+  margin: 0;
+}
+
+.modalDesc {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  margin: 4px 0 0;
+}
+
+.closeBtn {
+  border: none;
+  background: rgba(87, 61, 33, 0.08);
+  color: var(--color-earth);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background: rgba(87, 61, 33, 0.16);
+  transform: rotate(90deg);
+}
+
+.modalBody {
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.modalRefs {
+  padding: 14px 24px 22px;
+  border-top: 1px solid rgba(87, 61, 33, 0.08);
+}
+
+.verifiedStrip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-sage);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+/* ---- List rows ---- */
+.rowList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.row {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.rowTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.rowTitle {
+  font-weight: 700;
+  color: var(--color-earth);
+  font-size: 0.95rem;
+}
+
+.chip {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(166, 180, 143, 0.16);
+  border: 1px solid rgba(166, 180, 143, 0.3);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-sage);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.rowMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  opacity: 0.85;
+  margin-top: 6px;
+}
+
+.rowMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reality {
+  color: var(--color-orange);
+  font-weight: 700;
+}
+
+.rowDesc {
+  margin: 6px 0 0;
+  font-size: 0.84rem;
+  color: var(--color-earth);
+  line-height: 1.5;
+}
+
+/* ---- Cards (brain foods) ---- */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.miniCard {
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+}
+
+.miniImg {
+  width: 100%;
+  height: 110px;
+  object-fit: cover;
+}
+
+.miniTitle {
+  font-size: 0.9rem;
+  color: var(--color-earth);
+  margin: 10px 12px 6px;
+}
+
+.miniChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 0 12px;
+}
+
+.miniChip {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(157, 130, 171, 0.14);
+  border: 1px solid rgba(157, 130, 171, 0.25);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-earth);
+}
+
+.miniMeta {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+  margin: 8px 12px 12px;
+}
+
+/* ---- Table (supplements) ---- */
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 8px 10px;
+  background: rgba(166, 180, 143, 0.12);
+  color: var(--color-sage);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid rgba(87, 61, 33, 0.08);
+}
+
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(87, 61, 33, 0.06);
+  vertical-align: top;
+  color: var(--color-earth);
+}
+
+.table strong { color: var(--color-earth); }
+
+/* ---- Quotes (athletes) ---- */
+.quoteGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.quoteCard {
+  padding: 16px;
+  border-radius: var(--radius-md);
+}
+
+.quoteText {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--color-earth);
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.quoteBy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 0.82rem;
+  color: var(--color-text-secondary);
+}
+
+.quoteNote {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.72rem;
+  color: var(--color-sage);
+}
+
+/* ---- Tips ---- */
+.tipList {
+  margin: 0;
+  padding-left: 4px;
+  list-style: none;
+  counter-reset: tips;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tip {
+  counter-increment: tips;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  font-size: 0.88rem;
+  color: var(--color-earth);
+  line-height: 1.5;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+}
+
+.tip::before {
+  content: counter(tips);
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-sage);
+  color: var(--color-cream);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Stats (environment) ---- */
+.statsBox { display: flex; flex-direction: column; gap: 12px; }
+
+.statRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.statCol {
+  background: rgba(166, 180, 143, 0.1);
+  border: 1px solid rgba(166, 180, 143, 0.2);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+}
+
+.statCol h5, .statSub { margin: 0 0 8px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-sage); }
+
+.statCol ul { list-style: none; margin: 0; padding: 0; }
+.statCol li { font-size: 0.82rem; color: var(--color-earth); padding: 2px 0; }
+.statCol li strong { color: var(--color-orange); }
+
+.compList { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.compList li { font-size: 0.84rem; color: var(--color-earth); background: rgba(255,255,255,0.5); border-radius: var(--radius-sm); padding: 8px 12px; }
+.compList em { display: block; color: var(--color-sage); font-size: 0.78rem; }
+
+/* ---- Produce ---- */
+.produceList { display: flex; flex-direction: column; gap: 18px; }
+
+.seasonBlock { border-bottom: 1px solid rgba(87,61,33,0.08); padding-bottom: 14px; }
+.seasonTitle { display: flex; align-items: center; gap: 8px; font-size: 1rem; color: var(--color-earth); margin: 0 0 10px; }
+
+.seasonCat { margin-bottom: 10px; }
+.seasonLabel { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-sage); }
+.seasonTags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.seasonTag { padding: 4px 10px; border-radius: var(--radius-full); border: 1px solid var(--glass-border); font-size: 0.78rem; font-weight: 600; color: var(--color-earth); }
+
+/* ---- Plans ---- */
+.planList { display: flex; flex-direction: column; gap: 18px; }
+.planBlock { border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 14px 16px; }
+.planTitle { display: flex; align-items: center; gap: 8px; font-size: 1rem; color: var(--color-earth); margin: 0 0 4px; }
+.planMeta { font-size: 0.82rem; color: var(--color-text-secondary); margin: 0 0 10px; }
+.planDays { list-style: none; margin: 0; padding: 0; }
+.planDay { display: flex; gap: 12px; flex-wrap: wrap; padding: 8px 0; border-top: 1px dashed rgba(87,61,33,0.12); font-size: 0.8rem; color: var(--color-earth); }
+.planDay strong { width: 86px; color: var(--color-sage); }
+
+@media (max-width: 600px) {
+  .statRow { grid-template-columns: 1fr; }
+}
