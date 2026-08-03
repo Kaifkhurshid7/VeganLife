@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBookmark, FiClock, FiTag, FiCheckCircle, FiChevronDown, FiInfo, FiExternalLink } from 'react-icons/fi';
-import { FaSeedling, FaLeaf } from 'react-icons/fa6';
-import { SectionHeader } from '../../ui';
-import { nutritionCategories, studentVeganDiet } from '../../../data/nutrition';
+import { Link } from 'react-router-dom';
+import { FiBookmark, FiClock, FiTag, FiCheckCircle, FiChevronDown, FiInfo, FiArrowRight, FiAward } from 'react-icons/fi';
+import { FaSeedling, FaLeaf, FaQuoteLeft } from 'react-icons/fa6';
+import { SectionHeader, ReferenceList } from '../../ui';
+import { nutritionCategories, studentVeganDiet, trustIndicators, dailyMotivation } from '../../../data/nutrition';
+import QuickGuides from './QuickGuides';
 import styles from './Nutrition.module.css';
 
 const TAB_COLORS = {
@@ -16,8 +18,14 @@ const TAB_COLORS = {
 export default function Nutrition() {
   const [activeTab, setActiveTab] = useState('protein');
   const [expandedItem, setExpandedItem] = useState(null);
+  const [quoteIdx, setQuoteIdx] = useState(0);
   const selectedCategory = nutritionCategories.find((cat) => cat.id === activeTab) || nutritionCategories[0];
   const diet = studentVeganDiet;
+
+  useEffect(() => {
+    const t = setInterval(() => setQuoteIdx((i) => (i + 1) % dailyMotivation.length), 7000);
+    return () => clearInterval(t);
+  }, []);
 
   return (
     <section id="nutrition" style={{ backgroundColor: 'var(--color-bg)' }}>
@@ -26,6 +34,27 @@ export default function Nutrition() {
         title="Nutrition Guide"
         description="Unlock absolute physical vitality with vibrant, fiber-dense, and highly bioavailable plant foods."
       />
+
+      {/* Trust indicators + rotating motivation */}
+      {trustIndicators && (
+        <div className={styles.trustStrip}>
+          <span className={styles.trustChip}><FiAward /> Research-backed</span>
+          <span className={styles.trustChip}><FiCheckCircle /> Peer-reviewed sources</span>
+          <span className={styles.trustChip}><FaLeaf /> Sourced per category</span>
+        </div>
+      )}
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={quoteIdx}
+          className={styles.motivation}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.5 }}
+        >
+          <FaQuoteLeft className={styles.motivationIcon} /> {dailyMotivation[quoteIdx]}
+        </motion.p>
+      </AnimatePresence>
 
       <div className={styles.layout}>
         <div className={styles.dashboard}>
@@ -52,6 +81,13 @@ export default function Nutrition() {
               exit={{ opacity: 0, x: 10 }}
               transition={{ duration: 0.4 }}
             >
+              {selectedCategory.image && (
+                <div className={styles.categoryHero}>
+                  <img src={selectedCategory.image} alt="" className={styles.categoryHeroImg} loading="lazy" />
+                  <span className={styles.categoryHeroLabel}>{selectedCategory.name}</span>
+                </div>
+              )}
+
               <h3 className={styles.panelTitle}>{selectedCategory.name}</h3>
               <p className={styles.panelDesc}>{selectedCategory.desc}</p>
 
@@ -77,6 +113,9 @@ export default function Nutrition() {
                       className={styles.progressHeader}
                       onClick={() => setExpandedItem(expandedItem === idx ? null : idx)}
                     >
+                      {item.image && (
+                        <img src={item.image} alt={item.food} className={styles.itemThumb} loading="lazy" />
+                      )}
                       <div className={styles.progressLabel}>
                         <span className={styles.foodName}>{item.food}</span>
                         <span className={styles.foodQuantity}>{item.quantity}</span>
@@ -116,6 +155,8 @@ export default function Nutrition() {
                             {item.workoutSuitability && <div className={styles.detailItem}><span className={styles.detailLabel}>Workout Use</span><span>{item.workoutSuitability}</span></div>}
                             {item.shelfLife && <div className={styles.detailItem}><span className={styles.detailLabel}>Shelf Life</span><span>{item.shelfLife}</span></div>}
                             {item.budgetLevel && <div className={styles.detailItem}><span className={styles.detailLabel}>Budget</span><span>{item.budgetLevel}</span></div>}
+                            {item.glycemicIndex && <div className={styles.detailItem}><span className={styles.detailLabel}>Glycemic Index</span><span>{item.glycemicIndex}</span></div>}
+                            {item.satietyScore && <div className={styles.detailItem}><span className={styles.detailLabel}>Satiety</span><span>{item.satietyScore}/10</span></div>}
                           </div>
 
                           {item.bestPairings && (
@@ -129,6 +170,10 @@ export default function Nutrition() {
 
                           {item.studentNotes && (
                             <p className={styles.studentNote}><FaSeedling className={styles.noteIcon} /> {item.studentNotes}</p>
+                          )}
+
+                          {item.references && item.references.length > 0 && (
+                            <ReferenceList refs={item.references} title="Item Sources" />
                           )}
                         </motion.div>
                       )}
@@ -150,19 +195,7 @@ export default function Nutrition() {
               )}
 
               {/* References */}
-              {selectedCategory.references && (
-                <div className={styles.references}>
-                  <h4><FiExternalLink /> Sources</h4>
-                  <div className={styles.refList}>
-                    {selectedCategory.references.map((ref) => (
-                      <a key={ref.title} href={ref.link} target="_blank" rel="noopener noreferrer" className={styles.refLink}>
-                        <span className={styles.refOrg}>{ref.org}</span>
-                        <span className={styles.refTitle}>{ref.title}</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <ReferenceList refs={selectedCategory.references} />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -175,6 +208,11 @@ export default function Nutrition() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
+          {diet.image && (
+            <div className={styles.dietHero}>
+              <img src={diet.image} alt="" className={styles.dietHeroImg} loading="lazy" />
+            </div>
+          )}
           <div className={styles.dietHeader}>
             <div className={styles.dietBadge}>
               <FiBookmark style={{ color: 'var(--color-orange)' }} />
@@ -196,7 +234,7 @@ export default function Nutrition() {
           <hr className={styles.separator} />
 
           <div className={styles.schedule}>
-            {diet.timeline.slice(0, 6).map((item) => (
+            {diet.timeline.map((item) => (
               <div key={item.section} className={styles.scheduleItem}>
                 <div className={styles.scheduleHeader}>
                   <span className={styles.mealLabel}>{item.section}</span>
@@ -212,8 +250,17 @@ export default function Nutrition() {
               </div>
             ))}
           </div>
+
+          <Link to="/planner" className={styles.planLink}>
+            Plan a week <FiArrowRight />
+          </Link>
+
+          <ReferenceList refs={diet.references} />
         </motion.div>
       </div>
+
+      {/* Quick Guides: surfaces the otherwise-unused datasets */}
+      <QuickGuides />
     </section>
   );
 }

@@ -103,3 +103,8 @@
   opacity: 0.6;
   font-weight: 700;
 }
+
+.refs {
+  max-width: var(--max-width-narrow);
+  margin: 40px auto 0;
+}

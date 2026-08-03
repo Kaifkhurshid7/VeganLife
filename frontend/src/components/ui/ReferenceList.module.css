@@ -1,0 +1,70 @@
+/* Replicates the citation styling from Nutrition.module.css (.references/.refList/.refLink/.refOrg/.refTitle). */
+.references {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(87, 61, 33, 0.06);
+}
+
+.heading {
+  font-size: 0.9rem;
+  color: var(--color-earth);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.refList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.refLink {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.refLink:hover {
+  background: rgba(87, 61, 33, 0.04);
+}
+
+.refOrg {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-sage);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.refTitle {
+  font-size: 0.82rem;
+  color: var(--color-earth);
+}
+
+/* Compact variant — single-line "Source: Org" links for stat cards */
+.compact {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: none;
+}
+
+.compact .refLink {
+  flex-direction: row;
+  padding: 2px 0;
+  align-items: center;
+}
+
+.refOrgInline {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-sage);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
