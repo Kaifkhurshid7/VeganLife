@@ -1,31 +1,24 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaRotate } from 'react-icons/fa6';
-import { SectionHeader } from '../../ui';
+import { SectionHeader, ReferenceList } from '../../ui';
+import { veganMythsDebunked } from '../../../data/nutrition';
 import styles from './Myths.module.css';
 
-const MYTHS = [
-  {
-    id: 1,
-    myth: '\u201CVegans can\u2019t get enough protein\u201D',
-    reality: 'Completely False',
-    fact: 'Plant foods are loaded with clean, cholesterol-free proteins. 1 cup of cooked lentils has 18g of protein, and tempeh has 20g per 100g. Standard grains and beans provide all nine essential amino acids when combined throughout the day.',
-    color: 'var(--color-sage)',
-  },
-  {
-    id: 2,
-    myth: '\u201CPlant-based eating is too expensive\u201D',
-    reality: 'A Budget Myth',
-    fact: 'The core staples of a vegan diet\u2014oats, rice, dry beans, lentils, sweet potatoes, and seasonal greens\u2014are the cheapest food ingredients on Earth. Bulk cooking saves up to 40% on monthly food costs compared to buying meats and cheeses.',
-    color: 'var(--color-orange)',
-  },
-  {
-    id: 3,
-    myth: '\u201CVegans only eat boring salads\u201D',
-    reality: 'Infinitely Diverse',
-    fact: 'The vegan catalog includes artisanal sweet potato tacos, high-protein plant burgers, rich coconut lentil curries, rich avocado pastas, and creamy fruit power shakes. It is an invitation to explore a world of rich spices, grains, and textures.',
-    color: 'var(--color-purple)',
-  },
+const PALETTE = ['var(--color-sage)', 'var(--color-orange)', 'var(--color-purple)', 'var(--color-earth)'];
+
+const cards = veganMythsDebunked.map((m, i) => ({
+  id: i,
+  myth: m.myth,
+  reality: m.reality || 'Debunked',
+  fact: m.truth,
+  color: m.color || PALETTE[i % 4],
+}));
+
+const mythsReferences = [
+  { org: 'Academy of Nutrition and Dietetics', title: 'Vegetarian Diets Position Paper', link: 'https://www.eatright.org/' },
+  { org: 'NIH Office of Dietary Supplements', title: 'Vitamin B12 Fact Sheet', link: 'https://ods.od.nih.gov/factsheets/VitaminB12-Consumer/' },
+  { org: 'Harvard Nutrition Source', title: 'Plant-Based Diet', link: 'https://nutritionsource.hsph.harvard.edu/' },
 ];
 
 export default function Myths() {
@@ -40,11 +33,11 @@ export default function Myths() {
       <SectionHeader
         label="Fact vs Fiction"
         title="Vegan Myths Busted"
-        description="Let\u2019s separate cultural misconceptions from peer-reviewed nutritional and environmental science."
+        description="Let's separate cultural misconceptions from peer-reviewed nutritional and environmental science."
       />
 
       <div className={styles.grid}>
-        {MYTHS.map((item, idx) => (
+        {cards.map((item, idx) => (
           <div
             key={item.id}
             className={`${styles.cardContainer} animate-bob`}
@@ -74,6 +67,10 @@ export default function Myths() {
             </motion.div>
           </div>
         ))}
+      </div>
+
+      <div className={styles.refs}>
+        <ReferenceList refs={mythsReferences} />
       </div>
     </section>
   );
