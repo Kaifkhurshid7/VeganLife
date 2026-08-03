@@ -36,8 +36,20 @@ export default function Blog() {
                   <span>{post.date}</span>
                   <span>{post.readTime}</span>
                 </div>
+                {post.author && (
+                  <span className={styles.author}>
+                    <span className={styles.avatar}>{post.author.charAt(0)}</span>
+                    {post.author}
+                  </span>
+                )}
                 <h3 className={styles.title}>{post.title}</h3>
+                {post.summary && <p className={styles.summary}>“{post.summary}”</p>}
                 <p className={styles.desc}>{post.desc}</p>
+                {post.tags && post.tags.length > 0 && (
+                  <div className={styles.tagList}>
+                    {post.tags.map((t) => <span key={t} className={styles.tag}>#{t.replace(/\s+/g, '')}</span>)}
+                  </div>
+                )}
               </div>
 
               {post.url ? (
