@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { FaDroplet, FaCloud, FaEarthAmericas, FaTree } from 'react-icons/fa6';
-import { SectionHeader } from '../../ui';
+import { SectionHeader, ReferenceList } from '../../ui';
 import { useCounter } from '../../../hooks';
-import { impactStats, resourceComparisonData, weeklySavingsData } from '../../../data/statistics';
+import { impactStats, resourceComparisonData, weeklySavingsData, chartReferences } from '../../../data/statistics';
 import styles from './Impact.module.css';
 
 const ICON_MAP = {
@@ -59,6 +59,7 @@ export default function Impact() {
             </h3>
             <h4 className={styles.statTitle}>{stat.title}</h4>
             <p className={styles.statDesc}>{stat.desc}</p>
+            <ReferenceList refs={stat.references} compact />
           </motion.div>
         ))}
       </div>
@@ -130,18 +131,31 @@ export default function Impact() {
                     <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.4} />
                     <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
                   </linearGradient>
+                  <linearGradient id="colorLand" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#e3a36e" stopOpacity={0.45} />
+                    <stop offset="95%" stopColor="#e3a36e" stopOpacity={0} />
+                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.12} stroke="var(--color-earth)" />
                 <XAxis dataKey="day" tick={{ fill: 'var(--color-earth)', fontSize: 12, fontWeight: 500 }} stroke="rgba(87,61,33,0.15)" />
-                <YAxis tick={{ fill: 'var(--color-earth)', fontSize: 11 }} stroke="rgba(87,61,33,0.15)" />
+                <YAxis yAxisId="left" tick={{ fill: 'var(--color-earth)', fontSize: 11 }} stroke="rgba(87,61,33,0.15)" />
+                <YAxis yAxisId="right" orientation="right" tick={{ fill: '#e3a36e', fontSize: 11 }} stroke="rgba(227,163,110,0.35)" />
                 <Tooltip contentStyle={TOOLTIP_STYLE} />
-                <Area name="Water Saved (Liters)" type="monotone" dataKey="Water" stroke="#8884d8" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2.5} />
-                <Area name="CO2 Saved (Kilograms)" type="monotone" dataKey="CO2" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCO2)" strokeWidth={2} />
+                <Area name="Water Saved (Liters)" type="monotone" dataKey="Water" yAxisId="left" stroke="#8884d8" fillOpacity={1} fill="url(#colorWater)" strokeWidth={2.5} />
+                <Area name="CO2 Saved (Kilograms)" type="monotone" dataKey="CO2" yAxisId="right" stroke="#82ca9d" fillOpacity={1} fill="url(#colorCO2)" strokeWidth={2} />
+                <Area name="Land Saved (sq.ft)" type="monotone" dataKey="Land" yAxisId="right" stroke="#e3a36e" fillOpacity={1} fill="url(#colorLand)" strokeWidth={2} />
               </AreaChart>
             )}
           </ResponsiveContainer>
         </div>
       </motion.div>
+
+      <div className={styles.chartRefs}>
+        <ReferenceList
+          refs={activeTab === 'comparison' ? chartReferences.comparison : chartReferences.weekly}
+          title="Data Sources"
+        />
+      </div>
     </section>
   );
 }
