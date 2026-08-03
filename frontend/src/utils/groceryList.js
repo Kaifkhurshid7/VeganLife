@@ -69,3 +69,22 @@ export function buildGroceryList(plan) {
     recipeCount: ingredientMap.size,
   };
 }
+
+// Return the best-matching recipe for a meal-plan string (e.g. "Rajma Rice" → the
+// Rajma Rice Bowl recipe), or null if nothing matches. Used by Planner to show a
+// dish thumbnail per meal row.
+export function findRecipeForMeal(meal) {
+  if (!meal) return null;
+  let best = null;
+  let bestScore = 0;
+  for (const token of tokensFromMeal(meal)) {
+    for (const r of recipes) {
+      const s = matchRecipe(token, normalize(r.title));
+      if (s > bestScore) {
+        bestScore = s;
+        best = r;
+      }
+    }
+  }
+  return bestScore > 0 ? best : null;
+}
