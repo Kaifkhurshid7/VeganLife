@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { FaEarthAmericas, FaHeartPulse, FaHandHoldingHeart, FaSeedling } from 'react-icons/fa6';
-import { SectionHeader, WaveDivider } from '../../ui';
+import { FiCheckCircle } from 'react-icons/fi';
+import { SectionHeader, WaveDivider, ReferenceList } from '../../ui';
 import { DeerSilhouettes, Fireflies } from '../../ambient';
 import styles from './WhyVegan.module.css';
 import { awarenessCards } from '../../../data/awarenessCards';
@@ -38,7 +39,7 @@ export default function WhyVegan() {
         {awarenessCards.map((card, idx) => (
           <motion.div
             key={card.title}
-            className="glass-card glow-card"
+            className={`glass-card glow-card ${styles.card}`}
             onMouseMove={handleMouseMove}
             variants={{
               hidden: { opacity: 0, y: 40 },
@@ -49,17 +50,38 @@ export default function WhyVegan() {
             viewport={{ once: true, margin: '-100px' }}
             whileHover={{ y: -12, scale: 1.02, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
           >
-            <div
-              className={`${styles.iconBox} animate-bob`}
-              style={{ color: card.color, animationDelay: `${idx * -0.8}s` }}
-            >
-              {ICON_MAP[card.icon] || <FaSeedling />}
-            </div>
-            <h3 className={styles.cardTitle}>{card.title}</h3>
-            <p className={styles.cardDesc}>{card.description}</p>
-            <div className={styles.cardExtras}>
-              <small className={styles.stat}>{card.statistic}</small>
-              <blockquote className={styles.quote}>{card.quote}</blockquote>
+            {card.image && (
+              <div className={styles.imageBox}>
+                <img src={card.image} alt={card.title} className={styles.cardImage} loading="lazy" />
+              </div>
+            )}
+            <div className={styles.cardBody}>
+              <div
+                className={`${styles.iconBox} animate-bob`}
+                style={{ color: card.color, animationDelay: `${idx * -0.8}s` }}
+              >
+                {ICON_MAP[card.icon] || <FaSeedling />}
+              </div>
+              <h3 className={styles.cardTitle}>{card.title}</h3>
+              <p className={styles.cardDesc}>{card.description}</p>
+
+              {card.highlights && card.highlights.length > 0 && (
+                <ul className={styles.highlights}>
+                  {card.highlights.map((h) => (
+                    <li key={h} className={styles.highlightItem}>
+                      <FiCheckCircle className={styles.highlightIcon} style={{ color: card.color }} />
+                      {h}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className={styles.cardExtras}>
+                <small className={styles.stat}>{card.statistic}</small>
+                <blockquote className={styles.quote}>{card.quote}</blockquote>
+              </div>
+
+              <ReferenceList refs={card.references} />
             </div>
           </motion.div>
         ))}
