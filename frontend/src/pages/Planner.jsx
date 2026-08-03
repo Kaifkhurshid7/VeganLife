@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiSunrise, FiSun, FiMoon, FiCoffee } from 'react-icons/fi';
 import BackButton from '../components/ui/BackButton';
-import { SectionHeader } from '../components/ui';
+import { SectionHeader, ReferenceList } from '../components/ui';
 import { weeklyMealPlans } from '../data/nutrition';
-import { buildGroceryList } from '../utils/groceryList';
+import { buildGroceryList, findRecipeForMeal } from '../utils/groceryList';
 import styles from './Planner.module.css';
 
 const MEAL_META = [
@@ -53,6 +53,13 @@ export default function Planner() {
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25 }}
           >
+            {/* Plan hero */}
+            {plan.image && (
+              <div className={styles.hero}>
+                <img src={plan.image} alt={plan.name} className={styles.heroImg} loading="lazy" />
+              </div>
+            )}
+
             {/* Plan summary */}
             <div className={styles.summary}>
               <div className={styles.summaryBadge}>Weekly budget: <strong>{plan.weeklyBudget}</strong></div>
@@ -71,12 +78,19 @@ export default function Planner() {
                 >
                   <h3 className={styles.dayName}>{day.day}</h3>
                   <div className={styles.meals}>
-                    {MEAL_META.map(({ key, label, icon, emoji }) => (
-                      <div key={key} className={styles.meal}>
-                        <span className={styles.mealLabel}>{icon} {label}</span>
-                        <span className={styles.mealValue}>{day[key] || '—'}</span>
-                      </div>
-                    ))}
+                    {MEAL_META.map(({ key, label, icon }) => {
+                      const mealText = day[key];
+                      const rec = findRecipeForMeal(mealText);
+                      return (
+                        <div key={key} className={styles.meal}>
+                          <span className={styles.mealLabel}>{icon} {label}</span>
+                          <div className={styles.mealValueRow}>
+                            {rec && <img src={rec.image} alt={rec.title} className={styles.mealImg} loading="lazy" />}
+                            <span className={styles.mealValue}>{mealText || '—'}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </motion.div>
               ))}
@@ -117,6 +131,8 @@ export default function Planner() {
               <Link to="/community" className={styles.shopLink}>
                 Looking for recipes? Browse the community feed
               </Link>
+
+              <ReferenceList refs={plan.references} />
             </div>
           </motion.div>
         </AnimatePresence>

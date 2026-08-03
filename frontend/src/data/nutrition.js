@@ -1,8 +1,11 @@
+import { IMG } from '../constants/images';
+
 export const nutritionCategories = [
   {
     id: "protein",
     name: "Protein-Rich Foods",
     desc: "Practical, affordable Indian sources of concentrated plant protein — ideal for students on a budget.",
+    image: IMG.nProteinHero,
     whyItMatters:
       "Protein is essential for muscle repair, neurotransmitter production, satiety and steady cognitive performance — low protein intake can reduce focus and slow recovery after activity.",
     scienceNotes: [
@@ -18,6 +21,7 @@ export const nutritionCategories = [
       {
         food: "Soy Chunks (Per 100g dry)",
         quantity: "~52g protein",
+        image: IMG.iSoyChunks,
         cost: "₹35",
         pct: 100,
         icon: "soy",
@@ -40,6 +44,7 @@ export const nutritionCategories = [
       {
         food: "Tofu (100g)",
         quantity: "~15g protein",
+        image: IMG.iTofu,
         cost: "₹60",
         pct: 29,
         icon: "tofu",
@@ -62,6 +67,7 @@ export const nutritionCategories = [
       {
         food: "Peanuts (100g)",
         quantity: "~26g protein",
+        image: IMG.iPeanuts,
         cost: "₹25",
         pct: 50,
         icon: "peanut",
@@ -84,6 +90,7 @@ export const nutritionCategories = [
       {
         food: "Chickpeas (1 cup cooked)",
         quantity: "~19g protein",
+        image: IMG.iChickpeas,
         cost: "₹40",
         pct: 36,
         icon: "chana",
@@ -106,6 +113,11 @@ export const nutritionCategories = [
       {
         food: "Moong Dal (100g)",
         quantity: "~24g protein",
+        image: IMG.iMoongDal,
+        references: [
+          { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+          { org: "Harvard Nutrition Source", title: "Legumes and Pulses", link: "https://nutritionsource.hsph.harvard.edu/" }
+        ],
         cost: "₹50",
         pct: 46,
         icon: "moong",
@@ -133,6 +145,7 @@ export const nutritionCategories = [
     id: "iron",
     name: "Plant Iron Sources",
     desc: "Combine these with Vitamin C (lemon, tomatoes, amla) to significantly improve absorption.",
+    image: IMG.nIronHero,
     whyItMatters:
       "Iron is essential for oxygen transport and energy. Low iron in students often causes fatigue, poor concentration and impaired learning.",
     scienceNotes: ["Non-heme iron (plant) is less bioavailable than heme iron; vitamin C improves absorption by reducing iron to a more absorbable form."],
@@ -145,6 +158,11 @@ export const nutritionCategories = [
       {
         food: "Spinach (Cooked, 1 cup)",
         quantity: "~6.4mg iron",
+        image: IMG.iSpinach,
+        references: [
+          { org: "NIH Office of Dietary Supplements", title: "Iron", link: "https://ods.od.nih.gov/factsheets/" },
+          { org: "WHO", title: "Iron Deficiency Anaemia", link: "https://www.who.int/" }
+        ],
         tip: "Add lemon",
         pct: 100,
         icon: "spinach",
@@ -167,6 +185,7 @@ export const nutritionCategories = [
       {
         food: "Sattu (2 tbsp)",
         quantity: "~5mg iron",
+        image: IMG.iSattu,
         cost: "₹25",
         pct: 78,
         icon: "sattu",
@@ -189,6 +208,7 @@ export const nutritionCategories = [
       {
         food: "Chickpeas (1 cup)",
         quantity: "~4.7mg iron",
+        image: IMG.iChickpeas,
         cost: "₹40",
         pct: 58,
         icon: "chana",
@@ -211,6 +231,7 @@ export const nutritionCategories = [
       {
         food: "Pumpkin Seeds (30g)",
         quantity: "~2.6mg iron",
+        image: IMG.iPumpkinSeeds,
         cost: "₹15",
         pct: 41,
         icon: "pumpkin-seed",
@@ -239,6 +260,7 @@ export const nutritionCategories = [
     id: "b12",
     name: "Vitamin B12 Guidance",
     desc: "B12 is rare in unfortified plant foods — students should consider fortified soy milk, cereals or a low-dose supplement (monthly or weekly).",
+    image: IMG.nB12Hero,
     whyItMatters:
       "Vitamin B12 is crucial for nerve function, red blood cell formation and cognitive health. Deficiency can cause fatigue, poor concentration and neuropathy.",
     scienceNotes: ["B12 is produced by microbes and is scarce in unfortified plant foods; vegans should rely on fortified foods or supplements."],
@@ -250,6 +272,10 @@ export const nutritionCategories = [
       {
         food: "Fortified Soy Milk (1 cup)",
         quantity: "~1.2µg B12",
+        image: IMG.iSoyMilk,
+        references: [
+          { org: "NIH Office of Dietary Supplements", title: "Vitamin B12", link: "https://ods.od.nih.gov/factsheets/VitaminB12-Consumer/" }
+        ],
         cost: "₹25",
         pct: 100,
         icon: "soy-milk",
@@ -272,6 +298,7 @@ export const nutritionCategories = [
       {
         food: "Fortified Nutritional Yeast (2 tbsp)",
         quantity: "Varies; check label",
+        image: IMG.iNutritionalYeast,
         tip: "Great on cheelas and upma",
         pct: 80,
         icon: "yeast",
@@ -299,6 +326,7 @@ export const nutritionCategories = [
     id: "calcium",
     name: "Calcium & Bone Support",
     desc: "Affordable sources and simple pairing strategies to hit calcium targets on a vegan diet.",
+    image: IMG.nCalciumHero,
     whyItMatters:
       "Calcium is important for bone health, muscle function and nerve transmission. Young adults build peak bone mass — dietary calcium matters for lifelong bone strength.",
     scienceNotes: ["Calcium absorption is affected by vitamin D status and presence of oxalates/phytates in food."],
@@ -310,6 +338,11 @@ export const nutritionCategories = [
       {
         food: "Tofu (Calcium-set, 100g)",
         quantity: "~350mg Ca",
+        image: IMG.iTofu,
+        references: [
+          { org: "NIH Office of Dietary Supplements", title: "Calcium", link: "https://ods.od.nih.gov/factsheets/" },
+          { org: "Harvard Health", title: "Calcium and Bone Health", link: "https://www.health.harvard.edu/" }
+        ],
         cost: "₹60",
         pct: 100,
         icon: "tofu",
@@ -332,6 +365,7 @@ export const nutritionCategories = [
       {
         food: "Black Sesame (2 tbsp)",
         quantity: "~200mg Ca",
+        image: IMG.iSesame,
         pct: 57,
         icon: "sesame",
         glycemicIndex: 15,
@@ -353,6 +387,7 @@ export const nutritionCategories = [
       {
         food: "Fortified Soy Milk (1 cup)",
         quantity: "~300mg Ca",
+        image: IMG.iSoyMilk,
         pct: 86,
         icon: "soy-milk",
         glycemicIndex: 30,
@@ -379,6 +414,11 @@ export const nutritionCategories = [
 
 export const studentVeganDiet = {
   title: "Daily Student Vegan Diet Plan",
+  image: IMG.dDietHero,
+  references: [
+    { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+    { org: "FAO", title: "Sustainable healthy diets", link: "https://www.fao.org/" }
+  ],
   macros: {
     calories: "2200 kcal (adjust by activity)",
     protein: "92 g (target for active students)",
@@ -566,14 +606,14 @@ export const studentVeganDiet = {
 
 // New datasets to support enhanced educational features
 export const brainFoods = [
-  { food: "Walnuts", benefits: ["Omega-3 ALA","Cognitive support"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
-  { food: "Flaxseeds", benefits: ["ALA omega-3","Fiber"], availability: "Common", budgetLevel: "Very Affordable", hostelFriendly: true },
-  { food: "Oats", benefits: ["Slow-release carbs","B vitamins"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: true },
-  { food: "Pumpkin Seeds", benefits: ["Zinc","Magnesium","Iron"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
-  { food: "Turmeric", benefits: ["Anti-inflammatory","Neuroprotective curcumin"], availability: "Ubiquitous in India", budgetLevel: "Very Affordable", hostelFriendly: true },
-  { food: "Dark Chocolate (70%+)", benefits: ["Flavonoids","Improved blood flow to brain"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true },
-  { food: "Blueberries", benefits: ["Antioxidants","Memory support"], availability: "Seasonal/frozen", budgetLevel: "Moderate", hostelFriendly: false },
-  { food: "Spinach", benefits: ["Folate","Iron","Nitrates for brain circulation"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: false }
+  { food: "Walnuts", benefits: ["Omega-3 ALA","Cognitive support"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true, image: IMG.bfWalnuts },
+  { food: "Flaxseeds", benefits: ["ALA omega-3","Fiber"], availability: "Common", budgetLevel: "Very Affordable", hostelFriendly: true, image: IMG.bfFlaxseeds },
+  { food: "Oats", benefits: ["Slow-release carbs","B vitamins"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: true, image: IMG.bfOats },
+  { food: "Pumpkin Seeds", benefits: ["Zinc","Magnesium","Iron"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true, image: IMG.bfPumpkinSeeds },
+  { food: "Turmeric", benefits: ["Anti-inflammatory","Neuroprotective curcumin"], availability: "Ubiquitous in India", budgetLevel: "Very Affordable", hostelFriendly: true, image: IMG.bfTurmeric },
+  { food: "Dark Chocolate (70%+)", benefits: ["Flavonoids","Improved blood flow to brain"], availability: "Common", budgetLevel: "Moderate", hostelFriendly: true, image: IMG.bfDarkChocolate },
+  { food: "Blueberries", benefits: ["Antioxidants","Memory support"], availability: "Seasonal/frozen", budgetLevel: "Moderate", hostelFriendly: false, image: IMG.bfBlueberries },
+  { food: "Spinach", benefits: ["Folate","Iron","Nitrates for brain circulation"], availability: "Very common", budgetLevel: "Affordable", hostelFriendly: false, image: IMG.bfSpinach }
 ];
 
 export const examSeasonMeals = [
@@ -682,18 +722,18 @@ export const immunityBoostingFoods = [
 ];
 
 export const veganMythsDebunked = [
-  { myth: "Vegan diets are always low in protein", truth: "With pulses, soy and nuts, protein needs can be met affordably. Indian vegan diets easily provide 80-100g protein daily." },
-  { myth: "You can't build muscle on a vegan diet", truth: "Appropriate calorie and protein intake with strength training supports muscle gain. Many elite athletes are plant-based." },
-  { myth: "Vegan food is expensive", truth: "Pulses, grains, and seasonal vegetables are among the cheapest foods globally. A vegan diet costs 30-40% less than meat-based in India." },
-  { myth: "Vegans don't get enough calcium", truth: "Calcium-set tofu, fortified plant milks, sesame seeds, and leafy greens provide adequate calcium. Some plant milks have more calcium than cow's milk." },
-  { myth: "Plant protein is incomplete", truth: "While individual plant foods may be low in certain amino acids, eating a variety of foods across the day provides all essential amino acids." },
-  { myth: "Soy causes hormonal imbalances", truth: "Large-scale research shows moderate soy consumption is safe and may even reduce cancer risk. Phytoestrogens are not the same as human estrogen." },
-  { myth: "Vegan diets are boring and restrictive", truth: "Indian cuisine alone has thousands of naturally vegan dishes. Going vegan often leads to MORE food variety as people explore new cuisines." },
-  { myth: "Children and pregnant women can't be vegan", truth: "Well-planned vegan diets are nutritionally adequate for all life stages according to the Academy of Nutrition and Dietetics." },
-  { myth: "Vegan diets lack iron", truth: "Plant iron sources include lentils, chickpeas, spinach, and sesame. Pairing with vitamin C dramatically improves absorption." },
-  { myth: "You need dairy for strong bones", truth: "Countries with highest dairy consumption (Scandinavia) have the highest osteoporosis rates. Weight-bearing exercise and vitamin D matter more." },
-  { myth: "Vegan diets are unsustainable long-term", truth: "Millions of people in India have been vegetarian/vegan for generations. With B12 supplementation, it's fully sustainable for life." },
-  { myth: "One person going vegan makes no difference", truth: "One person going vegan saves approximately 200 animals, 15,000L water, 3,300 kg CO₂, and 1,000 sq ft of forest per year." }
+  { myth: "Vegan diets are always low in protein", reality: "Completely False", truth: "With pulses, soy and nuts, protein needs can be met affordably. Indian vegan diets easily provide 80-100g protein daily." },
+  { myth: "You can't build muscle on a vegan diet", reality: "Athlete-Proven", truth: "Appropriate calorie and protein intake with strength training supports muscle gain. Many elite athletes are plant-based." },
+  { myth: "Vegan food is expensive", reality: "A Budget Myth", truth: "Pulses, grains, and seasonal vegetables are among the cheapest foods globally. A vegan diet costs 30-40% less than meat-based in India." },
+  { myth: "Vegans don't get enough calcium", reality: "Calcium-Plenty", truth: "Calcium-set tofu, fortified plant milks, sesame seeds, and leafy greens provide adequate calcium. Some plant milks have more calcium than cow's milk." },
+  { myth: "Plant protein is incomplete", reality: "Variety Solves It", truth: "While individual plant foods may be low in certain amino acids, eating a variety of foods across the day provides all essential amino acids." },
+  { myth: "Soy causes hormonal imbalances", reality: "Safely Debunked", truth: "Large-scale research shows moderate soy consumption is safe and may even reduce cancer risk. Phytoestrogens are not the same as human estrogen." },
+  { myth: "Vegan diets are boring and restrictive", reality: "Infinitely Diverse", truth: "Indian cuisine alone has thousands of naturally vegan dishes. Going vegan often leads to MORE food variety as people explore new cuisines." },
+  { myth: "Children and pregnant women can't be vegan", reality: "All Life Stages", truth: "Well-planned vegan diets are nutritionally adequate for all life stages according to the Academy of Nutrition and Dietetics." },
+  { myth: "Vegan diets lack iron", reality: "Pair It With C", truth: "Plant iron sources include lentils, chickpeas, spinach, and sesame. Pairing with vitamin C dramatically improves absorption." },
+  { myth: "You need dairy for strong bones", reality: "Bone Myth", truth: "Countries with highest dairy consumption (Scandinavia) have the highest osteoporosis rates. Weight-bearing exercise and vitamin D matter more." },
+  { myth: "Vegan diets are unsustainable long-term", reality: "Generations Strong", truth: "Millions of people in India have been vegetarian/vegan for generations. With B12 supplementation, it's fully sustainable for life." },
+  { myth: "One person going vegan makes no difference", reality: "200 Animals/Year", truth: "One person going vegan saves approximately 200 animals, 15,000L water, 3,300 kg CO₂, and 1,000 sq ft of forest per year." }
 ];
 
 export const trustIndicators = {
@@ -706,22 +746,40 @@ export const trustIndicators = {
 export const seasonalProduceGuide = {
   summer: {
     season: "Summer (March - June)",
+    image: IMG.sSummer,
     fruits: ["Mango", "Watermelon", "Litchi", "Muskmelon", "Jackfruit", "Papaya", "Jamun"],
     vegetables: ["Bottle Gourd (Lauki)", "Ridge Gourd", "Bitter Gourd (Karela)", "Cucumber", "Okra (Bhindi)", "Drumstick (Moringa)", "Tinda"],
+    grains: ["Jowar (Sorghum)", "Bajra (Pearl Millet)", "Ragi (Finger Millet)"],
+    references: [
+      { org: "USDA", title: "Seasonal Produce Guide", link: "https://www.usda.gov/" },
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" }
+    ],
     tips: ["Hydrate with water-rich fruits", "Use cooling foods like cucumber raita", "Avoid heavy fried foods in peak heat"],
     recipes: ["Aam Panna (raw mango drink)", "Watermelon mint cooler", "Lauki kofta curry", "Raw mango chutney"]
   },
   monsoon: {
     season: "Monsoon (July - September)",
+    image: IMG.sMonsoon,
     fruits: ["Pomegranate", "Pear", "Plum", "Peach", "Jamun", "Custard Apple"],
     vegetables: ["Corn", "Leafy Greens (Amaranth/Cholai)", "Snake Gourd", "Colocasia (Arbi)", "Turmeric (fresh)"],
+    grains: ["Corn (Bhutta)", "Kangni (Foxtail Millet)", "Brown Rice"],
+    references: [
+      { org: "USDA", title: "Seasonal Produce Guide", link: "https://www.usda.gov/" },
+      { org: "NIN India", title: "Dietary Guidelines for Indians", link: "https://www.nin.res.in/" }
+    ],
     tips: ["Boost immunity with turmeric and ginger", "Eat freshly cooked food — avoid raw salads", "Include probiotics like kanji"],
     recipes: ["Makke ki sabzi (corn curry)", "Arbi fry", "Ginger-turmeric kadha", "Corn soup"]
   },
   winter: {
     season: "Winter (October - February)",
+    image: IMG.sWinter,
     fruits: ["Orange", "Guava", "Amla", "Strawberry", "Kinnow", "Chiku (Sapota)"],
     vegetables: ["Spinach (Palak)", "Fenugreek (Methi)", "Mustard Greens (Sarson)", "Peas", "Carrots", "Cauliflower", "Radish", "Sweet Potato", "Beet"],
+    grains: ["Wheat (Whole)", "Bajra (Pearl Millet)", "Sarson (Mustard) Seeds"],
+    references: [
+      { org: "USDA", title: "Seasonal Produce Guide", link: "https://www.usda.gov/" },
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" }
+    ],
     tips: ["Load up on greens — highest nutrition and lowest cost", "Use sarson ka saag for iron", "Eat amla daily for vitamin C"],
     recipes: ["Sarson ka saag (no ghee, use oil)", "Gajar ka halwa (with soy milk)", "Palak paneer (use tofu)", "Amla murabba"]
   }
@@ -731,6 +789,11 @@ export const seasonalProduceGuide = {
 export const weeklyMealPlans = {
   budget: {
     name: "Budget-Friendly Week",
+    image: IMG.wBudget,
+    references: [
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+      { org: "NIN India", title: "Dietary Guidelines for Indians", link: "https://www.nin.res.in/" }
+    ],
     weeklyBudget: "₹800-1,000",
     description: "Maximum nutrition at minimum cost. Built around bulk-bought pulses and seasonal vegetables.",
     days: [
@@ -745,6 +808,11 @@ export const weeklyMealPlans = {
   },
   highProtein: {
     name: "High-Protein Muscle Week",
+    image: IMG.wHighProtein,
+    references: [
+      { org: "ICMR India", title: "Dietary Guidelines for Indians", link: "https://www.icmr.gov.in/" },
+      { org: "Academy of Nutrition and Dietetics", title: "Vegetarian Diets Position Paper", link: "https://www.eatright.org/" }
+    ],
     weeklyBudget: "₹1,200-1,500",
     description: "Targeting 90-100g protein daily for active students and gym-goers.",
     days: [
