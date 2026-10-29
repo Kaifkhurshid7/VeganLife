@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaDroplet, FaCloud, FaTree, FaSeedling, FaLeaf, FaChartLine } from 'react-icons/fa6';
 import { FiCheck, FiInfo } from 'react-icons/fi';
-import BackButton from '../components/ui/BackButton';
-import { PageHeader, ReferenceList, Callout } from '../components/ui';
-import { Seo } from '../components/seo';
-import { ROUTES } from '../constants/routes';
+import { ReferenceList, Callout } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import styles from './SavingsCalculator.module.css';
 
 const MEALS = [
@@ -63,24 +61,8 @@ export default function SavingsCalculator() {
   const yearlyTrees = ((totals.co2 * 365) / 22).toFixed(0);
 
   return (
-    <section className={styles.section}>
-      <Seo
-        title="Carbon and Water Savings Calculator for Plant-Based Meals"
-        description="Estimate the carbon, water and land you save by choosing plant-based meals, with sources for the underlying studies."
-        path={ROUTES.savings}
-      />
-      <BackButton />
+    <ToolFrame tool="savings" seoTitle="Carbon and Water Savings Calculator for Plant-Based Meals" description="Estimate the carbon, water and land you save by choosing plant-based meals, with sources for the underlying studies." eyebrow="Measure your impact" title="Carbon and water savings calculator" lead="Pick the plant-based meals you eat and see a rough estimate of the emissions, water and land they save compared with a typical meat-based equivalent.">
       <div className={styles.container}>
-        <PageHeader
-          align="center"
-          eyebrow="Measure your impact"
-          title="Carbon and water savings calculator"
-          lead="Pick the plant-based meals you eat and see a rough estimate of the emissions, water and land they save compared with a typical meat-based equivalent."
-          trail={[
-            { name: 'Home', path: ROUTES.home },
-            { name: 'Savings calculator', path: ROUTES.savings },
-          ]}
-        />
 
         <Callout variant="note" title="How the estimates work">
           Each meal is compared with a typical meat-based equivalent (for example lentil curry versus chicken
@@ -230,6 +212,6 @@ export default function SavingsCalculator() {
 
         <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
-    </section>
+    </ToolFrame>
   );
 }

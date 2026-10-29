@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import BackButton from '../components/ui/BackButton';
-import { PageHeader, ReferenceList, Callout } from '../components/ui';
-import { Seo } from '../components/seo';
-import { ROUTES } from '../constants/routes';
+import { ReferenceList, Callout } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import styles from './WorldMap.module.css';
 
 /*
@@ -40,24 +38,8 @@ export default function WorldMap() {
   const data = COUNTRY_DATA.find((c) => c.id === activeCountry);
 
   return (
-    <section className={styles.section}>
-      <Seo
-        title="Food and Climate Around the World: Interactive Map"
-        description="Compare per-person carbon emissions and meat consumption across ten countries on an interactive map, with sources."
-        path={ROUTES.worldMap}
-      />
-      <BackButton />
+    <ToolFrame tool="worldMap" seoTitle="Food and Climate Around the World: Interactive Map" description="Compare per-person carbon emissions and meat consumption across ten countries on an interactive map, with sources." eyebrow="Global perspective" title="Food and climate around the world" lead="Select a country to compare its carbon emissions with how much meat its people eat on average.">
       <div className={styles.container}>
-        <PageHeader
-          align="center"
-          eyebrow="Global perspective"
-          title="Food and climate around the world"
-          lead="Select a country to compare its carbon emissions with how much meat its people eat on average."
-          trail={[
-            { name: 'Home', path: ROUTES.home },
-            { name: 'World map', path: ROUTES.worldMap },
-          ]}
-        />
 
         <div className={styles.mapLayout}>
           <motion.div
@@ -164,6 +146,6 @@ export default function WorldMap() {
 
         <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
-    </section>
+    </ToolFrame>
   );
 }

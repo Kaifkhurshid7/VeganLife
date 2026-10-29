@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import BackButton from '../components/ui/BackButton';
 import { ReferenceList } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import { seasonalProduceGuide } from '../data/nutrition';
 import styles from './SeasonalProduce.module.css';
 
@@ -30,14 +30,15 @@ export default function SeasonalProduce() {
   const data = season;
 
   return (
-    <section className={styles.section}>
-      <BackButton />
+    <ToolFrame
+      tool="seasonal"
+      seoTitle="Seasonal Produce Calendar for India"
+      description="What fruit, vegetables and grains are fresh in each Indian season, with recipe ideas and sources."
+      eyebrow="Eat with the seasons"
+      title="Seasonal produce calendar"
+      lead="Discover what's fresh, local, and at peak nutrition in each Indian season."
+    >
       <div className={styles.container}>
-        <motion.div className={styles.header} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <span className={styles.label}>Eat With the Seasons</span>
-          <h1 className={styles.title}>Seasonal Produce Calendar</h1>
-          <p className={styles.subtitle}>Discover what's fresh, local, and at peak nutrition in each Indian season.</p>
-        </motion.div>
 
         {data.image && (
           <motion.div
@@ -110,6 +111,6 @@ export default function SeasonalProduce() {
 
         <ReferenceList refs={data.references} />
       </div>
-    </section>
+    </ToolFrame>
   );
 }
