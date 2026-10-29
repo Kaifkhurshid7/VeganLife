@@ -1,9 +1,7 @@
 import { motion } from 'framer-motion';
 import { FaCloud, FaDroplet, FaMountain } from 'react-icons/fa6';
-import BackButton from '../components/ui/BackButton';
-import { PageHeader, ReferenceList, Callout } from '../components/ui';
-import { Seo } from '../components/seo';
-import { ROUTES } from '../constants/routes';
+import { ReferenceList, Callout } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import styles from './Compare.module.css';
 
 /*
@@ -112,24 +110,8 @@ function ComparisonCard({ data }) {
 
 export default function Compare() {
   return (
-    <section className={styles.section}>
-      <Seo
-        title="Vegan vs High-Meat Diets: Environmental Comparison"
-        description="Compare the carbon, water and land footprint of vegan and high-meat diets side by side, with sources."
-        path={ROUTES.compare}
-      />
-      <BackButton />
+    <ToolFrame tool="compare" seoTitle="Vegan vs High-Meat Diets: Environmental Comparison" description="Compare the carbon, water and land footprint of vegan and high-meat diets side by side, with sources." eyebrow="Side by side" title="Vegan vs high-meat diets" lead="How much carbon, water and land does a plate of food take? A plain comparison of the two ends of the spectrum, with the studies behind it.">
       <div className={styles.container}>
-        <PageHeader
-          align="center"
-          eyebrow="Side by side"
-          title="Vegan vs high-meat diets"
-          lead="How much carbon, water and land does a plate of food take? A plain comparison of the two ends of the spectrum, with the studies behind it."
-          trail={[
-            { name: 'Home', path: ROUTES.home },
-            { name: 'Compare', path: ROUTES.compare },
-          ]}
-        />
 
         <div className={styles.grid}>
           {COMPARISONS.map((comp) => (
@@ -145,6 +127,6 @@ export default function Compare() {
 
         <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
-    </section>
+    </ToolFrame>
   );
 }
