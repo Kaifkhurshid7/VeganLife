@@ -2,7 +2,18 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaCalculator, FaLeaf, FaFire, FaWeight } from 'react-icons/fa';
 import BackButton from '../components/ui/BackButton';
+import { PageHeader, ReferenceList, Callout } from '../components/ui';
+import { Seo } from '../components/seo';
+import { ROUTES } from '../constants/routes';
 import styles from './Calculator.module.css';
+
+const REFS = [
+  { org: 'World Health Organization', title: 'Obesity and overweight: BMI categories for adults', link: 'https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight' },
+  { org: 'American Journal of Clinical Nutrition', title: 'A new predictive equation for resting energy expenditure (Mifflin–St Jeor, 1990)', link: 'https://pubmed.ncbi.nlm.nih.gov/2305711/' },
+  { org: 'Academy of Nutrition and Dietetics', title: 'Position paper: vegetarian diets', link: 'https://pubmed.ncbi.nlm.nih.gov/27886704/' },
+  { org: 'Harvard T.H. Chan School of Public Health', title: 'The Nutrition Source: protein', link: 'https://nutritionsource.hsph.harvard.edu/what-should-you-eat/protein/' },
+  { org: 'ICMR–NIN India', title: 'Dietary Guidelines for Indians', link: 'https://www.nin.res.in/' },
+];
 
 const VEGAN_MEAL_SUGGESTIONS = {
   deficit: [
@@ -31,7 +42,7 @@ function getBMICategory(bmi) {
   if (bmi < 18.5) return { label: 'Underweight', color: 'var(--color-orange)' };
   if (bmi < 25) return { label: 'Normal', color: 'var(--color-sage)' };
   if (bmi < 30) return { label: 'Overweight', color: 'var(--color-orange)' };
-  return { label: 'Obese', color: 'var(--color-purple)' };
+  return { label: 'Obesity range', color: 'var(--color-purple)' };
 }
 
 function calculateCalories(weight, height, age, gender, activity) {
@@ -77,20 +88,23 @@ export default function Calculator() {
 
   return (
     <section className={styles.section}>
+      <Seo
+        title="BMI and Calorie Calculator for Vegans"
+        description="Estimate BMI, daily calories and a protein target using the Mifflin–St Jeor equation, with plant-based meal ideas and sources."
+        path={ROUTES.calculator}
+      />
       <BackButton />
       <div className={styles.container}>
-        <motion.div
-          className={styles.header}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <span className={styles.label}>Vegan Wellness</span>
-          <h1 className={styles.title}>BMI & Calorie Calculator</h1>
-          <p className={styles.subtitle}>
-            Calculate your body metrics and get personalized vegan meal recommendations.
-          </p>
-        </motion.div>
+        <PageHeader
+          align="center"
+          eyebrow="Vegan wellness"
+          title="BMI and calorie calculator"
+          lead="Estimate your daily energy needs and a protein target, with vegan meal ideas to match. This is a starting point, not a prescription."
+          trail={[
+            { name: 'Home', path: ROUTES.home },
+            { name: 'Calculator', path: ROUTES.calculator },
+          ]}
+        />
 
         <div className={styles.grid}>
           <motion.form
@@ -103,18 +117,18 @@ export default function Calculator() {
             <h3 className={styles.formTitle}><FaCalculator /> Your Details</h3>
 
             <div className={styles.inputGroup}>
-              <label>Weight (kg)</label>
-              <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="65" required />
+              <label htmlFor="calc-weight">Weight (kg)</label>
+              <input id="calc-weight" type="number" min="20" max="300" step="any" inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="65" required />
             </div>
 
             <div className={styles.inputGroup}>
-              <label>Height (cm)</label>
-              <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="170" required />
+              <label htmlFor="calc-height">Height (cm)</label>
+              <input id="calc-height" type="number" min="100" max="250" step="any" inputMode="decimal" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="170" required />
             </div>
 
             <div className={styles.inputGroup}>
-              <label>Age</label>
-              <input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="22" required />
+              <label htmlFor="calc-age">Age (18+)</label>
+              <input id="calc-age" type="number" min="18" max="100" inputMode="numeric" value={age} onChange={(e) => setAge(e.target.value)} placeholder="22" required />
             </div>
 
             <div className={styles.inputGroup}>
@@ -126,8 +140,8 @@ export default function Calculator() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label>Activity Level</label>
-              <select value={activity} onChange={(e) => setActivity(e.target.value)}>
+              <label htmlFor="calc-activity">Activity Level</label>
+              <select id="calc-activity" value={activity} onChange={(e) => setActivity(e.target.value)}>
                 <option value="sedentary">Sedentary (desk job)</option>
                 <option value="light">Light (1-2 days/week)</option>
                 <option value="moderate">Moderate (3-5 days/week)</option>
@@ -232,6 +246,15 @@ export default function Calculator() {
             </div>
           )}
         </div>
+
+        <Callout variant="info" title="General information, not medical advice">
+          Estimates use the Mifflin–St Jeor equation and standard BMI ranges, which do not account for muscle
+          mass, age-specific needs, pregnancy or medical conditions. The 1.6 g/kg protein target sits at the
+          generous end of common guidance. If you plan to lose or gain weight, or have a health condition, speak
+          with a doctor or registered dietitian. Vegans should also plan for vitamin B12.
+        </Callout>
+
+        <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
     </section>
   );

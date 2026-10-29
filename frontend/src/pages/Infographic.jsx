@@ -1,52 +1,70 @@
 import { useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaDroplet, FaTree, FaCloud, FaSeedling, FaHeart, FaEarthAmericas } from 'react-icons/fa6';
 import BackButton from '../components/ui/BackButton';
+import { PageHeader, ReferenceList, Callout } from '../components/ui';
+import { Seo } from '../components/seo';
+import { ROUTES } from '../constants/routes';
 import styles from './Infographic.module.css';
 
 const STORY_SECTIONS = [
   {
     icon: <FaEarthAmericas />,
     stat: '14.5%',
-    title: 'Global Emissions from Livestock',
-    desc: 'Animal agriculture produces more greenhouse gases than all transportation combined — cars, planes, ships, and trains.',
+    title: 'Global emissions from livestock',
+    desc: 'The FAO estimates that livestock supply chains cause about 14.5% of human-made greenhouse gas emissions, a share comparable to the exhaust emissions of every car, truck, ship and plane combined.',
     color: 'var(--color-orange)',
+    source: { org: 'FAO', link: 'https://www.fao.org/gleam/results/en/' },
   },
   {
     icon: <FaDroplet />,
-    stat: '15,400L',
-    title: 'Water for 1kg of Beef',
-    desc: 'Producing a single kilogram of beef requires 15,400 liters of water. The same water could grow 50kg of vegetables.',
+    stat: '15,400 L',
+    title: 'Water for 1 kg of beef',
+    desc: 'The global average water footprint of beef is roughly 15,400 liters per kilogram. Vegetables average about 320 liters per kilogram, nearly fifty times less.',
     color: 'var(--color-sage)',
+    source: { org: 'Mekonnen & Hoekstra', link: 'https://www.waterfootprint.org/' },
   },
   {
     icon: <FaTree />,
-    stat: '80%',
-    title: 'Amazon Deforestation',
-    desc: '80% of Amazon rainforest destruction is driven by cattle ranching. Every minute, an area the size of a football field is cleared.',
+    stat: '~75%',
+    title: 'Cleared Amazon land used for pasture',
+    desc: 'Cattle pasture is the largest single use of land cleared in the Brazilian Amazon. Estimates put it at roughly three-quarters of deforested area, far ahead of crops.',
     color: 'var(--color-earth)',
+    source: { org: 'Our World in Data', link: 'https://ourworldindata.org/drivers-of-deforestation' },
   },
   {
     icon: <FaCloud />,
-    stat: '73%',
-    title: 'Carbon Footprint Reduction',
-    desc: 'Switching to a plant-based diet reduces your food carbon footprint by up to 73% — the single biggest action an individual can take.',
+    stat: 'Up to 73%',
+    title: 'Lower food carbon footprint',
+    desc: 'In a study of nearly 40,000 farms, researchers found that an individual who swaps animal products for plant-based foods could cut their food-related emissions by as much as 73%, depending on what they eat now.',
     color: 'var(--color-purple)',
+    source: { org: 'Science, 2018', link: 'https://www.science.org/doi/10.1126/science.aaq0216' },
   },
   {
     icon: <FaSeedling />,
     stat: '76%',
-    title: 'Less Land Required',
-    desc: 'If the world went vegan, we could reduce farmland use by 76% — an area the size of the US, China, EU, and Australia combined.',
+    title: 'Less farmland required',
+    desc: 'The same study estimated that a global shift to plant-based diets could reduce food-related land use by about 76%, an area comparable to the US, China, the EU and Australia combined.',
     color: 'var(--color-sage)',
+    source: { org: 'Science, 2018', link: 'https://www.science.org/doi/10.1126/science.aaq0216' },
   },
   {
     icon: <FaHeart />,
-    stat: '32%',
-    title: 'Lower Heart Disease Risk',
-    desc: 'Plant-based diets reduce the risk of heart disease by 32%, type 2 diabetes by 23%, and certain cancers by up to 15%.',
+    stat: '25%',
+    title: 'Lower heart disease risk in vegetarians',
+    desc: 'A 2017 meta-analysis linked vegetarian diets to about 25% lower risk of heart disease, and vegan diets to about 15% lower risk of cancer. These are associations, not guarantees, and results depend on diet quality.',
     color: 'var(--color-orange)',
+    source: { org: 'Dinu et al., 2017', link: 'https://pubmed.ncbi.nlm.nih.gov/26853923/' },
   },
+];
+
+const REFS = [
+  { org: 'FAO', title: 'Global Livestock Environmental Assessment Model (GLEAM) results', link: 'https://www.fao.org/gleam/results/en/' },
+  { org: 'Science (Poore & Nemecek, 2018)', title: 'Reducing food’s environmental impacts through producers and consumers', link: 'https://www.science.org/doi/10.1126/science.aaq0216' },
+  { org: 'Water Footprint Network', title: 'The water footprint of farm animals and animal products', link: 'https://www.waterfootprint.org/' },
+  { org: 'Our World in Data', title: 'Drivers of deforestation', link: 'https://ourworldindata.org/drivers-of-deforestation' },
+  { org: 'Critical Reviews in Food Science and Nutrition', title: 'Vegetarian, vegan diets and multiple health outcomes: a systematic review with meta-analysis (Dinu et al., 2017)', link: 'https://pubmed.ncbi.nlm.nih.gov/26853923/' },
 ];
 
 function StoryBlock({ section, index }) {
@@ -74,6 +92,7 @@ function StoryBlock({ section, index }) {
         </span>
         <h2 className={styles.storyTitle}>{section.title}</h2>
         <p className={styles.storyDesc}>{section.desc}</p>
+        <ReferenceList compact refs={[section.source]} />
       </div>
       <div className={styles.storyIndex}>{String(index + 1).padStart(2, '0')}</div>
     </motion.div>
@@ -88,23 +107,26 @@ export default function Infographic() {
 
   return (
     <section className={styles.section} ref={containerRef}>
+      <Seo
+        title="The Story of Our Food: Climate, Water, Land and Health"
+        description="A scroll-driven infographic on how food choices affect emissions, water, deforestation and health, with a source for every statistic."
+        path={ROUTES.infographic}
+      />
       <BackButton />
       {/* Scroll progress bar */}
       <motion.div className={styles.progressBar} style={{ width: progressWidth }} />
 
       <div className={styles.container}>
-        <motion.div
-          className={styles.header}
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-        >
-          <span className={styles.label}>Scroll to Discover</span>
-          <h1 className={styles.mainTitle}>The Story of Our Food</h1>
-          <p className={styles.mainSubtitle}>
-            A scroll-driven journey through the environmental impact of what we eat — and how one choice can change everything.
-          </p>
-        </motion.div>
+        <PageHeader
+          align="center"
+          eyebrow="Scroll to discover"
+          title="The story of our food"
+          lead="A scroll-driven look at what the research says about how food choices affect climate, water, land and health."
+          trail={[
+            { name: 'Home', path: ROUTES.home },
+            { name: 'Story of our food', path: ROUTES.infographic },
+          ]}
+        />
 
         <div className={styles.timeline}>
           <motion.div className={styles.timelineLine} style={{ scaleY: lineScale, originY: 0 }} />
@@ -113,6 +135,14 @@ export default function Infographic() {
           ))}
         </div>
 
+        <Callout variant="note" title="About these figures">
+          Statistics are global averages from peer-reviewed studies and UN agencies. Local numbers differ, and
+          health findings describe population-level associations. For personal dietary advice, speak with a
+          qualified health professional.
+        </Callout>
+
+        <ReferenceList panel title="Sources & further reading" refs={REFS} />
+
         <motion.div
           className={styles.conclusion}
           initial={{ opacity: 0 }}
@@ -120,9 +150,9 @@ export default function Infographic() {
           viewport={{ once: true }}
           transition={{ duration: 1 }}
         >
-          <h2>Every Meal Is a Vote</h2>
-          <p>Choose plants. Choose the planet. Choose compassion.</p>
-          <a href="/" className="btn btn-primary">Back to Home</a>
+          <h2>Small choices add up</h2>
+          <p>Every plant-based meal is a step toward a lighter footprint.</p>
+          <Link to={ROUTES.home} className="btn btn-primary">Back to home</Link>
         </motion.div>
       </div>
     </section>

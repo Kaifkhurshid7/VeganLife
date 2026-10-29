@@ -1,38 +1,63 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaFire, FaCircleCheck, FaStar } from 'react-icons/fa6';
+import { FaLeaf, FaAward, FaRotateLeft, FaLock } from 'react-icons/fa6';
 import { SectionHeader } from '../../ui';
 import { Fireflies } from '../../ambient';
 import { CHALLENGE_DATA } from './challengeData';
 import styles from './Challenge.module.css';
 
-function getProgress(list) {
-  return Math.round((list.filter(Boolean).length / list.length) * 100);
+// One accent per challenge, kept inside the site palette.
+const PALETTE = ['#7f9a5f', '#e3a36e', '#9d82ab', '#6f9a9a', '#b07a4a'];
+
+const RING_R = 34;
+const RING_C = 2 * Math.PI * RING_R;
+
+const percentOf = (list = []) =>
+  list.length ? Math.round((list.filter(Boolean).length / list.length) * 100) : 0;
+
+function Ring({ percent, color, size = 84 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 84 84" className={styles.ring} aria-hidden="true">
+      <circle cx="42" cy="42" r={RING_R} className={styles.ringTrack} />
+      <circle
+        cx="42"
+        cy="42"
+        r={RING_R}
+        className={styles.ringFill}
+        stroke={color}
+        strokeDasharray={RING_C}
+        strokeDashoffset={RING_C * (1 - percent / 100)}
+      />
+    </svg>
+  );
 }
 
 export default function Challenge() {
-  const [activeChallenge, setActiveChallenge] = useState('seven-day');
-  
-  // Initialize state for all challenges dynamically
-  const [challengeStates, setChallengeStates] = useState(() => {
-    const states = {};
-    Object.entries(CHALLENGE_DATA).forEach(([key, data]) => {
-      states[key] = new Array(data.tasks.length).fill(false);
-    });
-    return states;
-  });
+  const entries = useMemo(
+    () => Object.entries(CHALLENGE_DATA).map(([key, data], i) => ({ key, ...data, color: PALETTE[i % PALETTE.length] })),
+    []
+  );
 
-  const toggleCheck = (idx) => {
-    setChallengeStates((prev) => {
-      const updated = [...prev[activeChallenge]];
-      updated[idx] = !updated[idx];
-      return { ...prev, [activeChallenge]: updated };
-    });
-  };
+  const [activeKey, setActiveKey] = useState(entries[0].key);
+  const [states, setStates] = useState(() =>
+    Object.fromEntries(entries.map((e) => [e.key, new Array(e.tasks.length).fill(false)]))
+  );
 
-  const current = CHALLENGE_DATA[activeChallenge];
-  const currentState = challengeStates[activeChallenge] || [];
-  const progressPercent = currentState.length > 0 ? getProgress(currentState) : 0;
+  const current = entries.find((e) => e.key === activeKey);
+  const currentState = states[activeKey];
+  const percent = percentOf(currentState);
+  const done = currentState.filter(Boolean).length;
+  const complete = percent === 100;
+
+  const toggle = (idx) =>
+    setStates((prev) => {
+      const next = [...prev[activeKey]];
+      next[idx] = !next[idx];
+      return { ...prev, [activeKey]: next };
+    });
+
+  const reset = () =>
+    setStates((prev) => ({ ...prev, [activeKey]: new Array(current.tasks.length).fill(false) }));
 
   return (
     <section id="challenge" className={styles.section}>
@@ -40,118 +65,119 @@ export default function Challenge() {
       <SectionHeader
         label="Activation"
         title="Student Challenges"
-        description="Turn green consciousness into action. Choose your pace, track your daily checkmarks, and unlock sustainability badges."
+        description="Turn green consciousness into action. Choose your pace, stamp each step as you complete it, and earn a badge at the end."
       />
 
-      <div className={styles.container}>
-        <div className={styles.selectors}>
-          {Object.entries(CHALLENGE_DATA).map(([key, item]) => {
-            const isActive = activeChallenge === key;
-            const itemPercent = challengeStates[key] ? getProgress(challengeStates[key]) : 0;
-
-            return (
-              <motion.div
-                key={key}
-                className={`glass-card ${styles.selectorCard}`}
-                style={{
-                  borderColor: isActive ? item.color : undefined,
-                  borderWidth: isActive ? '2px' : undefined,
-                  backgroundColor: isActive ? 'rgba(255,255,255,0.45)' : undefined,
-                }}
-                onClick={() => setActiveChallenge(key)}
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              >
-                <div className={styles.selectorHeader}>
-                  <h3>{item.title}</h3>
-                  <div className={styles.streak}><FaFire /> {item.streak}</div>
-                </div>
-                <p className={styles.selectorDesc}>{item.desc.substring(0, 85)}...</p>
-                <div className={styles.miniProgress}>
-                  <div className={styles.miniProgressFill} style={{ width: `${itemPercent}%`, backgroundColor: item.color }} />
-                </div>
-              </motion.div>
-            );
-          })}
+      <div className={styles.layout}>
+        {/* ————— challenge picker ————— */}
+        <div className={styles.picker} role="radiogroup" aria-label="Choose a challenge">
+          <p className={styles.pickerTitle}>{entries.length} challenges</p>
+          <div className={styles.pickerList}>
+            {entries.map((item) => {
+              const p = percentOf(states[item.key]);
+              const active = item.key === activeKey;
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  className={`${styles.pick} ${active ? styles.pickActive : ''}`}
+                  style={{ '--accent': item.color }}
+                  onClick={() => setActiveKey(item.key)}
+                >
+                  <span className={styles.pickDot} aria-hidden="true" />
+                  <span className={styles.pickText}>
+                    <span className={styles.pickName}>{item.title}</span>
+                    <span className={styles.pickMeta}>{item.tasks.length} steps · {p}% done</span>
+                  </span>
+                  <span className={styles.pickBar} aria-hidden="true">
+                    <span style={{ width: `${p}%` }} />
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
+        {/* ————— the passport ————— */}
         <AnimatePresence mode="wait">
-          {current && (
-            <motion.div
-              key={activeChallenge}
-              className={`glass-card ${styles.dashboard}`}
-              initial={{ opacity: 0, x: 15 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -15 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className={styles.dashboardHeader}>
-                <div className={styles.dashboardTitleRow}>
-                  <h3>{current.title}</h3>
-                  <span className={styles.streakBadge} style={{ color: current.color }}>
-                    Streak: {current.streak} Days
-                  </span>
-                </div>
-                <p>{current.desc}</p>
+          <motion.div
+            key={activeKey}
+            className={styles.passport}
+            style={{ '--accent': current.color }}
+            initial={{ opacity: 0, x: 18 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -18 }}
+            transition={{ duration: 0.35 }}
+          >
+            <header className={styles.cover}>
+              <div className={styles.coverText}>
+                <p className={styles.kicker}>Green passport</p>
+                <h3>{current.title}</h3>
+                <p className={styles.desc}>{current.desc}</p>
               </div>
-
-              <div className={styles.progressSection}>
-                <div className={styles.progressLabel}>
-                  <span>Challenge Completion</span>
-                  <span style={{ color: current.color }}>{progressPercent}%</span>
-                </div>
-                <div className={styles.progressTrack}>
-                  <motion.div
-                    className={styles.progressFill}
-                    style={{ backgroundColor: current.color }}
-                    animate={{ width: `${progressPercent}%` }}
-                    transition={{ duration: 0.5, ease: 'easeOut' }}
-                  />
-                </div>
+              <div className={styles.progress}>
+                <Ring percent={percent} color="#f6ead6" />
+                <span className={styles.progressNum}>{percent}<small>%</small></span>
               </div>
+            </header>
 
-              <div className={styles.checklist}>
-                {current && current.tasks && current.tasks.map((task, idx) => {
-                  const checked = currentState[idx];
-                  return (
-                    <div
-                      key={task}
-                      className={styles.checkItem}
-                      style={{ borderColor: checked ? current.color : undefined, backgroundColor: checked ? 'rgba(255,255,255,0.45)' : undefined }}
-                      onClick={() => toggleCheck(idx)}
+            <p className={styles.count} role="status" aria-live="polite">
+              <strong>{done}</strong> of {currentState.length} steps stamped
+            </p>
+
+            <ol className={styles.steps}>
+              {current.tasks.map((task, idx) => {
+                const checked = currentState[idx];
+                return (
+                  <li key={task}>
+                    <button
+                      type="button"
+                      className={`${styles.step} ${checked ? styles.stepDone : ''}`}
+                      aria-pressed={checked}
+                      onClick={() => toggle(idx)}
                     >
-                      <FaCircleCheck className={styles.checkIcon} style={{ color: checked ? current.color : 'rgba(87,61,33,0.25)' }} />
-                      <span className={checked ? styles.checkedText : ''}>{task}</span>
-                    </div>
-                  );
-                })}
-              </div>
+                      <span className={styles.stampSlot} aria-hidden="true">
+                        <span className={styles.slotNo}>{idx + 1}</span>
+                        <AnimatePresence>
+                          {checked && (
+                            <motion.span
+                              className={styles.stamped}
+                              initial={{ scale: 2.4, opacity: 0, rotate: -40 }}
+                              animate={{ scale: 1, opacity: 1, rotate: -10 }}
+                              exit={{ scale: 0.6, opacity: 0 }}
+                              transition={{ type: 'spring', stiffness: 420, damping: 16 }}
+                            >
+                              <FaLeaf />
+                            </motion.span>
+                          )}
+                        </AnimatePresence>
+                      </span>
+                      <span className={styles.stepText}>{task}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
 
-              <AnimatePresence>
-                {progressPercent === 100 && (
-                  <motion.div
-                    className={styles.completionBadge}
-                    style={{ borderColor: current.color }}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.8 }}
-                  >
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ repeat: Infinity, duration: 10, ease: 'linear' }}
-                      className={styles.starIcon}
-                    >
-                      <FaStar />
-                    </motion.div>
-                    <h4>Challenge Fully Accomplished!</h4>
-                    <p>
-                      You have unlocked the highly esteemed <strong style={{ color: current.color }}>{current.badge}</strong> digital milestone!
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )}
+            <footer className={styles.foot}>
+              <div className={`${styles.seal} ${complete ? styles.sealOn : ''}`}>
+                <span className={styles.sealIcon} aria-hidden="true">
+                  {complete ? <FaAward /> : <FaLock />}
+                </span>
+                <span>
+                  <span className={styles.sealLabel}>{complete ? 'Badge unlocked' : 'Badge to earn'}</span>
+                  <strong className={styles.sealName}>{current.badge}</strong>
+                </span>
+              </div>
+              <button type="button" className={styles.reset} onClick={reset} disabled={done === 0}>
+                <FaRotateLeft aria-hidden="true" /> Start over
+              </button>
+            </footer>
+
+            <p className={styles.note}>Progress lives on this page only and resets when you reload.</p>
+          </motion.div>
         </AnimatePresence>
       </div>
     </section>

@@ -3,6 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaDroplet, FaCloud, FaTree, FaSeedling, FaLeaf, FaChartLine } from 'react-icons/fa6';
 import { FiCheck, FiInfo } from 'react-icons/fi';
 import BackButton from '../components/ui/BackButton';
+import { PageHeader, ReferenceList, Callout } from '../components/ui';
+import { Seo } from '../components/seo';
+import { ROUTES } from '../constants/routes';
 import styles from './SavingsCalculator.module.css';
 
 const MEALS = [
@@ -18,11 +21,18 @@ const MEALS = [
   { id: 'chia-pudding', name: 'Chia Pudding + Almond Butter', category: 'Breakfast', co2Saved: 1.0, waterSaved: 400, landSaved: 3, calories: '280 kcal', protein: '9g' },
 ];
 
+const REFS = [
+  { org: 'Science (Poore & Nemecek, 2018)', title: 'Reducing food’s environmental impacts through producers and consumers', link: 'https://www.science.org/doi/10.1126/science.aaq0216' },
+  { org: 'Our World in Data', title: 'Environmental impacts of food production', link: 'https://ourworldindata.org/environmental-impacts-of-food' },
+  { org: 'Water Footprint Network', title: 'Product water footprints (Mekonnen & Hoekstra)', link: 'https://www.waterfootprint.org/' },
+  { org: 'US EPA', title: 'Greenhouse gas equivalencies calculator', link: 'https://www.epa.gov/energy/greenhouse-gas-equivalencies-calculator' },
+];
+
 const IMPACT_FACTS = [
-  'Producing 1 kg of beef emits 27 kg of CO₂ — equivalent to driving 100 km.',
-  'A single vegan day saves the same water as skipping 23 showers.',
-  'If one person goes vegan for a year, they save 365 animals on average.',
-  'Plant-based diets use 75% less land than meat-based diets globally.',
+  'Beef from beef herds averages around 50 kg CO₂e per 100 g of protein, far more than peas, tofu or nuts (Poore & Nemecek, 2018).',
+  'Animal products generally have a much larger water footprint per kilogram than vegetables, pulses or grains.',
+  'Food is responsible for roughly a quarter of global greenhouse gas emissions.',
+  'A global shift to plant-based diets could cut food-related land use by about 76% (Poore & Nemecek, 2018).',
 ];
 
 export default function SavingsCalculator() {
@@ -54,30 +64,29 @@ export default function SavingsCalculator() {
 
   return (
     <section className={styles.section}>
+      <Seo
+        title="Carbon and Water Savings Calculator for Plant-Based Meals"
+        description="Estimate the carbon, water and land you save by choosing plant-based meals, with sources for the underlying studies."
+        path={ROUTES.savings}
+      />
       <BackButton />
       <div className={styles.container}>
-        <motion.div className={styles.header} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-          <span className={styles.label}>Measure Your Impact</span>
-          <h1 className={styles.title}>Carbon & Water Savings Calculator</h1>
-          <p className={styles.subtitle}>
-            Every plant-based meal you choose makes a measurable difference. Select your daily meals below
-            and watch your environmental savings accumulate in real time.
-          </p>
-        </motion.div>
+        <PageHeader
+          align="center"
+          eyebrow="Measure your impact"
+          title="Carbon and water savings calculator"
+          lead="Pick the plant-based meals you eat and see a rough estimate of the emissions, water and land they save compared with a typical meat-based equivalent."
+          trail={[
+            { name: 'Home', path: ROUTES.home },
+            { name: 'Savings calculator', path: ROUTES.savings },
+          ]}
+        />
 
-        {/* Info banner */}
-        <motion.div
-          className={styles.infoBanner}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <FiInfo className={styles.infoIcon} />
-          <p>
-            Savings are calculated by comparing each vegan meal against its typical meat-based equivalent
-            (e.g., lentil curry vs chicken curry). Data sourced from Oxford University's 2018 food sustainability study.
-          </p>
-        </motion.div>
+        <Callout variant="note" title="How the estimates work">
+          Each meal is compared with a typical meat-based equivalent (for example lentil curry versus chicken
+          curry) using rounded averages from published life-cycle studies. Treat the results as a sense of scale
+          rather than an exact measurement.
+        </Callout>
 
         <div className={styles.layout}>
           {/* Meal selector */}
@@ -160,7 +169,7 @@ export default function SavingsCalculator() {
                     icon: <FaTree style={{ color: 'var(--color-orange)' }} />,
                     bg: 'rgba(227,163,110,0.12)',
                     value: scaled.land,
-                    unit: 'sq.ft land preserved',
+                    unit: 'sq. ft land preserved',
                     equiv: <><FaLeaf /> ≈ {(scaled.land / 9).toFixed(1)} sq.m of forest</>,
                   },
                 ].map((s, i) => (
@@ -218,6 +227,8 @@ export default function SavingsCalculator() {
             )}
           </div>
         </div>
+
+        <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
     </section>
   );

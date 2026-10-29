@@ -242,3 +242,79 @@
     opacity: 0.6;
   }
 }
+
+/* ————— skip control —————
+   The intro is decorative, so there is always a way past it. Sits above the
+   grain/trail layers (z-index 5) so it stays clickable. */
+.skipBtn {
+  position: relative;
+  z-index: 6;
+  margin-top: 22px;
+  padding: 10px 24px;
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-earth);
+  background: rgba(247, 240, 230, 0.75);
+  border: 1px solid rgba(87, 61, 33, 0.28);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: background 0.25s var(--ease-out), border-color 0.25s var(--ease-out);
+}
+
+.skipBtn:hover {
+  background: var(--color-cream);
+  border-color: var(--color-earth);
+}
+
+/* ————— plant parts follow the progress value ————— */
+.grow {
+  transition: transform 0.35s var(--ease-out);
+}
+
+/* ————— harvest basket ————— */
+.harvest {
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(87, 61, 33, 0.14);
+  border-radius: var(--radius-full);
+  background: rgba(247, 240, 230, 0.6);
+}
+
+.harvestItem {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  color: rgba(87, 61, 33, 0.28);
+  border: 1px dashed rgba(87, 61, 33, 0.25);
+  border-radius: 50%;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+
+.harvestPicked {
+  border-style: solid;
+  background: rgba(255, 255, 255, 0.7);
+  animation: harvestPop 0.5s var(--ease-elastic);
+}
+
+@keyframes harvestPop {
+  0% { transform: translateY(-14px) scale(0.6); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grow { transition: none; }
+  .harvestPicked { animation: none; }
+}
+
+@media (max-width: 420px) {
+  .ringWrap { width: 210px; height: 210px; }
+  .tagline { letter-spacing: 0.18em; font-size: 0.75rem; }
+}

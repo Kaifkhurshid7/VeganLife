@@ -7,3 +7,5 @@ export { default as Myths } from './Myths';
 export { default as Challenge } from './Challenge';
 export { default as Blog } from './Blog';
 export { default as Testimonials } from './Testimonials';
+export { default as WhatIsVeganismIntro } from './WhatIsVeganismIntro';
+export { default as JoinCommunity } from './JoinCommunity';

@@ -4,86 +4,561 @@
 
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
   max-width: var(--max-width);
-  margin: 0 auto var(--space-2xl);
+  margin: 0 auto var(--space-lg);
 }
 
-.statIcon {
-  font-size: 2.2rem;
-  margin-bottom: 5px;
+/* ————— the book ————— */
+.book {
+  --accent: var(--color-sage);
+  --cover: #4a3219;
+  position: relative;
+  min-height: 440px;
+  display: flex;
+  perspective: 1500px; /* applies to the doors, which are its children */
+  border-radius: 6px 14px 14px 6px;
+  /* stacked page edges on the right and bottom */
+  box-shadow:
+    1px 1px 0 #efe3d1,
+    2px 2px 0 #d9c8b0,
+    3px 3px 0 #efe3d1,
+    4px 4px 0 #d9c8b0,
+    0 18px 34px rgba(87, 61, 33, 0.18);
+}
+
+/* ————— inside page ————— */
+.page {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 26px 20px;
+  overflow: hidden;
+  border-radius: inherit;
+  border: 1px solid var(--color-border);
+  background:
+    linear-gradient(90deg, rgba(87, 61, 33, 0.14), transparent 7%, transparent 93%, rgba(87, 61, 33, 0.06)),
+    repeating-linear-gradient(0deg, transparent 0 31px, rgba(87, 61, 33, 0.05) 31px 32px),
+    #f7efe2;
+}
+
+/* centre crease where the two halves meet */
+.page::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 18px;
+  margin-left: -9px;
+  background: linear-gradient(90deg, transparent, rgba(87, 61, 33, 0.1), transparent);
+  pointer-events: none;
+}
+
+/* folded corner */
+.page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(225deg, var(--color-bg) 50%, color-mix(in srgb, var(--accent) 45%, #d9c8b0) 50%);
+  border-bottom-left-radius: 6px;
+  box-shadow: -2px 2px 5px rgba(87, 61, 33, 0.18);
+}
+
+.pageTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 28px 14px 0;
+}
+
+.pageKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.pageIcon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  color: #fff;
+  background: var(--accent);
+}
+
+.closeBtn {
+  display: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-earth);
+  cursor: pointer;
+}
+
+.bookOpen .closeBtn {
+  display: grid;
 }
 
 .statValue {
-  font-size: 3rem;
-  margin: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0 0 4px;
   font-family: var(--font-heading);
+  font-size: clamp(2.3rem, 3.6vw, 2.9rem);
+  line-height: 1;
+  font-weight: 700;
+  color: var(--color-earth);
+  font-variant-numeric: tabular-nums;
 }
 
 .statUnit {
-  font-size: 1.2rem;
-  margin-left: 5px;
-  font-weight: 500;
-  color: var(--color-earth);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  filter: brightness(0.7);
 }
 
 .statTitle {
-  font-size: 1.2rem;
+  margin: 0 0 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border-strong);
+  font-family: var(--font-heading);
+  font-size: var(--text-h4);
   color: var(--color-earth);
-  opacity: 0.8;
-  margin-top: 8px;
 }
 
 .statDesc {
+  margin: 0 0 14px;
   font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+/* ————— gatefold cover ————— */
+.door {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+  z-index: 2;
+  backface-visibility: hidden;
+  transition: transform 0.95s var(--ease-smooth), box-shadow 0.95s;
+  pointer-events: none;
+  background: var(--cover);
+}
+
+.doorLeft {
+  left: 0;
+  transform-origin: left center;
+  border-radius: 6px 0 0 6px;
+}
+
+.doorRight {
+  right: 0;
+  transform-origin: right center;
+  border-radius: 0 14px 14px 0;
+}
+
+/* open: hover (pointer devices), keyboard focus, or the toggled state */
+.bookOpen .doorLeft,
+.book:has(:focus-visible) .doorLeft {
+  transform: rotateY(-122deg);
+}
+
+.bookOpen .doorRight,
+.book:has(:focus-visible) .doorRight {
+  transform: rotateY(122deg);
+}
+
+@media (hover: hover) {
+  .book:hover .doorLeft {
+    transform: rotateY(-122deg);
+  }
+  .book:hover .doorRight {
+    transform: rotateY(122deg);
+  }
+  .book:hover .opener {
+    pointer-events: none;
+  }
+}
+
+.opener {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.bookOpen .opener {
+  pointer-events: none;
+}
+
+/* printed cover artwork: twice as wide as one door so the halves line up */
+.coverArt {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 200%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 34px;
+  text-align: center;
+  color: #f6ead6;
+  background:
+    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--accent) 80%, #000 5%) 62%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 40%),
+    var(--cover);
+  box-shadow: inset 0 0 0 7px var(--cover), inset 0 0 0 8px rgba(246, 234, 214, 0.28);
+}
+
+.doorLeft .coverArt {
+  left: 0;
+}
+
+.doorRight .coverArt {
+  left: -100%;
+}
+
+.coverWatermark {
+  position: absolute;
+  right: 12%;
+  top: 10%;
+  font-size: 7rem;
+  line-height: 1;
+  color: #f6ead6;
+  opacity: 0.07;
+  transform: rotate(-12deg);
+}
+
+.coverKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #e9d7b8;
+}
+
+.coverIndex {
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--accent);
+  color: #fff;
+  letter-spacing: 0.08em;
+}
+
+.coverValue {
+  margin-top: 10px;
+  font-family: var(--font-heading);
+  font-size: clamp(3rem, 5vw, 4.1rem);
+  line-height: 1;
+  font-weight: 700;
+  /* gilt lettering */
+  background: linear-gradient(180deg, #f8e2ae, #d9a95c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.coverUnit {
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #e9d7b8;
+}
+
+.coverTitle {
+  max-width: 80%;
+  margin-top: 14px;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: #fff7e8;
+}
+
+.coverHint {
+  position: absolute;
+  bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+/* ————— meters (all share one slot height so tiles stay aligned) ————— */
+.meter,
+.meterNote {
+  min-height: 78px;
+  margin-top: auto;
+}
+
+.meterNote {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--color-text-secondary);
-  opacity: 0.85;
-  margin-top: 4px;
+}
+
+.meterNote::before {
+  content: '';
+  flex-shrink: 0;
+  width: 28px;
+  height: 0;
+  margin-right: 10px;
+  border-top: 2px dashed var(--accent);
+}
+
+.meterCaption {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text-secondary);
+}
+
+.meterCaption strong {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  color: var(--color-earth);
+}
+
+.pairRow {
+  display: grid;
+  grid-template-columns: 74px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: var(--color-earth);
+}
+
+.pairLabel {
+  font-weight: 700;
+}
+
+.pairTrack {
+  height: 9px;
+  border-radius: var(--radius-full);
+  background: rgba(87, 61, 33, 0.1);
+  overflow: hidden;
+}
+
+.pairBar {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: color-mix(in srgb, var(--accent) 70%, #fff);
+}
+
+.pairBarStrong {
+  background: var(--accent);
+  filter: brightness(0.85);
+}
+
+.pairValue {
+  min-width: 70px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.stackBar {
+  display: flex;
+  height: 14px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  background: rgba(87, 61, 33, 0.1);
+}
+
+.stackSeg {
+  display: block;
+  height: 100%;
+}
+
+.seg0 { background: var(--color-earth); }
+.seg1 { background: var(--color-purple); }
+.seg2 { background: var(--accent); }
+
+.stackLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--color-earth);
+}
+
+.legendDot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 6px;
+  border-radius: 50%;
+}
+
+.blocks {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+}
+
+.block {
+  height: 16px;
+  border-radius: 3px;
+  background: rgba(87, 61, 33, 0.12);
+}
+
+.blockOn {
+  background: var(--accent);
+  filter: brightness(0.9);
+}
+
+/* ————— sources ————— */
+.statSources {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--color-border-strong);
+}
+
+.statSources > div {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.statSources > div > div {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px 16px;
+}
+
+.statsNote {
+  max-width: var(--max-width);
+  margin: 0 auto var(--space-2xl);
+  font-size: var(--text-caption);
+  line-height: var(--leading-snug);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 1000px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .door {
+    transition: none;
+  }
 }
 
 .chartCard {
   max-width: var(--max-width-narrow);
   margin: 0 auto;
+  padding: clamp(22px, 3.5vw, 40px);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px double var(--color-earth);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
 }
 
 .chartHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   gap: 20px;
-  margin-bottom: 35px;
+  margin-bottom: 18px;
+}
+
+.chartKicker {
+  margin: 0 0 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #4d6136;
 }
 
 .chartTitle {
-  font-size: 1.8rem;
+  margin: 0 0 4px;
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
   color: var(--color-earth);
 }
 
 .chartSubtitle {
+  margin: 0;
   font-size: 0.95rem;
-  opacity: 0.85;
+  color: var(--color-text-secondary);
 }
 
 .tabGroup {
   display: inline-flex;
-  background-color: rgba(87, 61, 33, 0.08);
   padding: 4px;
-  border-radius: 30px;
-  border: 1px solid rgba(87, 61, 33, 0.08);
+  border-radius: var(--radius-full);
+  background: rgba(87, 61, 33, 0.08);
+  border: 1px solid var(--color-border);
 }
 
 .tab {
   background: transparent;
   color: var(--color-earth);
   border: none;
-  padding: 8px 20px;
-  border-radius: 20px;
+  padding: 9px 20px;
+  border-radius: var(--radius-full);
+  font: inherit;
   font-weight: 700;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.3s, color 0.3s;
 }
 
 .tabActive {
@@ -91,13 +566,43 @@
   color: var(--color-cream);
 }
 
+/* one-sentence takeaway, marked with a highlighter */
+.takeaway {
+  margin: 0 0 22px;
+  font-family: var(--font-heading);
+  font-size: var(--text-body-lg);
+  line-height: 1.7;
+  color: var(--color-text-primary);
+}
+
+.takeaway mark {
+  padding: 0 3px;
+  color: inherit;
+  background: linear-gradient(transparent 55%, rgba(166, 180, 143, 0.6) 55%, rgba(166, 180, 143, 0.6) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
 .chartContainer {
   width: 100%;
-  height: 320px;
-  overflow: hidden;
+  height: 340px;
+  margin-bottom: 20px;
 }
 
 .chartRefs {
-  max-width: var(--max-width);
-  margin: 24px auto 0;
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .tabGroup {
+    width: 100%;
+  }
+  .tab {
+    flex: 1;
+    padding: 9px 10px;
+  }
+  .chartContainer {
+    height: 300px;
+  }
 }

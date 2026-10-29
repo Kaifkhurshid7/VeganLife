@@ -38,7 +38,7 @@
 .refOrg {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-sage);
+  color: #4d6136;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -62,9 +62,68 @@
 }
 
 .refOrgInline {
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  color: var(--color-sage);
+  color: #4d6136; /* darker than --color-sage: sage on cream fails contrast */
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  text-decoration: underline;
+  text-decoration-color: rgba(77, 97, 54, 0.35);
+  text-underline-offset: 3px;
+}
+
+.compact .refLink:hover .refOrgInline {
+  text-decoration-color: currentColor;
+}
+
+.refIcon {
+  margin-left: 6px;
+  font-size: 0.8em;
+  vertical-align: -1px;
+  opacity: 0.55;
+}
+
+/* Standalone sources block at the foot of a page */
+.panel {
+  margin-top: var(--space-2xl);
+  padding: var(--space-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.panel .heading {
+  font-family: var(--font-heading);
+  font-size: var(--text-h4);
+  opacity: 1;
+  margin-bottom: var(--space-md);
+}
+
+.panel .refList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-sm);
+}
+
+.panel .refLink {
+  gap: 3px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-sage);
+}
+
+.panel .refLink:hover {
+  border-color: var(--color-border-strong);
+  border-left-color: var(--color-sage);
+  background: #fff9f0;
+}
+
+.panel .refOrg {
+  color: #4d6136;
+}
+
+.panel .refTitle {
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
 }

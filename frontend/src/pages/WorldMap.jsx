@@ -1,19 +1,35 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import BackButton from '../components/ui/BackButton';
+import { PageHeader, ReferenceList, Callout } from '../components/ui';
+import { Seo } from '../components/seo';
+import { ROUTES } from '../constants/routes';
 import styles from './WorldMap.module.css';
 
+/*
+  Approximate, rounded values for orientation only.
+  co2   = fossil CO₂ emitted per person per year (tonnes), all sectors.
+  meat  = meat supply per person per year (kg), FAO food balance data.
+  Both change from year to year; see the sources below for current figures.
+*/
 const COUNTRY_DATA = [
-  { id: 'us', name: 'United States', x: 22, y: 38, co2: 16.1, water: 9800, land: 320, veganPop: '6%', color: '#e3a36e' },
-  { id: 'br', name: 'Brazil', x: 30, y: 62, co2: 7.5, water: 7200, land: 450, veganPop: '14%', color: '#a6b48f' },
-  { id: 'in', name: 'India', x: 68, y: 45, co2: 1.9, water: 3100, land: 80, veganPop: '9%', color: '#9d82ab' },
-  { id: 'cn', name: 'China', x: 75, y: 38, co2: 8.0, water: 5600, land: 180, veganPop: '5%', color: '#e3a36e' },
-  { id: 'de', name: 'Germany', x: 50, y: 30, co2: 8.9, water: 4200, land: 140, veganPop: '10%', color: '#a6b48f' },
-  { id: 'au', name: 'Australia', x: 82, y: 72, co2: 15.4, water: 8900, land: 380, veganPop: '11%', color: '#e3a36e' },
-  { id: 'ng', name: 'Nigeria', x: 50, y: 52, co2: 0.6, water: 1800, land: 45, veganPop: '3%', color: '#9d82ab' },
-  { id: 'uk', name: 'United Kingdom', x: 47, y: 28, co2: 5.5, water: 3800, land: 120, veganPop: '13%', color: '#a6b48f' },
-  { id: 'jp', name: 'Japan', x: 84, y: 38, co2: 9.0, water: 4500, land: 95, veganPop: '4%', color: '#9d82ab' },
-  { id: 'ke', name: 'Kenya', x: 57, y: 55, co2: 0.4, water: 1200, land: 35, veganPop: '2%', color: '#a6b48f' },
+  { id: 'us', name: 'United States', x: 22, y: 38, co2: 14.9, meat: 124, color: '#e3a36e' },
+  { id: 'br', name: 'Brazil', x: 30, y: 62, co2: 2.3, meat: 100, color: '#a6b48f' },
+  { id: 'in', name: 'India', x: 68, y: 45, co2: 2.0, meat: 5, color: '#9d82ab' },
+  { id: 'cn', name: 'China', x: 75, y: 38, co2: 8.0, meat: 62, color: '#e3a36e' },
+  { id: 'de', name: 'Germany', x: 50, y: 30, co2: 7.9, meat: 80, color: '#a6b48f' },
+  { id: 'au', name: 'Australia', x: 82, y: 72, co2: 14.8, meat: 116, color: '#e3a36e' },
+  { id: 'ng', name: 'Nigeria', x: 50, y: 52, co2: 0.6, meat: 7, color: '#9d82ab' },
+  { id: 'uk', name: 'United Kingdom', x: 47, y: 28, co2: 4.7, meat: 80, color: '#a6b48f' },
+  { id: 'jp', name: 'Japan', x: 84, y: 38, co2: 8.5, meat: 50, color: '#9d82ab' },
+  { id: 'ke', name: 'Kenya', x: 57, y: 55, co2: 0.4, meat: 16, color: '#a6b48f' },
+];
+
+const REFS = [
+  { org: 'Our World in Data', title: 'CO₂ emissions per capita', link: 'https://ourworldindata.org/co2-and-greenhouse-gas-emissions' },
+  { org: 'Our World in Data', title: 'Meat supply per person', link: 'https://ourworldindata.org/meat-production' },
+  { org: 'FAO', title: 'FAOSTAT food balances', link: 'https://www.fao.org/faostat/en/#data/FBS' },
+  { org: 'Science (Poore & Nemecek, 2018)', title: 'Reducing food’s environmental impacts through producers and consumers', link: 'https://www.science.org/doi/10.1126/science.aaq0216' },
 ];
 
 export default function WorldMap() {
@@ -25,20 +41,23 @@ export default function WorldMap() {
 
   return (
     <section className={styles.section}>
+      <Seo
+        title="Food and Climate Around the World: Interactive Map"
+        description="Compare per-person carbon emissions and meat consumption across ten countries on an interactive map, with sources."
+        path={ROUTES.worldMap}
+      />
       <BackButton />
       <div className={styles.container}>
-        <motion.div
-          className={styles.header}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <span className={styles.label}>Global Perspective</span>
-          <h1 className={styles.title}>Environmental Impact Map</h1>
-          <p className={styles.subtitle}>
-            Explore how food choices affect carbon emissions, water usage, and land consumption across nations.
-          </p>
-        </motion.div>
+        <PageHeader
+          align="center"
+          eyebrow="Global perspective"
+          title="Food and climate around the world"
+          lead="Select a country to compare its carbon emissions with how much meat its people eat on average."
+          trail={[
+            { name: 'Home', path: ROUTES.home },
+            { name: 'World map', path: ROUTES.worldMap },
+          ]}
+        />
 
         <div className={styles.mapLayout}>
           <motion.div
@@ -68,12 +87,17 @@ export default function WorldMap() {
 
             {/* Country markers */}
             {COUNTRY_DATA.map((country) => (
-              <motion.div
+              <motion.button
+                type="button"
+                aria-label={`${country.name}: ${country.co2} tonnes CO₂ and ${country.meat} kg meat per person per year`}
+                aria-pressed={selected === country.id}
                 key={country.id}
                 className={`${styles.marker} ${activeCountry === country.id ? styles.markerActive : ''}`}
                 style={{ left: `${country.x}%`, top: `${country.y}%` }}
                 onMouseEnter={() => setHovered(country.id)}
                 onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(country.id)}
+                onBlur={() => setHovered(null)}
                 onClick={() => setSelected(selected === country.id ? null : country.id)}
                 whileHover={{ scale: 1.4 }}
                 animate={activeCountry === country.id ? { scale: [1, 1.3, 1.2] } : {}}
@@ -85,7 +109,7 @@ export default function WorldMap() {
                   animate={{ scale: [1, 2], opacity: [0.6, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-              </motion.div>
+              </motion.button>
             ))}
           </motion.div>
 
@@ -105,10 +129,8 @@ export default function WorldMap() {
                 <h3 className={styles.countryName}>{data.name}</h3>
                 <div className={styles.stats}>
                   {[
-                    { value: data.co2, label: 'CO₂ tons/capita/yr' },
-                    { value: data.water.toLocaleString(), label: 'Liters water/day (food)' },
-                    { value: data.land, label: 'Sq.ft land/day (food)' },
-                    { value: data.veganPop, label: 'Vegan population' },
+                    { value: data.co2, label: 'tonnes fossil CO₂ per person per year' },
+                    { value: `${data.meat} kg`, label: 'meat supply per person per year' },
                   ].map((s, i) => (
                     <motion.div
                       key={s.label}
@@ -123,16 +145,24 @@ export default function WorldMap() {
                   ))}
                 </div>
                 <p className={styles.insight}>
-                  If {data.name} shifted to plant-based diets, it could reduce food-related emissions by up to 70%.
+                  Globally, food causes about a quarter of greenhouse gas emissions, and animal products account for well over half of that.
                 </p>
               </motion.div>
             ) : (
               <div className={styles.placeholder}>
-                <p>Click or hover on a country marker to see its environmental food impact data.</p>
+                <p>Hover over or select a country marker to see its figures.</p>
               </div>
             )}
           </motion.div>
         </div>
+
+        <Callout variant="note" title="About this data">
+          Values are rounded national averages for orientation, not a measure of any individual’s food
+          footprint. Emissions shown cover all sectors; meat supply is the amount available per person, not
+          what is eaten after waste. The map outline is simplified.
+        </Callout>
+
+        <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
     </section>
   );

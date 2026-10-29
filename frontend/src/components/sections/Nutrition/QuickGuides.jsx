@@ -7,8 +7,11 @@ import {
   FaBolt, FaClock as FaClockAlt, FaIndianRupeeSign, FaFire, FaSpa,
   FaPlateWheat,
 } from 'react-icons/fa6';
+import { FiArrowRight } from 'react-icons/fi';
 import { ReferenceList } from '../../ui';
-import { quickGuides } from '../../../data/quickGuides';
+import { quickGuides as allGuides } from '../../../data/quickGuides';
+
+const quickGuides = allGuides.filter((g) => g.id !== 'trust' && g.id !== 'motivation');
 import styles from './QuickGuides.module.css';
 
 const ICON_MAP = {
@@ -237,32 +240,48 @@ export default function QuickGuides() {
 
   return (
     <div className={styles.wrap}>
-      <h3 className={styles.heading}>Quick Guides &amp; Resources</h3>
-      <p className={styles.sub}>Deeper, referenced guides for every aspect of plant-based student life.</p>
+      <header className={styles.intro}>
+        <p className={styles.kicker}>The library</p>
+        <h3 className={styles.heading}>Quick Guides &amp; Resources</h3>
+        <p className={styles.sub}>
+          Deeper, referenced guides for every aspect of plant-based student life. Open any card for the
+          full list and its sources.
+        </p>
+      </header>
 
-      <div className={styles.grid}>
+      <ul className={styles.grid}>
         {quickGuides.map((g, idx) => (
-          <motion.button
+          <motion.li
             key={g.id}
-            type="button"
-            className={`glass-card ${styles.guideCard}`}
-            onClick={() => setActive(g)}
-            initial={{ opacity: 0, y: 20 }}
+            className={styles.cell}
+            initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.45, delay: idx * 0.04 }}
-            whileHover={{ y: -6, transition: { type: 'spring', stiffness: 300, damping: 22 } }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.45, delay: (idx % 4) * 0.06 }}
           >
-            <div className={styles.cardTop}>
-              <img src={g.image} alt="" className={styles.cardImg} loading="lazy" />
-              <span className={styles.iconChip} style={{ color: g.color }}>{ICON_MAP[g.icon] || <FaSeedling />}</span>
-              <span className={styles.badge}>{g.badge}</span>
-            </div>
-            <h4 className={styles.cardTitle}>{g.title}</h4>
-            <p className={styles.cardDesc}>{g.description}</p>
-          </motion.button>
+            <button
+              type="button"
+              className={styles.guideCard}
+              style={{ '--accent': g.color }}
+              onClick={() => setActive(g)}
+              aria-haspopup="dialog"
+            >
+              <span className={styles.cardTop}>
+                <span className={styles.iconChip} aria-hidden="true">{ICON_MAP[g.icon] || <FaSeedling />}</span>
+                <span className={styles.number} aria-hidden="true">{String(idx + 1).padStart(2, '0')}</span>
+              </span>
+              <span className={styles.cardTitle}>{g.title}</span>
+              <span className={styles.cardDesc}>{g.description}</span>
+              <span className={styles.cardFoot}>
+                <span className={styles.badge}>{g.badge}</span>
+                <span className={styles.open}>
+                  Open <FiArrowRight aria-hidden="true" />
+                </span>
+              </span>
+            </button>
+          </motion.li>
         ))}
-      </div>
+      </ul>
 
       <AnimatePresence>
         {active && (
@@ -275,6 +294,9 @@ export default function QuickGuides() {
           >
             <motion.div
               className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              aria-label={active.title}
               onClick={(e) => e.stopPropagation()}
               initial={{ y: 40, opacity: 0, scale: 0.98 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}

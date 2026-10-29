@@ -1,0 +1,15 @@
+.wrap {
+  padding-inline: var(--section-padding);
+}
+
+.inner {
+  max-width: var(--max-width);
+  margin-inline: auto;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}

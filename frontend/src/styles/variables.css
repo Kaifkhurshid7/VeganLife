@@ -55,6 +55,55 @@
   --max-width-narrow: 1100px;
   --max-width-text: 800px;
   --section-padding: 8%;
+
+  /* ------------------------------------------------------------------
+     Typography scale
+     One ramp for the whole site so headings stop being re-invented per
+     page. Fluid clamps mean mobile gets an intentional size rather than a
+     shrunken desktop one.
+     ------------------------------------------------------------------ */
+  --text-display: clamp(2.75rem, 6vw, 4.5rem);
+  --text-h1: clamp(2.25rem, 4.6vw, 3.5rem);
+  --text-h2: clamp(1.75rem, 3.4vw, 2.75rem);
+  --text-h3: clamp(1.3rem, 2.2vw, 1.6rem);
+  --text-h4: clamp(1.1rem, 1.8vw, 1.25rem);
+  --text-body-lg: clamp(1.05rem, 1.6vw, 1.2rem);
+  --text-body: 1rem;
+  --text-sm: 0.9rem;
+  --text-caption: 0.8rem;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.45;
+  --leading-body: 1.75;
+  --leading-prose: 1.8;
+
+  /* Measure — ~65–75 characters is the comfortable reading range. */
+  --measure-prose: 68ch;
+
+  /* ------------------------------------------------------------------
+     Semantic status colours
+     Chosen for >=4.5:1 against --color-bg / --color-cream so state is never
+     communicated by hue alone at an unreadable contrast.
+     ------------------------------------------------------------------ */
+  --color-success: #2f6b3a;
+  --color-success-bg: rgba(47, 107, 58, 0.1);
+  --color-error: #97291f;
+  --color-error-bg: rgba(151, 41, 31, 0.09);
+  --color-warning: #7a4f06;
+  --color-warning-bg: rgba(122, 79, 6, 0.1);
+  --color-info: #2f5573;
+  --color-info-bg: rgba(47, 85, 115, 0.09);
+
+  /* Borders & surfaces for non-glass (content-first) components */
+  --color-border: rgba(87, 61, 33, 0.16);
+  --color-border-strong: rgba(87, 61, 33, 0.34);
+  --color-surface: #f7f0e6;
+  --color-surface-muted: #f1e7da;
+
+  /* Focus ring — one definition, used by every interactive element */
+  --focus-ring-color: #2f5573;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
 }
 
 @media (max-width: 768px) {

@@ -67,6 +67,9 @@
 }
 
 .marker {
+  padding: 0;
+  border: 0;
+  background: none;
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: pointer;
@@ -150,3 +153,5 @@
 .placeholder p {
   font-size: 1rem;
 }
+
+.mapLayout { margin-bottom: var(--space-xl); }

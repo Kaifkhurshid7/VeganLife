@@ -722,18 +722,18 @@ export const immunityBoostingFoods = [
 ];
 
 export const veganMythsDebunked = [
-  { myth: "Vegan diets are always low in protein", reality: "Completely False", truth: "With pulses, soy and nuts, protein needs can be met affordably. Indian vegan diets easily provide 80-100g protein daily." },
+  { myth: "Vegan diets are always low in protein", reality: "Not Inherently", truth: "With pulses, soy, nuts and whole grains, protein needs can be met affordably. A varied Indian vegan diet can provide 80-100g of protein a day." },
   { myth: "You can't build muscle on a vegan diet", reality: "Athlete-Proven", truth: "Appropriate calorie and protein intake with strength training supports muscle gain. Many elite athletes are plant-based." },
-  { myth: "Vegan food is expensive", reality: "A Budget Myth", truth: "Pulses, grains, and seasonal vegetables are among the cheapest foods globally. A vegan diet costs 30-40% less than meat-based in India." },
-  { myth: "Vegans don't get enough calcium", reality: "Calcium-Plenty", truth: "Calcium-set tofu, fortified plant milks, sesame seeds, and leafy greens provide adequate calcium. Some plant milks have more calcium than cow's milk." },
+  { myth: "Vegan food is expensive", reality: "Depends What You Buy", truth: "Pulses, grains and seasonal vegetables are among the cheapest foods there are. Costs rise with specialty substitutes, so a staples-based diet is the budget-friendly one." },
+  { myth: "Vegans don't get enough calcium", reality: "Calcium-Plenty", truth: "Calcium-set tofu, fortified plant milks, sesame seeds, and leafy greens provide adequate calcium. Fortified plant milks are typically set to match the calcium in dairy milk." },
   { myth: "Plant protein is incomplete", reality: "Variety Solves It", truth: "While individual plant foods may be low in certain amino acids, eating a variety of foods across the day provides all essential amino acids." },
-  { myth: "Soy causes hormonal imbalances", reality: "Safely Debunked", truth: "Large-scale research shows moderate soy consumption is safe and may even reduce cancer risk. Phytoestrogens are not the same as human estrogen." },
-  { myth: "Vegan diets are boring and restrictive", reality: "Infinitely Diverse", truth: "Indian cuisine alone has thousands of naturally vegan dishes. Going vegan often leads to MORE food variety as people explore new cuisines." },
+  { myth: "Soy causes hormonal imbalances", reality: "Evidence Says Safe", truth: "Large reviews find moderate soy intake is safe for most people. Soy phytoestrogens are plant compounds, not the same as human estrogen." },
+  { myth: "Vegan diets are boring and restrictive", reality: "Plenty of Variety", truth: "Indian cuisine alone has a huge range of naturally vegan dishes, and many people find they try more foods, not fewer, when they start exploring plant-based cooking." },
   { myth: "Children and pregnant women can't be vegan", reality: "All Life Stages", truth: "Well-planned vegan diets are nutritionally adequate for all life stages according to the Academy of Nutrition and Dietetics." },
-  { myth: "Vegan diets lack iron", reality: "Pair It With C", truth: "Plant iron sources include lentils, chickpeas, spinach, and sesame. Pairing with vitamin C dramatically improves absorption." },
-  { myth: "You need dairy for strong bones", reality: "Bone Myth", truth: "Countries with highest dairy consumption (Scandinavia) have the highest osteoporosis rates. Weight-bearing exercise and vitamin D matter more." },
-  { myth: "Vegan diets are unsustainable long-term", reality: "Generations Strong", truth: "Millions of people in India have been vegetarian/vegan for generations. With B12 supplementation, it's fully sustainable for life." },
-  { myth: "One person going vegan makes no difference", reality: "200 Animals/Year", truth: "One person going vegan saves approximately 200 animals, 15,000L water, 3,300 kg CO₂, and 1,000 sq ft of forest per year." }
+  { myth: "Vegan diets lack iron", reality: "Pair It With C", truth: "Plant iron sources include lentils, chickpeas, spinach and sesame. Pairing them with vitamin C improves absorption." },
+  { myth: "You need dairy for strong bones", reality: "Not Only Dairy", truth: "Dairy is one source of calcium, not the only one. Calcium-set tofu, fortified plant milks, sesame and leafy greens all contribute, and vitamin D and weight-bearing exercise matter for bones too." },
+  { myth: "Vegan diets are unsustainable long-term", reality: "Generations Strong", truth: "Many people in India have eaten vegetarian diets for generations. A well-planned vegan diet is sustainable long term, provided vitamin B12 comes from fortified foods or a supplement." },
+  { myth: "One person going vegan makes no difference", reality: "Choices Add Up", truth: "Individual diets are one of the biggest levers a person has on their footprint: a 2018 global analysis found plant-based eating could cut an individual's food-related emissions by up to 73%." }
 ];
 
 export const trustIndicators = {
@@ -932,9 +932,7 @@ export const veganAthletes = [
 export const dailyMotivation = [
   "Every plant-based meal is a vote for the planet you want to live on.",
   "You don't have to be perfect. Progress over perfection.",
-  "One person going vegan saves 200 animals per year. You are making a difference.",
   "Your body is a garden, not a graveyard.",
-  "The food you eat can be the safest form of medicine or the slowest form of poison.",
   "Be the change you wish to see in the world. It starts on your plate.",
   "Compassion is the highest form of strength.",
   "Small daily choices compound into massive environmental impact.",

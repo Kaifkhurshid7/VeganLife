@@ -1,0 +1,55 @@
+.header {
+  margin-bottom: var(--space-2xl);
+}
+
+.center {
+  text-align: center;
+  max-width: var(--max-width-text);
+  margin-inline: auto;
+}
+
+/* Breadcrumbs are left-aligned even in a centred header — a centred trail is
+   hard to scan. */
+.center :global(.breadcrumbs) {
+  justify-content: center;
+}
+
+.title {
+  color: var(--color-earth);
+  margin-bottom: var(--space-md);
+  max-width: 22ch;
+}
+
+.center .title {
+  max-width: none;
+  margin-inline: auto;
+}
+
+.lead {
+  max-width: var(--measure-prose);
+}
+
+.center .lead {
+  margin-inline: auto;
+}
+
+.extra {
+  margin-top: var(--space-lg);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.center .extra {
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .header {
+    margin-bottom: var(--space-xl);
+  }
+
+  .title {
+    max-width: none;
+  }
+}

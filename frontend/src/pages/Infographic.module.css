@@ -172,3 +172,7 @@
   color: var(--color-text-secondary);
   margin-bottom: 30px;
 }
+
+/* Space between the timeline, the notes and the closing call to action */
+.timeline { margin-bottom: var(--space-2xl); }
+.conclusion { margin-top: var(--space-2xl); }

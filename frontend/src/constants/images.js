@@ -1,4 +1,5 @@
 // Central image registry.
+// Recipe photos (r*) must look vegan: no meat, fish or eggs in frame.
 // Every Unsplash ID in this file was verified to return HTTP 200 (see git history / verification pass).
 // If an image ever breaks, fix it HERE — every data file imports from this module.
 
@@ -6,21 +7,21 @@ const u = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&
 
 export const IMG = {
   // ---- Recipes ---------------------------------------------------------
-  rChickpeaQuinoaBowl: u('1546069901-ba9599a7e63c'),
-  rTofuBhurjiWrap: u('1550989460-0adf9ea622e2'),
-  rRajmaRiceBowl: u('1512058564366-18510be2db19'),
-  rMasalaOats: u('1484723091739-30a097e8f929'),
+  rChickpeaQuinoaBowl: u('1511690656952-34342bb7c2f2'),
+  rTofuBhurjiWrap: u('1540189549336-e6e99c3679fe'),
+  rRajmaRiceBowl: u('1567337710282-00832b415979'),
+  rMasalaOats: u('1490474418585-ba9bad8fd0ea'),
   rSoyaChaapBowl: u('1512621776951-a57141f2eefd'),
   rPeanutPoha: u('1494597564530-871f2b93ac55'),
-  rChanaSalad: u('1485963631004-f2f00b1d6606'),
-  rDalKhichdi: u('1504674900247-0877df9cc836'),
-  rTofuTikkaWrap: u('1523983302122-73e869e1f850'),
-  rSproutsChaat: u('1506377247377-2a5b3b417ebb'),
-  rMilletUpma: u('1498837167922-ddd27525d352'),
-  rMoongDalCheela: u('1466637574441-749b8f19452f'),
-  rOvernightOats: u('1511690656952-34342bb7c2f2'),
-  rMasalaChanaPulao: u('1476224203421-9ac39bcb3327'),
-  rPBBananaToast: u('1482049016688-2d3e1b311543'),
+  rChanaSalad: u('1505253716362-afaea1d3d1af'),
+  rDalKhichdi: u('1476718406336-bb5a9690ee2a'),
+  rTofuTikkaWrap: u('1543362906-acfc16c67564'),
+  rSproutsChaat: u('1542838132-92c53300491e'),
+  rMilletUpma: u('1611270629569-8b357cb88da9'),
+  rMoongDalCheela: u('1540420773420-3366772f4999'),
+  rOvernightOats: u('1505576399279-565b52d4ac71'),
+  rMasalaChanaPulao: u('1512058564366-18510be2db19'),
+  rPBBananaToast: u('1484723091739-30a097e8f929'),
   rSpinachTofuCurry: u('1547592180-85f173990554'),
 
   // ---- Blogs -----------------------------------------------------------

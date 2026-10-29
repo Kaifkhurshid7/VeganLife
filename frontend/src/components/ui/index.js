@@ -4,3 +4,8 @@ export { default as NoiseOverlay } from './NoiseOverlay';
 export { default as ScrollIndicator } from './ScrollIndicator';
 export { default as PasswordStrength } from './PasswordStrength';
 export { default as ReferenceList } from './ReferenceList';
+export { default as Breadcrumbs } from './Breadcrumbs';
+export { default as StateBlock } from './StateBlock';
+export { default as PageHeader } from './PageHeader';
+export { default as Callout } from './Callout';
+export { default as LegalDocument } from './LegalDocument';

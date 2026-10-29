@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useSpring } from 'framer-motion';
-import { FaLeaf, FaSun } from 'react-icons/fa6';
+import { FaLeaf, FaCarrot, FaAppleWhole, FaPepperHot, FaLemon, FaWheatAwn } from 'react-icons/fa6';
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion';
 import styles from './SplashScreen.module.css';
 
 /* ————— Loader copy (all vegan-minded) ————— */
@@ -37,6 +38,29 @@ const COLORS = {
   clay: '#e1c6ab',
   earth: '#573d21',
 };
+
+/* Produce that drops into the harvest basket as loading progresses.
+   `at` is the percent at which each item is "picked". */
+const HARVEST = [
+  { Icon: FaCarrot, label: 'Carrot', at: 18, color: '#e3a36e' },
+  { Icon: FaLemon, label: 'Lemon', at: 36, color: '#d6b84a' },
+  { Icon: FaPepperHot, label: 'Chilli', at: 54, color: '#b5523b' },
+  { Icon: FaAppleWhole, label: 'Apple', at: 72, color: '#8aa060' },
+  { Icon: FaWheatAwn, label: 'Grain', at: 90, color: '#b08a4f' },
+];
+
+/* Plain-language growth stages shown under the plant */
+const STAGES = [
+  { upTo: 20, text: 'Sowing seeds' },
+  { upTo: 45, text: 'Sprouting' },
+  { upTo: 70, text: 'Growing greens' },
+  { upTo: 99, text: 'Ripening' },
+  { upTo: 101, text: 'Ready to harvest' },
+];
+
+const clamp01 = (n) => Math.min(1, Math.max(0, n));
+/* 0 → 1 across the [from, to] percent window */
+const window01 = (p, from, to) => clamp01((p - from) / (to - from));
 
 const PARTICLES = [
   { top: '12%', left: '12%', size: 18, dur: 9, delay: 0, sway: 18, color: 'sage' },
@@ -98,6 +122,7 @@ function Burst({ x, y }) {
 }
 
 export default function SplashScreen({ onFinish }) {
+  const reduceMotion = usePrefersReducedMotion();
   const [percent, setPercent] = useState(0);
   const [done, setDone] = useState(false);
   const [wordIdx, setWordIdx] = useState(0);
@@ -150,6 +175,16 @@ export default function SplashScreen({ onFinish }) {
     my.set(e.clientY);
   };
 
+  /* Escape dismisses the intro — the same affordance the Skip button gives,
+     for anyone already on the keyboard. */
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') onFinishRef.current();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   const handleSplashClick = (e) => {
     if (done) return;
     endRef.current = Math.max(performance.now() + 700, endRef.current - BOOST_MS);
@@ -171,6 +206,11 @@ export default function SplashScreen({ onFinish }) {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.6, ease: 'easeInOut' }}
+      // Marked as a modal so assistive tech ignores the page rendered behind it
+      // instead of reading both at once.
+      role="dialog"
+      aria-modal="true"
+      aria-label="Vegan Life intro animation"
     >
       {/* ambient soft blobs */}
       <motion.div
@@ -185,7 +225,7 @@ export default function SplashScreen({ onFinish }) {
       />
 
       {/* drifting leaves */}
-      <div className={styles.floating}>
+      <div className={styles.floating} hidden={reduceMotion}>
         {PARTICLES.map((p, i) => (
           <motion.div
             key={i}
@@ -210,6 +250,11 @@ export default function SplashScreen({ onFinish }) {
         <motion.div
           key={pulseKey}
           className={styles.ringWrap}
+          role="progressbar"
+          aria-label="Loading Vegan Life"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(percent)}
           initial={{ scale: 0.86, opacity: 0 }}
           animate={{ scale: [1, 1.05, 1], opacity: 1 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
@@ -237,109 +282,94 @@ export default function SplashScreen({ onFinish }) {
             <FaLeaf className={styles.ringBadgeIcon} />
           </div>
 
-          {/* the growing seedling */}
+          {/* the plant: every part is driven by the real progress value */}
           <motion.div
             className={styles.plantWrap}
-            animate={done ? { scale: [1, 1.14, 1], rotate: [0, -5, 5, 0] } : {}}
+            animate={done && !reduceMotion ? { scale: [1, 1.08, 1] } : {}}
             transition={{ duration: 0.7, ease: 'easeInOut' }}
           >
             <svg className={styles.seedling} viewBox="0 0 120 120" aria-hidden>
-              {/* soft sun */}
-              <motion.g
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 0.9 }}
-                transition={{ delay: 1.65, duration: 0.5, type: 'spring', stiffness: 120, damping: 12 }}
-                style={{ transformOrigin: '86px 22px', transformBox: 'fill-box' }}
+              {/* sun rises as the plant matures */}
+              <g
+                className={styles.grow}
+                style={{ transform: `scale(${window01(percent, 55, 75)})`, transformOrigin: '88px 22px', transformBox: 'view-box' }}
               >
-                <circle cx="86" cy="22" r="12" fill="#e3a36e" />
-              </motion.g>
-              <motion.g
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.65, duration: 0.6 }}
-                style={{ transformOrigin: '86px 22px', transformBox: 'fill-box' }}
-              >
-                <circle cx="86" cy="22" r="18" fill="#e3a36e" opacity="0.18" />
-              </motion.g>
+                <circle cx="88" cy="22" r="18" fill="#e3a36e" opacity="0.18" />
+                <circle cx="88" cy="22" r="11" fill="#e3a36e" />
+              </g>
 
-              {/* soil mound */}
-              <ellipse cx="60" cy="102" rx="40" ry="11" fill="#e1c6ab" />
-              <ellipse cx="60" cy="101" rx="40" ry="11" fill="rgba(87,61,33,0.16)" />
-              <ellipse cx="60" cy="97" rx="32" ry="6" fill="rgba(87,61,33,0.3)" />
-              <circle cx="44" cy="99" r="2.4" fill="rgba(87,61,33,0.4)" />
-              <circle cx="72" cy="101" r="1.8" fill="rgba(87,61,33,0.35)" />
+              {/* soil mound with a seed that is visible at the start */}
+              <ellipse cx="60" cy="104" rx="40" ry="11" fill="#e1c6ab" />
+              <ellipse cx="60" cy="103" rx="40" ry="11" fill="rgba(87,61,33,0.18)" />
+              <ellipse cx="60" cy="99" rx="32" ry="6" fill="rgba(87,61,33,0.3)" />
+              <ellipse
+                cx="60"
+                cy="98"
+                rx="4.5"
+                ry="3"
+                fill="#8a6a3f"
+                opacity={1 - window01(percent, 6, 16)}
+              />
 
-              {/* stem grows up */}
-              <motion.path
-                d="M60 98 C 60 84, 60 70, 60 56"
+              {/* stem grows with progress */}
+              <path
+                d="M60 100 C 60 86, 60 72, 60 52"
                 fill="none"
                 stroke="#6d8252"
                 strokeWidth="5"
                 strokeLinecap="round"
-                initial={{ pathLength: 0 }}
-                animate={{ pathLength: 1 }}
-                transition={{ duration: 0.7, delay: 0.35, ease: 'easeInOut' }}
+                pathLength="1"
+                strokeDasharray="1"
+                strokeDashoffset={1 - window01(percent, 8, 40)}
               />
 
-              {/* left leaf unfolds */}
-              <motion.g
-                initial={{ rotate: -120, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ delay: 1.05, duration: 0.5, type: 'spring', stiffness: 170, damping: 14 }}
-                style={{ transformOrigin: '100% 100%', transformBox: 'fill-box' }}
+              {/* left leaf */}
+              <g
+                className={styles.grow}
+                style={{ transform: `scale(${window01(percent, 34, 52)})`, transformOrigin: '58px 72px', transformBox: 'view-box' }}
               >
-                <path
-                  d="M58 70 C 46 62, 34 58, 26 60 C 30 50, 46 44, 58 50 Z"
-                  fill="#849b63"
-                />
-                <path
-                  d="M58 70 C 46 62, 34 58, 26 60"
-                  fill="none"
-                  stroke="#a6b48f"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </motion.g>
+                <path d="M58 72 C 46 64, 34 60, 26 62 C 30 52, 46 46, 58 52 Z" fill="#849b63" />
+                <path d="M58 72 C 46 64, 34 60, 26 62" fill="none" stroke="#a6b48f" strokeWidth="2" strokeLinecap="round" />
+              </g>
 
-              {/* right leaf unfolds */}
-              <motion.g
-                initial={{ rotate: 120, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ delay: 1.2, duration: 0.5, type: 'spring', stiffness: 170, damping: 14 }}
-                style={{ transformOrigin: '0% 100%', transformBox: 'fill-box' }}
+              {/* right leaf */}
+              <g
+                className={styles.grow}
+                style={{ transform: `scale(${window01(percent, 42, 60)})`, transformOrigin: '62px 66px', transformBox: 'view-box' }}
               >
-                <path
-                  d="M62 64 C 76 56, 88 52, 94 56 C 90 66, 76 74, 62 68 Z"
-                  fill="#849b63"
-                />
-                <path
-                  d="M62 64 C 76 56, 88 52, 94 56"
-                  fill="none"
-                  stroke="#a6b48f"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </motion.g>
+                <path d="M62 66 C 76 58, 88 54, 94 58 C 90 68, 76 76, 62 70 Z" fill="#849b63" />
+                <path d="M62 66 C 76 58, 88 54, 94 58" fill="none" stroke="#a6b48f" strokeWidth="2" strokeLinecap="round" />
+              </g>
 
-              {/* crown leaf blooms */}
-              <motion.g
-                initial={{ rotate: -30, scale: 0, opacity: 0 }}
-                animate={{ rotate: 0, scale: 1, opacity: 1 }}
-                transition={{ delay: 1.45, duration: 0.5, type: 'spring', stiffness: 150, damping: 13 }}
-                style={{ transformOrigin: '50% 100%', transformBox: 'fill-box' }}
+              {/* crown leaves */}
+              <g
+                className={styles.grow}
+                style={{ transform: `scale(${window01(percent, 50, 68)})`, transformOrigin: '60px 54px', transformBox: 'view-box' }}
               >
-                <path
-                  d="M60 58 C 54 46, 52 36, 54 30 C 62 34, 66 44, 60 58 Z"
-                  fill="#6d8252"
-                />
-              </motion.g>
+                <path d="M60 54 C 53 42, 51 32, 53 26 C 62 30, 67 41, 60 54 Z" fill="#6d8252" />
+                <path d="M60 54 C 66 45, 72 40, 80 40 C 78 48, 70 54, 60 54 Z" fill="#7d9460" />
+              </g>
+
+              {/* fruit ripens at the end */}
+              <g
+                className={styles.grow}
+                style={{ transform: `scale(${window01(percent, 82, 100)})`, transformOrigin: '38px 82px', transformBox: 'view-box' }}
+              >
+                <circle cx="38" cy="84" r="7" fill="#d9774a" />
+                <path d="M34 78 C 36 76, 40 76, 42 78 C 40 80, 36 80, 34 78 Z" fill="#6d8252" />
+                <circle cx="35.5" cy="82" r="1.6" fill="rgba(255,255,255,0.35)" />
+              </g>
             </svg>
           </motion.div>
         </motion.div>
 
-        {/* title — letters stagger in */}
-        <h1 className={styles.title} aria-label="Green Earth">
-          {'Green Earth'.split('').map((ch, i) => (
+        {/*
+          Brand wordmark. Intentionally a <p>, not an <h1>: the splash overlays a
+          fully-rendered page, and a second H1 here would compete with the real
+          page heading underneath it.
+        */}
+        <p className={styles.title} aria-label="Vegan Life">
+          {'Vegan Life'.split('').map((ch, i) => (
             <motion.span
               key={i}
               className={styles.letter}
@@ -358,7 +388,7 @@ export default function SplashScreen({ onFinish }) {
           >
             <FaLeaf />
           </motion.span>
-        </h1>
+        </p>
 
         {/* cycling tagline */}
         <div className={styles.taglineWrap}>
@@ -378,7 +408,7 @@ export default function SplashScreen({ onFinish }) {
 
         {/* status row */}
         <div className={styles.status}>
-          <span className={styles.word}>{done ? 'Ready to grow' : LOADING_WORDS[wordIdx]}</span>
+          <span className={styles.word}>{done ? 'Ready to harvest' : STAGES.find((st) => percent < st.upTo)?.text ?? LOADING_WORDS[wordIdx]}</span>
           <span className={styles.dots} aria-hidden>
             <span className={styles.dot} />
             <span className={styles.dot} />
@@ -387,7 +417,41 @@ export default function SplashScreen({ onFinish }) {
           <span className={styles.percent}>{Math.round(percent)}%</span>
         </div>
 
+        {/* harvest basket: produce is "picked" as the plant grows */}
+        <ul className={styles.harvest} aria-hidden>
+          {HARVEST.map(({ Icon, label, at, color }) => {
+            const picked = percent >= at;
+            return (
+              <li
+                key={label}
+                className={`${styles.harvestItem} ${picked ? styles.harvestPicked : ''}`}
+                style={picked ? { color, borderColor: color } : undefined}
+                title={label}
+              >
+                <Icon />
+              </li>
+            );
+          })}
+        </ul>
+
         {!done && <p className={styles.hint}>tap · click to grow faster</p>}
+
+        {/*
+          An explicit way out. Previously the only option was to wait ~3s with no
+          indication that waiting was required. autoFocus puts the keyboard
+          straight on it, since it's the one control here.
+        */}
+        <button
+          type="button"
+          className={styles.skipBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            onFinishRef.current();
+          }}
+          autoFocus
+        >
+          Skip intro
+        </button>
       </motion.div>
 
       {/* click bursts */}
@@ -396,7 +460,7 @@ export default function SplashScreen({ onFinish }) {
       ))}
 
       {/* pointer trail */}
-      <div className={styles.trail} aria-hidden>
+      <div className={styles.trail} aria-hidden hidden={reduceMotion}>
         {Array.from({ length: 6 }).map((_, i) => (
           <TrailLeaf key={i} mx={mx} my={my} i={i} />
         ))}

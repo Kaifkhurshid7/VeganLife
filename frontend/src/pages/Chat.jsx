@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSend, FiUsers, FiPlus, FiX, FiMenu, FiMessageSquare } from 'react-icons/fi';
-import { Navbar } from '../components/layout';
+import { Seo } from '../components/seo';
+import { ROUTES } from '../constants/routes';
 import { useAuth } from '../context/AuthContext';
 import { useChat } from '../context/ChatContext';
 import { useToast } from '../components/ui/Toast';
@@ -249,13 +250,18 @@ export default function Chat() {
   if (!isAuthenticated) {
     return (
       <>
-        <Navbar />
+        <Seo
+          title="Community Chat"
+          description="Real-time room-based chat for Vegan Life members."
+          path={ROUTES.chat}
+          noindex
+        />
         <section className={styles.section}>
           <div className={styles.loginPrompt}>
-            <FiMessageSquare className={styles.loginIcon} />
-            <h2>Join the conversation</h2>
+            <FiMessageSquare className={styles.loginIcon} aria-hidden="true" />
+            <h1>Join the conversation</h1>
             <p>Log in to chat with the community.</p>
-            <Link to="/auth" className="btn btn-primary">Login / Sign Up</Link>
+            <Link to={ROUTES.auth} className="btn btn-primary">Login / Sign Up</Link>
           </div>
         </section>
       </>
@@ -264,7 +270,13 @@ export default function Chat() {
 
   return (
     <>
-      <Navbar />
+      {/* Chat is a private, per-member surface — nothing here belongs in search. */}
+      <Seo
+        title="Community Chat"
+        description="Real-time room-based chat for Vegan Life members."
+        path={ROUTES.chat}
+        noindex
+      />
       <section className={styles.section}>
         <div className={styles.chatLayout}>
           {/* Room sidebar */}

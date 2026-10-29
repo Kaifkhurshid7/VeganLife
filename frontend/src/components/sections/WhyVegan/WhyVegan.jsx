@@ -1,7 +1,8 @@
+import { Fragment } from 'react';
 import { motion } from 'framer-motion';
-import { FaEarthAmericas, FaHeartPulse, FaHandHoldingHeart, FaSeedling } from 'react-icons/fa6';
-import { FiCheckCircle } from 'react-icons/fi';
-import { SectionHeader, WaveDivider, ReferenceList } from '../../ui';
+import { FaEarthAmericas, FaHeartPulse, FaHandHoldingHeart, FaSeedling, FaLeaf, FaCloudSun } from 'react-icons/fa6';
+import { FiCheck, FiExternalLink } from 'react-icons/fi';
+import { SectionHeader, WaveDivider } from '../../ui';
 import { DeerSilhouettes, Fireflies } from '../../ambient';
 import styles from './WhyVegan.module.css';
 import { awarenessCards } from '../../../data/awarenessCards';
@@ -10,21 +11,25 @@ const ICON_MAP = {
   Globe: <FaEarthAmericas />,
   HeartPulse: <FaHeartPulse />,
   HandHeart: <FaHandHoldingHeart />,
-  Leaf: <FaSeedling />,
-  CloudSun: <FaSeedling />,
+  Leaf: <FaLeaf />,
+  CloudSun: <FaCloudSun />,
   Sprout: <FaSeedling />,
 };
 
-export default function WhyVegan() {
-  const handleMouseMove = (e) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
-    card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
-  };
+const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+/** Wraps each phrase in `marks` with a highlighter-style <mark>. */
+function Highlighted({ text, marks = [] }) {
+  if (!marks.length) return text;
+  const pattern = new RegExp(`(${marks.map(escapeRegExp).join('|')})`, 'g');
+  return text.split(pattern).map((part, i) =>
+    marks.includes(part) ? <mark key={i} className={styles.mark}>{part}</mark> : <Fragment key={i}>{part}</Fragment>
+  );
+}
+
+export default function WhyVegan() {
   return (
-    <section id="why-vegan" style={{ backgroundColor: 'var(--color-bg)' }}>
+    <section id="why-vegan" className={styles.section}>
       <WaveDivider variant="default" />
       <DeerSilhouettes />
       <Fireflies count={8} />
@@ -35,55 +40,81 @@ export default function WhyVegan() {
         description="A single food choice can act as a catalyst, improving your personal well-being while initiating global ecological recovery."
       />
 
-      <div className={styles.grid}>
+      <div className={styles.paper}>
+        <div className={styles.masthead} aria-hidden="true">
+          <span>Six reasons</span>
+          <span className={styles.mastheadMid}>Every one sourced</span>
+          <span>Read · Check · Decide</span>
+        </div>
+
         {awarenessCards.map((card, idx) => (
-          <motion.div
+          <motion.article
             key={card.title}
-            className={`glass-card glow-card ${styles.card}`}
-            onMouseMove={handleMouseMove}
-            variants={{
-              hidden: { opacity: 0, y: 40 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.8, delay: idx * 0.1 } },
-            }}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: '-100px' }}
-            whileHover={{ y: -12, scale: 1.02, transition: { type: 'spring', stiffness: 300, damping: 20 } }}
+            className={`${styles.article} ${idx % 2 ? styles.reverse : ''}`}
+            style={{ '--accent': card.color }}
+            initial={{ opacity: 0, y: 36 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7 }}
           >
-            {card.image && (
-              <div className={styles.imageBox}>
-                <img src={card.image} alt={card.title} className={styles.cardImage} loading="lazy" />
-              </div>
-            )}
-            <div className={styles.cardBody}>
-              <div
-                className={`${styles.iconBox} animate-bob`}
-                style={{ color: card.color, animationDelay: `${idx * -0.8}s` }}
-              >
-                {ICON_MAP[card.icon] || <FaSeedling />}
-              </div>
-              <h3 className={styles.cardTitle}>{card.title}</h3>
-              <p className={styles.cardDesc}>{card.description}</p>
+            {/* ————— photo ————— */}
+            <figure className={styles.figure}>
+              {card.image && <img src={card.image} alt="" className={styles.image} loading="lazy" />}
+              <figcaption className={styles.caption}>
+                <span className={styles.captionIcon} aria-hidden="true">{ICON_MAP[card.icon] || <FaSeedling />}</span>
+                {card.title}
+              </figcaption>
+            </figure>
 
-              {card.highlights && card.highlights.length > 0 && (
-                <ul className={styles.highlights}>
-                  {card.highlights.map((h) => (
-                    <li key={h} className={styles.highlightItem}>
-                      <FiCheckCircle className={styles.highlightIcon} style={{ color: card.color }} />
-                      {h}
-                    </li>
+            {/* ————— story ————— */}
+            <div className={styles.story}>
+              <p className={styles.kicker}>
+                <span className={styles.no}>No. {String(idx + 1).padStart(2, '0')}</span>
+                {card.title}
+              </p>
+              <h3 className={styles.headline}>{card.headline || card.title}</h3>
+
+              <p className={styles.lede}>
+                <Highlighted text={card.description} marks={card.marks} />
+              </p>
+
+              <div className={styles.facts}>
+                {card.stat && (
+                  <div className={styles.stat}>
+                    <span className={styles.figureNum}>{card.stat.figure}</span>
+                    <span className={styles.figureLabel}>{card.stat.label}</span>
+                  </div>
+                )}
+                {card.highlights?.length > 0 && (
+                  <div className={styles.takeaways}>
+                    <p className={styles.takeawaysTitle}>Key takeaways</p>
+                    <ul>
+                      {card.highlights.map((h) => (
+                        <li key={h}>
+                          <FiCheck aria-hidden="true" /> {h}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <blockquote className={styles.quote}>{card.quote}</blockquote>
+
+              {card.references?.length > 0 && (
+                <p className={styles.sources}>
+                  <span className={styles.sourcesLabel}>Sources</span>
+                  {card.references.map((ref, i) => (
+                    <a key={ref.link} href={ref.link} target="_blank" rel="noopener noreferrer">
+                      <sup>{i + 1}</sup> {ref.org}: {ref.title}
+                      <FiExternalLink aria-hidden="true" />
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </a>
                   ))}
-                </ul>
+                </p>
               )}
-
-              <div className={styles.cardExtras}>
-                <small className={styles.stat}>{card.statistic}</small>
-                <blockquote className={styles.quote}>{card.quote}</blockquote>
-              </div>
-
-              <ReferenceList refs={card.references} />
             </div>
-          </motion.div>
+          </motion.article>
         ))}
       </div>
     </section>
