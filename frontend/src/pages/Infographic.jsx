@@ -2,10 +2,9 @@ import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { FaDroplet, FaTree, FaCloud, FaSeedling, FaHeart, FaEarthAmericas } from 'react-icons/fa6';
-import BackButton from '../components/ui/BackButton';
-import { PageHeader, ReferenceList, Callout } from '../components/ui';
-import { Seo } from '../components/seo';
+import { ReferenceList, Callout } from '../components/ui';
 import { ROUTES } from '../constants/routes';
+import ToolFrame from '../components/ui/ToolFrame';
 import styles from './Infographic.module.css';
 
 const STORY_SECTIONS = [
@@ -106,27 +105,10 @@ export default function Infographic() {
   const lineScale = useTransform(scrollYProgress, [0.05, 0.95], [0, 1]);
 
   return (
-    <section className={styles.section} ref={containerRef}>
-      <Seo
-        title="The Story of Our Food: Climate, Water, Land and Health"
-        description="A scroll-driven infographic on how food choices affect emissions, water, deforestation and health, with a source for every statistic."
-        path={ROUTES.infographic}
-      />
-      <BackButton />
+    <ToolFrame tool="infographic" seoTitle="The Story of Our Food: Climate, Water, Land and Health" description="A scroll-driven infographic on how food choices affect emissions, water, deforestation and health, with a source for every statistic." eyebrow="Scroll to discover" title="The story of our food" lead="A scroll-driven look at what the research says about how food choices affect climate, water, land and health." frameRef={containerRef}>
       {/* Scroll progress bar */}
       <motion.div className={styles.progressBar} style={{ width: progressWidth }} />
-
       <div className={styles.container}>
-        <PageHeader
-          align="center"
-          eyebrow="Scroll to discover"
-          title="The story of our food"
-          lead="A scroll-driven look at what the research says about how food choices affect climate, water, land and health."
-          trail={[
-            { name: 'Home', path: ROUTES.home },
-            { name: 'Story of our food', path: ROUTES.infographic },
-          ]}
-        />
 
         <div className={styles.timeline}>
           <motion.div className={styles.timelineLine} style={{ scaleY: lineScale, originY: 0 }} />
@@ -155,6 +137,6 @@ export default function Infographic() {
           <Link to={ROUTES.home} className="btn btn-primary">Back to home</Link>
         </motion.div>
       </div>
-    </section>
+    </ToolFrame>
   );
 }

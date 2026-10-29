@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiShoppingCart, FiSunrise, FiSun, FiMoon, FiCoffee } from 'react-icons/fi';
-import BackButton from '../components/ui/BackButton';
-import { SectionHeader, ReferenceList } from '../components/ui';
+import { ReferenceList } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import { weeklyMealPlans } from '../data/nutrition';
 import { buildGroceryList, findRecipeForMeal } from '../utils/groceryList';
 import styles from './Planner.module.css';
@@ -21,14 +21,15 @@ export default function Planner() {
   const list = buildGroceryList(plan);
 
   return (
-    <section className={styles.section}>
-      <BackButton />
+    <ToolFrame
+      tool="planner"
+      seoTitle="Weekly Vegan Meal Planner with Grocery List"
+      description="Pick a student-friendly weekly vegan meal plan, browse the week and get an automatic grocery list."
+      eyebrow="Weekly meal planner"
+      title="Plan a week of delicious vegan meals"
+      lead="Pick a plan, browse the week, and grab an auto-generated grocery list. Every meal is student-friendly and budget-conscious."
+    >
       <div className={styles.container}>
-        <SectionHeader
-          label="Weekly Meal Planner"
-          title="Plan a week of delicious vegan meals"
-          description="Pick a plan, browse the week, and grab an auto-generated grocery list. Every meal is student-friendly and budget-conscious."
-        />
 
         {/* Plan toggle */}
         <div className={styles.toggle} role="tablist" aria-label="Choose a meal plan">
@@ -137,6 +138,6 @@ export default function Planner() {
           </motion.div>
         </AnimatePresence>
       </div>
-    </section>
+    </ToolFrame>
   );
 }
