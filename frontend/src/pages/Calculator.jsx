@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaCalculator, FaLeaf, FaFire, FaWeight } from 'react-icons/fa';
-import BackButton from '../components/ui/BackButton';
-import { PageHeader, ReferenceList, Callout } from '../components/ui';
-import { Seo } from '../components/seo';
-import { ROUTES } from '../constants/routes';
+import { ReferenceList, Callout } from '../components/ui';
+import ToolFrame from '../components/ui/ToolFrame';
 import styles from './Calculator.module.css';
 
 const REFS = [
@@ -87,24 +85,8 @@ export default function Calculator() {
   };
 
   return (
-    <section className={styles.section}>
-      <Seo
-        title="BMI and Calorie Calculator for Vegans"
-        description="Estimate BMI, daily calories and a protein target using the Mifflin–St Jeor equation, with plant-based meal ideas and sources."
-        path={ROUTES.calculator}
-      />
-      <BackButton />
+    <ToolFrame tool="calculator" seoTitle="BMI and Calorie Calculator for Vegans" description="Estimate BMI, daily calories and a protein target using the Mifflin–St Jeor equation, with plant-based meal ideas and sources." eyebrow="Vegan wellness" title="BMI and calorie calculator" lead="Estimate your daily energy needs and a protein target, with vegan meal ideas to match. This is a starting point, not a prescription.">
       <div className={styles.container}>
-        <PageHeader
-          align="center"
-          eyebrow="Vegan wellness"
-          title="BMI and calorie calculator"
-          lead="Estimate your daily energy needs and a protein target, with vegan meal ideas to match. This is a starting point, not a prescription."
-          trail={[
-            { name: 'Home', path: ROUTES.home },
-            { name: 'Calculator', path: ROUTES.calculator },
-          ]}
-        />
 
         <div className={styles.grid}>
           <motion.form
@@ -256,6 +238,6 @@ export default function Calculator() {
 
         <ReferenceList panel title="Sources & further reading" refs={REFS} />
       </div>
-    </section>
+    </ToolFrame>
   );
 }
