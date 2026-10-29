@@ -30,6 +30,8 @@ const slap = (rot, delay) => ({
   transition: { type: 'spring', stiffness: 240, damping: 14, delay },
 });
 
+const SLOGANS = ['Eat plants', 'No planet B', 'Grow kind', 'Share food', 'One meal at a time', 'Feel alive'];
+
 const TICKER = ['Plants', 'Compassion', 'Planet', 'Community', 'Seasonal food', 'Everyday action'];
 
 const rise = (delay = 0) => ({
@@ -215,16 +217,30 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* ribbon ticker riding on the wave */}
-      <div className={styles.ribbon} aria-hidden="true">
-        <div className={styles.track}>
-          {[0, 1].map((dup) => (
-            <ul key={dup}>
-              {TICKER.map((t) => (
-                <li key={t}>{t}<FaLeaf /></li>
-              ))}
-            </ul>
-          ))}
+      {/* two crossing ribbons riding on the wave: slogans behind, words in front */}
+      <div className={styles.ribbons} aria-hidden="true">
+        <div className={styles.ribbonBack}>
+          <div className={`${styles.track} ${styles.trackRev}`}>
+            {[0, 1].map((dup) => (
+              <ul key={dup}>
+                {SLOGANS.map((t) => (
+                  <li key={t}>{t}<i>✦</i></li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.ribbon}>
+          <div className={styles.track}>
+            {[0, 1].map((dup) => (
+              <ul key={dup}>
+                {TICKER.map((t) => (
+                  <li key={t}>{t}<FaLeaf /></li>
+                ))}
+              </ul>
+            ))}
+          </div>
         </div>
       </div>
 

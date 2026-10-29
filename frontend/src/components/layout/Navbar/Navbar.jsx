@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FiMenu, FiX, FiChevronDown, FiUser, FiLogOut, FiSettings } from 'react-icons/fi';
 import { FaLeaf } from 'react-icons/fa6';
 import { useScrollPosition } from '../../../hooks';
-import { PRIMARY_NAV } from '../../../constants/navigation';
+import { PRIMARY_NAV, LEGAL_NAV } from '../../../constants/navigation';
 import { ROUTES } from '../../../constants/routes';
 import { SITE } from '../../../constants/site';
 import { useAuth } from '../../../context/AuthContext';
@@ -267,6 +267,7 @@ export default function Navbar() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               onClick={(e) => e.stopPropagation()}
             >
+              <div className={styles.drawerScroll}>
               <div className={styles.drawerHeader}>
                 <Link to={ROUTES.home} className={styles.brand} onClick={closeDrawer}>
                   <FaLeaf className={styles.brandIcon} aria-hidden="true" />
@@ -361,6 +362,20 @@ export default function Navbar() {
                   </button>
                 </div>
               )}
+
+              <div className={styles.drawerFoot}>
+                <p className={styles.drawerSlogan}>
+                  <span>Eat plants.</span> <span>Feel alive.</span>
+                </p>
+                <ul className={styles.drawerLegal}>
+                  {LEGAL_NAV.map((l) => (
+                    <li key={l.href}>
+                      <Link to={l.href} onClick={closeDrawer}>{l.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -4,7 +4,7 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  padding: 120px var(--section-padding, 8%) 170px;
+  padding: 120px var(--section-padding, 8%) 200px;
   /* lighter at the top so dark text reads cleanly; lilac pools at the bottom */
   background:
     radial-gradient(60% 50% at 82% 20%, rgba(227, 163, 110, 0.35), transparent 70%),
@@ -504,25 +504,88 @@
   font-style: italic;
 }
 
-/* ————— ribbon ticker ————— */
-.ribbon {
+/* ————— crossing ribbons ————— */
+.ribbons {
   position: absolute;
-  left: -2%;
-  right: -2%;
-  bottom: 62px;
+  left: -3%;
+  right: -3%;
+  bottom: 52px;
   z-index: 7;
+  height: 112px;
+  pointer-events: none;
+}
+
+.ribbon,
+.ribbonBack {
+  position: absolute;
+  left: 0;
+  right: 0;
   overflow: hidden;
-  padding: 11px 0;
+}
+
+/* front: dark tape with stitched edges, serif words */
+.ribbon {
+  bottom: 0;
+  padding: 13px 0;
   background: var(--color-earth);
   color: var(--color-cream);
-  transform: rotate(-1.2deg);
-  box-shadow: 0 10px 24px rgba(87, 61, 33, 0.3);
+  transform: rotate(-1.6deg);
+  box-shadow: 0 10px 22px rgba(58, 39, 19, 0.35);
+}
+
+.ribbon::before,
+.ribbon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 2px dashed rgba(246, 234, 214, 0.35);
+}
+
+.ribbon::before {
+  top: 4px;
+}
+
+.ribbon::after {
+  bottom: 4px;
+}
+
+/* back: sage caution-tape strip crossing behind, bold caps */
+.ribbonBack {
+  bottom: 40px;
+  padding: 9px 0;
+  color: #2b3a1c;
+  background:
+    repeating-linear-gradient(135deg, rgba(43, 58, 28, 0.14) 0 14px, transparent 14px 28px),
+    #a9ba8e;
+  transform: rotate(1.4deg);
+  box-shadow: 0 8px 16px rgba(58, 39, 19, 0.25);
+}
+
+.ribbonBack li {
+  gap: 22px;
+  padding-right: 22px;
+  font-family: var(--font-body);
+  font-size: 0.92rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.ribbonBack li i {
+  font-style: normal;
+  color: #a2402d;
 }
 
 .track {
   display: flex;
   width: max-content;
   animation: heroMarquee 34s linear infinite;
+}
+
+.trackRev {
+  animation: heroMarqueeRev 40s linear infinite;
 }
 
 .track ul {
@@ -585,6 +648,11 @@
   to { transform: translateX(-50%); }
 }
 
+@keyframes heroMarqueeRev {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
 @keyframes pulseDot {
   0%, 100% { box-shadow: 0 0 0 4px rgba(109, 132, 80, 0.25); }
   50% { box-shadow: 0 0 0 8px rgba(109, 132, 80, 0.08); }
@@ -594,7 +662,7 @@
 @media (max-width: 960px) {
   .hero {
     padding-top: 110px;
-    padding-bottom: 150px;
+    padding-bottom: 180px;
   }
   .grid {
     grid-template-columns: 1fr;
@@ -669,6 +737,9 @@
   }
   .track li {
     font-size: 1rem;
+  }
+  .ribbonBack li {
+    font-size: 0.78rem;
   }
 }
 
