@@ -1,0 +1,502 @@
+/* ═════════ brick wall ═════════ */
+.wall {
+  --brick: #d6b899;
+  position: relative;
+  padding: 90px var(--section-padding, 8%) 120px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    /* mortar joints: a brick pattern, staggered every other course */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='44'%3E%3Cpath d='M0 .5H84M0 22.5H84M.5 0V22M42.5 22V44' stroke='rgba(87,61,33,0.16)' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"),
+    /* light falling from the top */
+    radial-gradient(90% 70% at 50% 0%, rgba(255, 244, 226, 0.45), transparent 70%),
+    linear-gradient(180deg, #d9bd9f 0%, #c9a584 100%);
+  background-color: var(--brick);
+}
+
+/* grime and plaster patches */
+.wall::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.55;
+  background:
+    radial-gradient(40% 30% at 12% 70%, rgba(87, 61, 33, 0.12), transparent 70%),
+    radial-gradient(35% 30% at 88% 30%, rgba(87, 61, 33, 0.1), transparent 70%),
+    radial-gradient(30% 25% at 55% 95%, rgba(87, 61, 33, 0.14), transparent 70%);
+}
+
+/* sprayed stencil lettering */
+.spray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  transform: translate(-50%, -50%) rotate(-4deg);
+  font-family: var(--font-heading);
+  font-size: clamp(7rem, 22vw, 20rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: rgba(255, 247, 232, 0.2);
+  filter: blur(1.5px);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ═════════ board of posters ═════════ */
+.board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-auto-rows: minmax(150px, auto);
+  gap: 26px 24px;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.cell {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  transform: rotate(var(--rot, 0deg));
+  transition: z-index 0s;
+}
+
+/* layout on the wall */
+.p1 { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+.p2 { grid-column: 3 / span 2; grid-row: 1; margin-top: 12px; }
+.p3 { grid-column: 5 / span 2; grid-row: 1 / span 2; margin-top: -10px; }
+.p4 { grid-column: 3 / span 2; grid-row: 2; }
+.p5 { grid-column: 1 / span 2; grid-row: 3; margin-top: 6px; }
+.p6 { grid-column: 3 / span 2; grid-row: 3; margin-top: -8px; }
+.p7 { grid-column: 5 / span 2; grid-row: 3; margin-top: 8px; }
+.p8 { grid-column: 1 / -1; grid-row: 4; padding: 0 4%; }
+
+/* the sheet itself: drop-shadow (clip-path would swallow a box-shadow) */
+.sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 30px 26px 34px;
+  color: var(--color-earth);
+  background: #fbf3e4;
+  filter: drop-shadow(0 10px 14px rgba(58, 39, 19, 0.35)) drop-shadow(0 2px 2px rgba(58, 39, 19, 0.25));
+  transition: transform 0.35s var(--ease-elastic), filter 0.35s;
+  /* torn bottom edge */
+  clip-path: polygon(
+    0 0, 100% 0, 100% 95%, 97% 99%, 93% 95.5%, 88% 100%, 82% 96%, 76% 99.5%, 70% 95.5%,
+    63% 100%, 57% 96%, 50% 99%, 43% 95%, 36% 100%, 29% 96%, 22% 99.5%, 15% 95.5%, 8% 99%, 3% 96%, 0 99%
+  );
+}
+
+/* paper grain */
+.sheet::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .34 0 0 0 0 .24 0 0 0 0 .13 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.cell:hover {
+  z-index: 5;
+}
+
+.cell:hover .sheet {
+  transform: rotate(calc(var(--rot, 0deg) * -1)) scale(1.04) translateY(-6px);
+  filter: drop-shadow(0 18px 22px rgba(58, 39, 19, 0.42)) drop-shadow(0 2px 2px rgba(58, 39, 19, 0.25));
+}
+
+/* masking tape */
+.tape {
+  position: absolute;
+  z-index: 3;
+  width: 96px;
+  height: 28px;
+  background: rgba(240, 222, 170, 0.8);
+  box-shadow: 0 1px 3px rgba(58, 39, 19, 0.25);
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 100% 0, 96% 50%, 100% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%, 3% 50%);
+}
+
+.tape_top {
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-3deg);
+}
+
+.tape_corner {
+  top: -6px;
+  left: -26px;
+  transform: rotate(-38deg);
+}
+
+.tape_both {
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(2deg);
+  width: 120px;
+}
+
+/* ═════════ poster 1 ═════════ */
+.notice {
+  margin: 0 0 6px;
+  padding: 3px 10px;
+  align-self: flex-start;
+  background: var(--color-earth);
+  color: var(--color-cream);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.bigLine {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(2.4rem, 4.6vw, 4rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--color-earth);
+}
+
+.bigLineAlt {
+  color: #4d6136;
+  font-style: italic;
+}
+
+.bigLeaf {
+  margin-top: 18px;
+  font-size: 2rem;
+  color: #6d8450;
+}
+
+.sticker {
+  position: absolute;
+  right: -14px;
+  bottom: 10px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 92px;
+  height: 92px;
+  border: 3px dashed rgba(255, 247, 232, 0.8);
+  border-radius: 50%;
+  background: var(--color-orange);
+  color: #3a2713;
+  text-align: center;
+  line-height: 1.05;
+  transform: rotate(14deg);
+  box-shadow: 0 4px 10px rgba(58, 39, 19, 0.3);
+}
+
+.sticker span {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sticker strong {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-style: italic;
+}
+
+/* ═════════ poster 2 (stencil) ═════════ */
+.p2 .sheet {
+  align-items: center;
+  text-align: center;
+  background: #a9ba8e;
+}
+
+.globe {
+  margin-bottom: 8px;
+  font-size: 1.8rem;
+  color: #2f4420;
+}
+
+.stencil {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.4vw, 2rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #2b3a1c;
+}
+
+/* ═════════ newsprint fact posters ═════════ */
+.p3 .sheet,
+.p5 .sheet {
+  background: #ece4d2;
+}
+
+.newsKicker {
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 3px double var(--color-earth);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.newsNum {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(3.4rem, 6vw, 5.4rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #a2402d;
+  /* a highlighter swipe behind the number */
+  background: linear-gradient(transparent 62%, rgba(227, 163, 110, 0.55) 62%);
+  align-self: flex-start;
+  padding: 0 6px;
+}
+
+.newsText {
+  margin: 10px 0 8px;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  line-height: 1.35;
+  color: var(--color-earth);
+}
+
+.newsSource {
+  margin: 0 0 12px;
+  font-size: 0.72rem;
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+.newsLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-earth);
+  text-decoration: none;
+  border-bottom: 2px solid var(--color-earth);
+}
+
+/* ═════════ poster 4 (script) ═════════ */
+.p4 .sheet {
+  align-items: center;
+  text-align: center;
+  background: #f0b27a;
+}
+
+.script {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.5vw, 2.1rem);
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #3a2713;
+}
+
+/* ═════════ poster 6 (call to action) ═════════ */
+.p6 .sheet {
+  background: #b9a3c9;
+}
+
+.callKicker {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #3a2450;
+}
+
+.callLine {
+  margin: 0 0 14px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.3rem, 2.2vw, 1.8rem);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #2b1840;
+}
+
+.callBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 9px 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-earth);
+  color: var(--color-cream);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background 0.25s, transform 0.25s;
+}
+
+.callBtn:hover {
+  background: #2b1c0d;
+  transform: translateX(3px);
+}
+
+/* ═════════ poster 7 (tally) ═════════ */
+.p7 .sheet {
+  align-items: center;
+  text-align: center;
+  background: #4a3219;
+  color: #f6ead6;
+}
+
+.tallyTitle {
+  margin: 0 0 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #efdcb8;
+}
+
+.tally {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #fff7e8;
+}
+
+.tally span {
+  position: relative;
+}
+
+/* the diagonal strike that closes a group of five */
+.tally i {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 50%;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--color-orange);
+  transform: rotate(-24deg);
+}
+
+/* ═════════ poster 8 (strip) ═════════ */
+.p8 .sheet {
+  padding: 14px 24px 18px;
+  background: var(--color-earth);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.strip {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: #fff7e8;
+}
+
+.strip i {
+  margin: 0 0.8em;
+  font-style: normal;
+  color: var(--color-orange);
+}
+
+/* ═════════ torn edge into the next section ═════════ */
+.edge {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 60px;
+  fill: var(--color-bg);
+}
+
+/* ═════════ idle flutter ═════════ */
+@keyframes flutter {
+  0%, 100% { rotate: 0deg; }
+  50% { rotate: 1.1deg; }
+}
+
+.p2 .sheet,
+.p4 .sheet {
+  transform-origin: 50% 0;
+  animation: flutter 5.5s ease-in-out infinite;
+}
+
+.p4 .sheet {
+  animation-delay: -2.3s;
+}
+
+/* ═════════ responsive ═════════ */
+@media (max-width: 900px) {
+  .wall {
+    padding: 70px 5% 100px;
+  }
+
+  .board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: auto;
+  }
+
+  .p1, .p2, .p3, .p4, .p5, .p6, .p7 {
+    grid-column: auto;
+    grid-row: auto;
+    margin-top: 0;
+  }
+
+  .p1, .p8 {
+    grid-column: 1 / -1;
+  }
+
+  .p3 {
+    grid-row: span 1;
+  }
+
+  .p8 {
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 540px) {
+  .board {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .p2 .sheet,
+  .p4 .sheet {
+    animation: none;
+  }
+  .sheet,
+  .callBtn {
+    transition: none;
+  }
+  .cell:hover .sheet {
+    transform: none;
+  }
+}

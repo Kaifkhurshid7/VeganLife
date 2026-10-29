@@ -1,128 +1,244 @@
-import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { FaArrowDown } from 'react-icons/fa6';
+import { Link } from 'react-router-dom';
+import { FaLeaf, FaSeedling, FaArrowRight, FaBookOpen, FaBowlFood, FaComments, FaEarthAmericas } from 'react-icons/fa6';
 import { useMousePosition } from '../../../hooks';
+import { ROUTES } from '../../../constants/routes';
+import { IMG } from '../../../constants/images';
 import { Butterflies, FloatingBirds, Fireflies } from '../../ambient';
+import { recipes } from '../../../data/recipes';
+import { blogs } from '../../../data/blogs';
+import PosterWall from './PosterWall';
 import styles from './Hero.module.css';
 
+const QUICK = [
+  { icon: <FaBookOpen />, label: 'Learn', to: ROUTES.getStarted },
+  { icon: <FaBowlFood />, label: 'Cook', to: ROUTES.recipes },
+  { icon: <FaComments />, label: 'Connect', to: ROUTES.community },
+];
+
+// Headline numbers come straight from the data so they can never drift from it.
+const STATS = [
+  { value: recipes.length, label: 'plant-based recipes' },
+  { value: blogs.length, label: 'sourced articles' },
+  { value: 7, label: 'free tools' },
+];
+
+/** Slap onto the wall: arrives big and tilted, then settles with a spring. */
+const slap = (rot, delay) => ({
+  initial: { opacity: 0, scale: 1.5, rotate: rot + 16, y: -40 },
+  animate: { opacity: 1, scale: 1, rotate: rot, y: 0 },
+  transition: { type: 'spring', stiffness: 240, damping: 14, delay },
+});
+
+const TICKER = ['Plants', 'Compassion', 'Planet', 'Community', 'Seasonal food', 'Everyday action'];
+
+const rise = (delay = 0) => ({
+  initial: { opacity: 0, y: 30 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.9, delay, ease: 'easeOut' },
+});
+
 export default function Hero() {
-  const containerRef = useRef(null);
   const mouse = useMousePosition(35);
 
   const { scrollY } = useScroll();
-  const textY = useTransform(scrollY, [0, 500], [0, 160]);
   const bgY = useTransform(scrollY, [0, 500], [0, 80]);
-  const leafY = useTransform(scrollY, [0, 500], [0, -100]);
+  const archY = useTransform(scrollY, [0, 500], [0, -50]);
+  const pillY = useTransform(scrollY, [0, 500], [0, -90]);
 
   return (
-    <section ref={containerRef} className={styles.hero} id="hero">
-      {/* Aurora gradient overlay */}
+    <>
+    <section className={styles.hero} id="hero">
       <div className={styles.aurora} aria-hidden="true" />
 
-      {/* Ambient nature animations */}
-      <Butterflies count={5} />
-      <FloatingBirds count={4} />
-      <Fireflies count={10} />
+      {/* ambient nature layer */}
+      <Butterflies count={4} />
+      <FloatingBirds count={3} />
+      <Fireflies count={8} />
 
-      <motion.div className={`${styles.orb} ${styles.orbOrange}`} style={{ y: bgY }} />
-      <motion.div className={`${styles.orb} ${styles.orbGreen}`} style={{ y: bgY }} />
+      <motion.div className={`${styles.orb} ${styles.orbOrange}`} style={{ y: bgY }} aria-hidden="true" />
+      <motion.div className={`${styles.orb} ${styles.orbLilac}`} style={{ y: bgY }} aria-hidden="true" />
 
-      <motion.svg
-        viewBox="0 0 100 100"
-        className={`${styles.leaf} ${styles.leafLeft} animate-float`}
-        style={{ y: leafY, x: mouse.x * -0.5 }}
-      >
-        <path d="M50,0 C65,30 90,40 100,60 C90,80 75,90 50,100 C25,90 10,80 0,60 C10,40 35,30 50,0 Z" />
-      </motion.svg>
+      <div className={styles.grid}>
+        {/* ————— message ————— */}
+        <div className={styles.content}>
+          <motion.span className={styles.tagline} {...slap(-1.6, 0.1)}>
+            <i aria-hidden="true" /> A return to earth
+          </motion.span>
 
-      <motion.svg
-        viewBox="0 0 100 100"
-        className={`${styles.leaf} ${styles.leafRight} animate-float-slow`}
-        style={{ y: leafY, x: mouse.x * 0.4 }}
-      >
-        <path d="M50,0 C65,35 90,45 100,65 C90,85 75,95 50,100 C25,95 10,85 0,65 C10,45 35,35 50,0 Z" />
-      </motion.svg>
+          <h1 className={styles.title} aria-label="It's Natural">
+            {['It’s', 'Natural'].map((word, i) => (
+              <motion.span
+                key={word}
+                className={`${styles.titleWord} ${i === 1 ? styles.accent : ''}`}
+                initial={{ opacity: 0, y: 70, rotateX: 90 }}
+                animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                transition={{ duration: 0.9, delay: 0.2 + i * 0.16, ease: 'easeOut' }}
+                aria-hidden="true"
+              >
+                {word}
+                {i === 1 && (
+                  <svg className={styles.swoosh} viewBox="0 0 300 18" preserveAspectRatio="none" aria-hidden="true">
+                    <defs>
+                      <linearGradient id="hero-swoosh" x1="0" x2="1">
+                        <stop offset="0" stopColor="#a6b48f" />
+                        <stop offset="0.55" stopColor="#e3a36e" />
+                        <stop offset="1" stopColor="#9d82ab" />
+                      </linearGradient>
+                    </defs>
+                    <motion.path
+                      d="M4 11 C60 2, 120 16, 180 8 S270 6, 296 10"
+                      fill="none"
+                      stroke="url(#hero-swoosh)"
+                      strokeWidth="7"
+                      strokeLinecap="round"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ duration: 1.1, delay: 1, ease: 'easeInOut' }}
+                    />
+                  </svg>
+                )}
+              </motion.span>
+            ))}
+          </h1>
 
-      {/* Drifting petals */}
-      <motion.svg
-        viewBox="0 0 24 24"
-        className={`${styles.petal} ${styles.petalOne}`}
-        animate={{ y: [0, -16, 0], rotate: [0, 24, -16, 0] }}
-        transition={{ repeat: Infinity, duration: 9, ease: 'easeInOut' }}
-      >
-        <circle cx="12" cy="12" r="7" fill="#e3a36e" opacity="0.5" />
-      </motion.svg>
-      <motion.svg
-        viewBox="0 0 24 24"
-        className={`${styles.petal} ${styles.petalTwo}`}
-        animate={{ y: [0, -20, 0], rotate: [0, -20, 18, 0] }}
-        transition={{ repeat: Infinity, duration: 11, ease: 'easeInOut' }}
-      >
-        <circle cx="12" cy="12" r="7" fill="#9d82ab" opacity="0.4" />
-      </motion.svg>
+          <motion.p className={styles.subtitle} {...rise(0.55)}>
+            Promoting sustainable living and conscious food choices for a healthier, more balanced planet.
+          </motion.p>
 
-      <motion.div
-        className={`${styles.butterfly} animate-butterfly`}
-        style={{ x: mouse.x * 0.8, y: mouse.y * 0.8 }}
-      >
-        <svg viewBox="0 0 64 64" fill="none">
-          <path d="M32 30C28 20 12 16 8 28C6 34 16 42 32 50C48 42 58 34 56 28C52 16 36 20 32 30Z" fill="#9d82ab" opacity="0.65" />
-          <path d="M32 30C30 24 20 22 18 28C17 31 22 35 32 40C42 35 47 31 46 28C44 22 34 24 32 30Z" fill="#e3a36e" opacity="0.5" />
-        </svg>
-      </motion.div>
+          <motion.div className={styles.actions} {...rise(0.7)}>
+            <a href="#why-vegan" className="btn btn-primary">
+              Explore <FaArrowRight aria-hidden="true" />
+            </a>
+            <a href="#impact" className={`btn btn-secondary ${styles.btnGhost}`}>Learn more</a>
+          </motion.div>
 
-      <motion.div
-        className={styles.content}
-        style={{ x: mouse.x * 0.3, y: mouse.y * 0.3 }}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-      >
-        <span className={styles.tagline}>A Return To Earth</span>
-        <motion.h1 className={styles.title} aria-label="It's Natural">
-          {['It’s', 'Natural'].map((word, i) => (
-            <motion.span
-              key={i}
-              className={styles.titleWord}
-              initial={{ opacity: 0, y: 70, rotateX: 90 }}
-              animate={{ opacity: 1, y: 0, rotateX: 0 }}
-              transition={{ duration: 0.9, delay: 0.25 + i * 0.16, ease: 'easeOut' }}
-            >
-              {word}
-            </motion.span>
-          ))}
-        </motion.h1>
-        <p className={styles.subtitle}>
-          Promoting sustainable living and conscious food choices for a healthier, more balanced planet.
-        </p>
-        <div className={styles.actions}>
-          <a href="#why-vegan" className="btn btn-primary">Explore</a>
-          <a href="#impact" className={`btn btn-secondary ${styles.btnLight}`}>Learn More</a>
+          <motion.nav className={styles.quick} aria-label="Start here" {...rise(0.85)}>
+            <span>Start here</span>
+            {QUICK.map((q) => (
+              <Link key={q.label} to={q.to}>
+                {q.icon} {q.label}
+              </Link>
+            ))}
+          </motion.nav>
+
+          <motion.dl className={styles.stats} {...rise(1)}>
+            {STATS.map((st) => (
+              <div key={st.label}>
+                <dt>{st.label}</dt>
+                <dd>{st.value}</dd>
+              </div>
+            ))}
+          </motion.dl>
         </div>
-      </motion.div>
 
-      <motion.div
-        className={styles.mountains}
-        animate={{ x: [0, -24, 0] }}
-        transition={{ repeat: Infinity, duration: 24, ease: 'easeInOut' }}
-      >
+        {/* ————— living collage ————— */}
+        <motion.div
+          className={styles.collage}
+          initial={{ opacity: 0, scale: 0.94 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
+        >
+          {/* brick wall behind the photos */}
+          <div className={styles.wallPanel} aria-hidden="true" />
+
+          <motion.figure
+            className={styles.arch}
+            style={{ y: archY, x: mouse.x * -0.4 }}
+          >
+            <img
+              src={IMG.bPlantProtein}
+              alt="A colourful plant-based bowl with avocado, chickpeas and sweet potato"
+              fetchpriority="high"
+            />
+          </motion.figure>
+
+          <motion.figure className={styles.circle} style={{ x: mouse.x * 0.5, y: mouse.y * 0.5 }}>
+            <img src={IMG.rChickpeaQuinoaBowl} alt="A chickpea and quinoa bowl" />
+          </motion.figure>
+
+          <motion.figure className={styles.pill} style={{ y: pillY, x: mouse.x * 0.3 }}>
+            <img src={IMG.gHostelMeals} alt="A vegetable and quinoa plate" loading="lazy" />
+          </motion.figure>
+
+          {/* ---------- pasted posters and stickers ---------- */}
+          <motion.div className={`${styles.pasted} ${styles.posterA}`} {...slap(-7, 1.0)}>
+            <span className={styles.tape} aria-hidden="true" />
+            <span className={styles.posterKicker}>Notice</span>
+            <strong>Eat plants.</strong>
+            <strong className={styles.alt}>Feel alive.</strong>
+          </motion.div>
+
+          <motion.div className={`${styles.pasted} ${styles.posterB}`} {...slap(5, 1.25)}>
+            <span className={`${styles.tape} ${styles.tapeCorner}`} aria-hidden="true" />
+            <FaEarthAmericas aria-hidden="true" />
+            <strong>No planet B</strong>
+          </motion.div>
+
+          <motion.div className={styles.sticker} {...slap(-12, 1.5)} aria-hidden="true">
+            <span>Grown</span>
+            <strong>not made</strong>
+          </motion.div>
+
+          {/* turning stamp */}
+          <div className={styles.stamp} aria-hidden="true">
+            <svg viewBox="0 0 120 120" className={styles.stampRing}>
+              <defs>
+                <path id="hero-stamp-path" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0" />
+              </defs>
+              <text>
+                <textPath href="#hero-stamp-path" textLength="270" lengthAdjust="spacing">
+                  FRESH • SEASONAL • KIND •
+                </textPath>
+              </text>
+            </svg>
+            <FaLeaf className={styles.stampLeaf} />
+          </div>
+
+          <motion.div
+            className={`${styles.glass} ${styles.glassA}`}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <FaSeedling aria-hidden="true" />
+            <span><strong>Plant-based</strong> recipes &amp; guides</span>
+          </motion.div>
+
+          <motion.div
+            className={`${styles.glass} ${styles.glassB}`}
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <FaLeaf aria-hidden="true" />
+            <span><strong>Student-friendly</strong> and budget-aware</span>
+          </motion.div>
+        </motion.div>
+      </div>
+
+      {/* ribbon ticker riding on the wave */}
+      <div className={styles.ribbon} aria-hidden="true">
+        <div className={styles.track}>
+          {[0, 1].map((dup) => (
+            <ul key={dup}>
+              {TICKER.map((t) => (
+                <li key={t}>{t}<FaLeaf /></li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+
+      <div className={styles.mountains} aria-hidden="true">
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className={styles.mountainBack}>
           <path d="M0,0 C150,90 350,10 600,70 C850,130 1050,40 1200,10 L1200,120 L0,120 Z" />
         </svg>
         <svg viewBox="0 0 1200 120" preserveAspectRatio="none" className={styles.mountainFront}>
           <path d="M0,40 C200,110 450,10 700,80 C950,150 1100,50 1200,30 L1200,120 L0,120 Z" />
         </svg>
-      </motion.div>
-
-      <motion.a
-        href="#why-vegan"
-        className={styles.scrollCta}
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
-      >
-        <span>Scroll</span>
-        <FaArrowDown />
-      </motion.a>
+      </div>
     </section>
+
+    <PosterWall />
+    </>
   );
 }
