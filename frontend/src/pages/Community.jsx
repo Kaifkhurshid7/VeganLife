@@ -289,15 +289,24 @@ export default function Community() {
         </aside>
 
         {/* Main Feed */}
-        <main className={styles.mainFeed}>
-          <div className={styles.feedHeader}>
-            <h1 className={styles.feedTitle}>Community</h1>
-            {isAuthenticated && (
-              <button className={styles.composeBtn} onClick={() => setShowComposer(true)}>
-                <FiPlus /> New Post
-              </button>
-            )}
-          </div>
+        <div className={styles.mainFeed}>
+          <header className={styles.hero}>
+            <span className={styles.heroWatermark} aria-hidden="true"><FaLeaf /></span>
+            <div className={styles.heroText}>
+              <span className={styles.heroKicker}>The community</span>
+              <h1 className={styles.heroTitle}>Community</h1>
+              <p>Share meals, ask questions and swap tips with people at every stage, from curious to long-time vegan.</p>
+            </div>
+            <div className={styles.heroAction}>
+              {isAuthenticated ? (
+                <button className={styles.composeBtn} onClick={() => setShowComposer(true)}>
+                  <FiPlus /> New Post
+                </button>
+              ) : (
+                <Link to="/auth" className={styles.composeBtn}>Join the conversation</Link>
+              )}
+            </div>
+          </header>
 
           {/* Feed Tabs */}
           <div className={styles.feedTabs}>
@@ -411,7 +420,7 @@ export default function Community() {
               )}
             </div>
           )}
-        </main>
+        </div>
 
         {/* Right Sidebar */}
         <aside className={styles.rightSidebar}>
