@@ -183,3 +183,35 @@
 .profileLink:hover { color: var(--color-orange); }
 
 .loading { text-align: center; padding: var(--space-3xl) 0; color: var(--color-text-secondary); }
+
+
+/* ===== theme pass: paper surfaces, wall banner, taped highlights ===== */
+.section {
+  background:
+    radial-gradient(60% 40% at 0% 0%, rgba(166, 180, 143, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 100% 15%, rgba(227, 163, 110, 0.14), transparent 70%),
+    var(--color-bg);
+}
+
+.card {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 33px, rgba(87, 61, 33, 0.04) 33px 34px),
+    #fffaf1;
+  border: 1px solid var(--color-border-strong);
+  border-top: 4px double var(--color-earth);
+  border-radius: 4px 4px var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.cardTitle {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-earth);
+}

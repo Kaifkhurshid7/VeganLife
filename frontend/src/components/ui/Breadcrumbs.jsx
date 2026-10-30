@@ -28,7 +28,7 @@ export default function Breadcrumbs({ trail = [] }) {
         {trail.map((crumb, i) => {
           const isLast = i === trail.length - 1;
           return (
-            <li key={crumb.path} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <li key={`${crumb.path}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {isLast ? (
                 <span aria-current="page">{crumb.name}</span>
               ) : (

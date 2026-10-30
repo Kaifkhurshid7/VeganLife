@@ -1,25 +1,28 @@
 import multer from 'multer';
+import { LIMITS } from '../utils/uploadService.js';
 
-// Memory storage: the file buffer is passed to uploadImage() which decides
-// between Cloudinary (production) and a local disk write (dev fallback).
+// Memory storage: the buffer is validated, resized and re-encoded by
+// utils/uploadService.js before anything is stored.
 const storage = multer.memoryStorage();
 
-// File filter - only images
-const fileFilter = (req, file, cb) => {
-  const allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (allowedMimes.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files are allowed (JPEG, PNG, GIF, WebP)'), false);
-  }
-};
+function imageFilter(allowed) {
+  return (req, file, cb) => {
+    if (allowed.includes(file.mimetype)) return cb(null, true);
+    // First line of defence only: the real format is checked again from the file header
+    cb(new Error(`Only image files are allowed (${allowed.map((m) => m.replace('image/', '').toUpperCase()).join(', ')})`), false);
+  };
+}
 
-const upload = multer({
+/** Post images: one file, 5 MB. */
+export const upload = multer({
   storage,
-  fileFilter,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB max
-  },
+  fileFilter: imageFilter(['image/jpeg', 'image/png', 'image/gif', 'image/webp']),
+  limits: { fileSize: LIMITS.post.maxBytes, files: 1, fields: 20, parts: 25 },
 });
 
-export { upload };
+/** Profile photos: one file, 2 MB, JPEG/PNG/WebP only. */
+export const avatarUpload = multer({
+  storage,
+  fileFilter: imageFilter(['image/jpeg', 'image/png', 'image/webp']),
+  limits: { fileSize: LIMITS.avatar.maxBytes, files: 1, fields: 5, parts: 8 },
+});

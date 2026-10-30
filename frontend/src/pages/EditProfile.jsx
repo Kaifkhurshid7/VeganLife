@@ -90,12 +90,12 @@ export default function EditProfile() {
     e.target.value = '';
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please choose an image file (JPEG, PNG, GIF, WebP)');
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast.error('Please choose a JPEG, PNG or WebP image');
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image is too large — max size is 5MB');
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Image is too large — max size is 2MB');
       return;
     }
 
@@ -260,11 +260,11 @@ export default function EditProfile() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 onChange={handleFilePick}
                 className={styles.hiddenInput}
               />
-              <p className={styles.hint}>JPEG, PNG, GIF or WebP · up to 5MB</p>
+              <p className={styles.hint}>JPEG, PNG or WebP · up to 2MB</p>
             </div>
           </motion.div>
 

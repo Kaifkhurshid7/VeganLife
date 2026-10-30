@@ -105,7 +105,7 @@ export default function WhyVegan() {
                 <p className={styles.sources}>
                   <span className={styles.sourcesLabel}>Sources</span>
                   {card.references.map((ref, i) => (
-                    <a key={ref.link} href={ref.link} target="_blank" rel="noopener noreferrer">
+                    <a key={`${ref.org}-${ref.title}`} href={ref.link} target="_blank" rel="noopener noreferrer">
                       <sup>{i + 1}</sup> {ref.org}: {ref.title}
                       <FiExternalLink aria-hidden="true" />
                       <span className="sr-only"> (opens in a new tab)</span>

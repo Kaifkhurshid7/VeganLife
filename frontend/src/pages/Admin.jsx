@@ -37,7 +37,7 @@ function formatDate(iso) {
 }
 
 export default function Admin() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const toast = useToast();
 
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -48,8 +48,12 @@ export default function Admin() {
   // Posts
   const [posts, setPosts] = useState([]);
   const [postsLoading, setPostsLoading] = useState(true);
-  const [postFilter, setPostFilter] = useState('pending');
+  const [postFilter, setPostFilter] = useState('all');
   const [postSearch, setPostSearch] = useState('');
+  const [postSearchTerm, setPostSearchTerm] = useState('');
+  const [postsPage, setPostsPage] = useState(1);
+  const [postsPagination, setPostsPagination] = useState(null);
+  const [pendingPosts, setPendingPosts] = useState([]);
 
   // Users
   const [users, setUsers] = useState([]);
@@ -88,13 +92,29 @@ export default function Admin() {
     } catch {}
   }, []);
 
+  // The posts tab is filtered, searched and paginated by the server (10 per page)
   const fetchPosts = useCallback(async () => {
     setPostsLoading(true);
     try {
-      const res = await apiFetch('/posts/admin/all');
-      if (res.ok) setPosts((await res.json()).data || []);
+      const params = new URLSearchParams({ page: String(postsPage), limit: '10' });
+      if (postFilter !== 'all') params.set('status', postFilter);
+      if (postSearchTerm) params.set('q', postSearchTerm);
+      const res = await apiFetch(`/posts/admin/all?${params}`);
+      if (res.ok) {
+        const json = await res.json();
+        setPosts(json.data || []);
+        setPostsPagination(json.pagination);
+      }
     } catch {}
     finally { setPostsLoading(false); }
+  }, [postsPage, postFilter, postSearchTerm]);
+
+  // The dashboard only needs the five oldest-waiting pending posts
+  const fetchPending = useCallback(async () => {
+    try {
+      const res = await apiFetch('/posts/admin/all?status=pending&limit=5');
+      if (res.ok) setPendingPosts((await res.json()).data || []);
+    } catch {}
   }, []);
 
   const fetchUsers = useCallback(async () => {
@@ -150,12 +170,27 @@ export default function Admin() {
     finally { setReportsLoading(false); }
   }, [reportsFilter, reportsPage]);
 
-  // Boot: stats + posts feed the dashboard and posts tabs
+  // Boot: stats + pending posts feed the dashboard
   useEffect(() => {
     if (!isAdmin) return;
     fetchStats();
+    fetchPending();
+  }, [isAdmin, fetchStats, fetchPending]);
+
+  // Posts tab loads when it is open and whenever its filter, search or page changes
+  useEffect(() => {
+    if (!isAdmin || activeTab !== 'posts') return;
     fetchPosts();
-  }, [isAdmin, fetchStats, fetchPosts]);
+  }, [activeTab, isAdmin, fetchPosts]);
+
+  // Debounce post search and reset to page 1
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setPostSearchTerm(postSearch);
+      setPostsPage(1);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [postSearch]);
 
   // Debounce user search and reset to page 1
   useEffect(() => {
@@ -211,7 +246,7 @@ export default function Admin() {
       });
       if (!res.ok) throw new Error((await res.json()).message || `Failed to ${label.toLowerCase()}`);
       toast.success(`Post ${label.toLowerCase()}`);
-      fetchPosts(); fetchStats();
+      fetchPosts(); fetchPending(); fetchStats();
     } catch (err) { toast.error(err.message); }
   }
 
@@ -224,7 +259,7 @@ export default function Admin() {
           const res = await apiFetch(`/posts/${post._id}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).message || 'Failed to delete post');
           toast.success('Post deleted');
-          fetchPosts(); fetchStats();
+          fetchPosts(); fetchPending(); fetchStats();
         } catch (err) { toast.error(err.message); }
       },
     );
@@ -253,7 +288,7 @@ export default function Admin() {
           const res = await apiFetch(`/admin/users/${target._id}`, { method: 'DELETE' });
           if (!res.ok) throw new Error((await res.json()).message || 'Failed to delete user');
           toast.success(`${target.name} deleted`);
-          fetchUsers(); fetchStats(); fetchPosts();
+          fetchUsers(); fetchStats(); fetchPosts(); fetchPending();
         } catch (err) { toast.error(err.message); }
       },
     );
@@ -307,22 +342,17 @@ export default function Admin() {
     );
   }
 
+  // Wait for the session to be restored before deciding. Without this, a refresh
+  // on /admin saw an empty `user` for a moment and bounced admins to the home page.
+  if (authLoading) {
+    return (
+      <section className={styles.section}>
+        <p className={styles.loading} role="status">Checking your access…</p>
+      </section>
+    );
+  }
   if (!user) return <Navigate to="/auth" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
-
-  const pendingPosts = posts.filter((p) => p.status === 'pending');
-  const filteredPosts = posts.filter((p) => {
-    const matchesStatus = postFilter === 'all' || p.status === postFilter;
-    if (!matchesStatus) return false;
-    const q = postSearch.toLowerCase();
-    if (!q) return true;
-    return (
-      p.title?.toLowerCase().includes(q)
-      || p.content?.toLowerCase().includes(q)
-      || p.author?.name?.toLowerCase().includes(q)
-      || p.author?.username?.toLowerCase().includes(q)
-    );
-  });
 
   return (
     <section className={styles.section}>
@@ -366,10 +396,12 @@ export default function Admin() {
 
               {activeTab === 'posts' && (
                 <PostsTab
-                  posts={filteredPosts}
+                  posts={posts}
                   loading={postsLoading}
+                  pagination={postsPagination}
+                  onPageChange={setPostsPage}
                   filter={postFilter}
-                  setFilter={setPostFilter}
+                  setFilter={(f) => { setPostFilter(f); setPostsPage(1); }}
                   search={postSearch}
                   setSearch={setPostSearch}
                   onApprove={(id) => setPostStatus(id, 'approved', 'Approved')}
@@ -532,7 +564,7 @@ function DashboardTab({ stats, pendingPosts, postsLoading, onApprove, onReject }
 }
 
 /* ————— Posts ————— */
-function PostsTab({ posts, loading, filter, setFilter, search, setSearch, onApprove, onReject, onDelete }) {
+function PostsTab({ posts, loading, pagination, onPageChange, filter, setFilter, search, setSearch, onApprove, onReject, onDelete }) {
   return (
     <div>
       <div className={styles.toolbar}>
@@ -609,6 +641,8 @@ function PostsTab({ posts, loading, filter, setFilter, search, setSearch, onAppr
           ))}
         </div>
       )}
+
+      <Pagination pagination={pagination} onPageChange={onPageChange} />
     </div>
   );
 }

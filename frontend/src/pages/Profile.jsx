@@ -39,6 +39,28 @@ export default function Profile() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [following, setFollowing] = useState(false);
   const [reportingUser, setReportingUser] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  async function loadMorePosts() {
+    const cursor = profile?.postsPagination?.nextCursor;
+    if (!cursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const res = await apiFetch(`/users/${profile._id}/posts?cursor=${encodeURIComponent(cursor)}`);
+      if (res.ok) {
+        const json = await res.json();
+        setProfile((p) => ({
+          ...p,
+          posts: [...(p.posts || []), ...(json.data || [])],
+          postsPagination: json.pagination,
+        }));
+      }
+    } catch {
+      toast.error('Failed to load more posts');
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   useEffect(() => {
     fetchProfile();
@@ -51,7 +73,7 @@ export default function Profile() {
       if (res.ok) {
         const json = await res.json();
         setProfile(json.data);
-        setIsFollowing(currentUser?.following?.includes(json.data._id) || false);
+        setIsFollowing(Boolean(json.data.isFollowing));
       } else {
         toast.error('User not found');
         navigate('/community');
@@ -297,6 +319,11 @@ export default function Profile() {
                   </div>
                 </motion.article>
               ))}
+              {profile.postsPagination?.hasMore && (
+                <button type="button" className={styles.postCard} onClick={loadMorePosts} disabled={loadingMore}>
+                  {loadingMore ? 'Loading…' : 'Load more posts'}
+                </button>
+              )}
             </div>
           ) : (
             <div className={styles.noPosts}>

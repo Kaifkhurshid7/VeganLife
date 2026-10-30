@@ -1,12 +1,13 @@
 import { Server } from 'socket.io';
 import { createAdapter } from '@socket.io/redis-adapter';
-import mongoose from 'mongoose';
-import User from '../models/User.js';
-import Room from '../models/Room.js';
-import Message from '../models/Message.js';
+import { query, one, isUuid } from '../db/index.js';
+import { messageJson } from '../db/mappers.js';
 import { verifyAccessToken } from '../config/tokens.js';
 import { ACCESS_TOKEN_COOKIE } from '../config/cookies.js';
 import { sendPushToUsers } from '../utils/pushNotifications.js';
+import { markRoomRead } from '../utils/chat.js';
+
+export { markRoomRead };
 
 const MESSAGE_RATE_LIMIT_MS = 1500;
 const RATE_LIMIT_CLEANUP_MS = 60 * 1000;
@@ -23,19 +24,6 @@ function parseCookies(header = '') {
 // In-memory presence fallback — only used when Redis isn't configured
 const roomSockets = new Map(); // roomId -> Map(socketId -> { id, name, avatar })
 const lastSendAt = new Map();  // userId -> timestamp (message spam guard)
-
-// Upsert a user's per-room read cursor. Shared with the REST routes.
-export async function markRoomRead(userId, roomId) {
-  if (!mongoose.isValidObjectId(roomId)) return;
-  await User.updateOne(
-    { _id: userId, 'chatReads.room': { $ne: roomId } },
-    { $push: { chatReads: { room: roomId, at: new Date() } } },
-  );
-  await User.updateOne(
-    { _id: userId, 'chatReads.room': roomId },
-    { $set: { 'chatReads.$.at': new Date() } },
-  );
-}
 
 export function initRealtime(server, redisPubSub) {
   const io = new Server(server, {
@@ -55,26 +43,25 @@ export function initRealtime(server, redisPubSub) {
     const cookies = parseCookies(socket.handshake.headers.cookie);
     const token = cookies[ACCESS_TOKEN_COOKIE] || socket.handshake.auth?.token;
     if (!token) return next(new Error('unauthorized'));
+
     try {
       const decoded = verifyAccessToken(token);
-      const user = await User.findById(decoded.id).select('name username avatar role');
+      if (!isUuid(decoded.id)) return next(new Error('unauthorized'));
+      const user = await one('select id, name, username, avatar from users where id = $1', [decoded.id]);
       if (!user) return next(new Error('unauthorized'));
-      socket.user = {
-        id: user._id.toString(),
-        name: user.name,
-        username: user.username,
-        avatar: user.avatar,
-      };
+
+      socket.user = { id: user.id, name: user.name, username: user.username, avatar: user.avatar };
       // fetchSockets() returns RemoteSocket objects that expose socket.data but NOT
       // socket.user — mirror the id here so the chat push hook can exclude anyone
       // currently online in a room.
-      socket.data = { user: { id: user._id.toString() } };
+      socket.data = { user: { id: user.id } };
       next();
     } catch {
       next(new Error('unauthorized'));
     }
   });
 
+  // ---- Presence: Redis hashes when available (multi-instance safe), memory otherwise
   const redis = redisPubSub?.pub || null;
   const presenceCountKey = (roomId) => `room:presence:count:${roomId}`;
   const presenceMetaKey = (roomId) => `room:presence:meta:${roomId}`;
@@ -90,6 +77,7 @@ export function initRealtime(server, redisPubSub) {
         .filter(Boolean);
       return { online, users };
     }
+
     const sockets = roomSockets.get(roomId);
     const byUser = new Map();
     for (const meta of sockets?.values() || []) {
@@ -135,7 +123,7 @@ export function initRealtime(server, redisPubSub) {
     socket.presenceRooms = new Set();
 
     socket.on('room:join', async ({ roomId }) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       socket.join(roomId);
       socket.presenceRooms.add(roomId);
       await track(socket, roomId);
@@ -143,7 +131,7 @@ export function initRealtime(server, redisPubSub) {
     });
 
     socket.on('room:leave', async ({ roomId }) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       socket.leave(roomId);
       socket.presenceRooms.delete(roomId);
       await untrack(socket, roomId);
@@ -151,12 +139,12 @@ export function initRealtime(server, redisPubSub) {
 
     // Single round-trip to move rooms — leaves the old one, joins the new, clears unread
     socket.on('room:switch', async ({ roomId, previousRoomId }) => {
-      if (previousRoomId && mongoose.isValidObjectId(previousRoomId)) {
+      if (previousRoomId && isUuid(previousRoomId)) {
         socket.leave(previousRoomId);
         socket.presenceRooms.delete(previousRoomId);
         await untrack(socket, previousRoomId);
       }
-      if (roomId && mongoose.isValidObjectId(roomId)) {
+      if (roomId && isUuid(roomId)) {
         socket.join(roomId);
         socket.presenceRooms.add(roomId);
         await track(socket, roomId);
@@ -176,32 +164,42 @@ export function initRealtime(server, redisPubSub) {
         const text = typeof content === 'string' ? content.trim() : '';
         if (!text) return reply({ ok: false, error: 'Message cannot be empty.' });
         if (text.length > 1000) return reply({ ok: false, error: 'Message too long (max 1000 characters).' });
-        if (!mongoose.isValidObjectId(roomId)) return reply({ ok: false, error: 'Invalid room.' });
+        if (!isUuid(roomId)) return reply({ ok: false, error: 'Invalid room.' });
 
-        const room = await Room.findById(roomId);
-        if (!room?.isActive) return reply({ ok: false, error: 'Room not found.' });
+        const room = await one('select id, name, slug, is_active from rooms where id = $1', [roomId]);
+        if (!room?.is_active) return reply({ ok: false, error: 'Room not found.' });
 
-        const message = await Message.create({ room: roomId, sender: user.id, content: text });
-        await message.populate('sender', 'name username avatar');
-
-        await Room.updateOne({ _id: roomId }, { lastMessage: text, lastMessageAt: new Date() });
+        // Insert the message and bump the room's "last message" in one round trip
+        const row = await one(
+          `with m as (
+             insert into messages (room_id, sender_id, content) values ($1, $2, $3)
+             returning id, seq, room_id, sender_id, content, type, created_at
+           ), r as (
+             update rooms set last_message = $3, last_message_at = (select created_at from m) where id = $1
+           )
+           select m.*, $4::text as s_name, $5::text as s_username, $6::text as s_avatar from m`,
+          [roomId, user.id, text, user.name, user.username, user.avatar],
+        );
+        const message = messageJson(row);
 
         io.to(roomId).emit('message:new', { message });
         reply({ ok: true, message });
 
-        // Push to users who have ever engaged with this room (chatReads cursor),
-        // minus the sender, minus anyone they blocked, minus anyone currently
-        // online in the room. Fire-and-forget so it never blocks the reply.
-        User.find({ 'chatReads.room': roomId, _id: { $ne: user.id }, blockedUsers: { $ne: user.id } })
-          .select('_id').lean()
-          .then(async (readers) => {
-            if (readers.length === 0) return;
+        // Push to users who have ever engaged with this room (read cursor), minus the
+        // sender, minus anyone who blocked them, minus anyone currently online in the
+        // room. Fire-and-forget so it never blocks the reply.
+        query(
+          `select cr.user_id from chat_reads cr
+            where cr.room_id = $1 and cr.user_id <> $2
+              and not exists (select 1 from blocks b where b.blocker_id = cr.user_id and b.blocked_id = $2)`,
+          [roomId, user.id],
+        )
+          .then(async ({ rows: readers }) => {
+            if (readers.length === 0) return undefined;
             const sockets = await io.in(roomId).fetchSockets();
             const onlineIds = new Set(sockets.map((s) => String(s.data?.user?.id)).filter(Boolean));
-            const targets = readers
-              .filter((r) => !onlineIds.has(String(r._id)))
-              .map((r) => String(r._id));
-            if (targets.length === 0) return;
+            const targets = readers.map((r) => String(r.user_id)).filter((id) => !onlineIds.has(id));
+            if (targets.length === 0) return undefined;
             return sendPushToUsers(targets, {
               title: room.name,
               body: `${user.name}: ${text}`,
@@ -215,22 +213,22 @@ export function initRealtime(server, redisPubSub) {
     });
 
     socket.on('typing:start', ({ roomId }) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       socket.to(roomId).emit('typing', { roomId, user: { id: user.id, name: user.name }, isTyping: true });
     });
 
     socket.on('typing:stop', ({ roomId }) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       socket.to(roomId).emit('typing', { roomId, user: { id: user.id, name: user.name }, isTyping: false });
     });
 
     socket.on('read:mark', ({ roomId }) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       markRoomRead(user.id, roomId).catch(() => {});
     });
 
     socket.on('presence:get', async ({ roomId }, ack) => {
-      if (!mongoose.isValidObjectId(roomId)) return;
+      if (!isUuid(roomId)) return;
       const snapshot = await presenceSnapshot(roomId);
       ack?.(snapshot);
     });

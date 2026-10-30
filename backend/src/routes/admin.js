@@ -1,357 +1,245 @@
 import { Router } from 'express';
-import mongoose from 'mongoose';
-import User from '../models/User.js';
-import Post from '../models/Post.js';
-import Comment from '../models/Comment.js';
-import PostVote from '../models/PostVote.js';
-import PollVote from '../models/PollVote.js';
-import Message from '../models/Message.js';
-import Room from '../models/Room.js';
-import Report from '../models/Report.js';
+import { query, one, tx, isUuid } from '../db/index.js';
+import { USER_COLS, userJson, commentJson, reportJson, roomJson, likePattern } from '../db/mappers.js';
+import { intParam } from '../db/cursor.js';
 import { authenticate, adminOnly } from '../middleware/auth.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import { cache } from '../utils/cache.js';
+import { deleteStoredImage } from '../utils/uploadService.js';
 
 const router = Router();
 
 // All admin routes require an authenticated admin.
 router.use(authenticate, adminOnly);
 
-// Invalidate every cached feed/hashtag/trending snapshot after a mutation.
-async function bumpPostsCache() {
-  await cache.incr('postsCacheVersion');
-}
+const requireUuid = (v, label) => {
+  if (!isUuid(v)) throw ApiError.badRequest(`Invalid ${label}`);
+};
 
-// Dashboard stats
+const bumpPostsCache = () => cache.incr('postsCacheVersion');
+
+const paging = (req, defLimit = 20) => {
+  const page = intParam(req.query.page, { max: 100000, fallback: 1 });
+  const limit = intParam(req.query.limit, { max: 50, fallback: defLimit });
+  return { page, limit, offset: (page - 1) * limit };
+};
+
+const pagination = (page, limit, total) => ({ page, limit, total, pages: Math.ceil(total / limit) });
+
+/* ------------------------------------------------------------------ stats */
+// One round trip for the whole dashboard
 router.get('/stats', asyncHandler(async (req, res) => {
-  const [users, posts, pending, approved, rejected, comments, rooms, messages, openReports] = await Promise.all([
-    User.countDocuments(),
-    Post.countDocuments(),
-    Post.countDocuments({ status: 'pending' }),
-    Post.countDocuments({ status: 'approved' }),
-    Post.countDocuments({ status: 'rejected' }),
-    Comment.countDocuments(),
-    Room.countDocuments(),
-    Message.countDocuments(),
-    Report.countDocuments({ status: 'open' }),
-  ]);
-
-  res.json({
-    success: true,
-    data: { users, posts, pending, approved, rejected, comments, rooms, messages, openReports },
-  });
+  const s = await one(
+    `select
+       (select count(*) from users)::int                                  as users,
+       (select count(*) from posts)::int                                  as posts,
+       (select count(*) from posts where status = 'pending')::int         as pending,
+       (select count(*) from posts where status = 'approved')::int        as approved,
+       (select count(*) from posts where status = 'rejected')::int        as rejected,
+       (select count(*) from comments)::int                               as comments,
+       (select count(*) from rooms)::int                                  as rooms,
+       (select count(*) from messages)::int                               as messages,
+       (select count(*) from reports where status = 'open')::int          as "openReports"`,
+  );
+  res.json({ success: true, data: s });
 }));
 
-// List users with optional search + pagination. Includes per-user post counts.
+/* ------------------------------------------------------------------ users */
 router.get('/users', asyncHandler(async (req, res) => {
   const q = String(req.query.q || '').trim();
-  const page = Math.max(1, parseInt(req.query.page) || 1);
-  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const { page, limit, offset } = paging(req);
 
-  const filter = q
-    ? {
-        $or: [
-          { name: { $regex: q, $options: 'i' } },
-          { username: { $regex: q, $options: 'i' } },
-          { email: { $regex: q, $options: 'i' } },
-        ],
-      }
-    : {};
+  const params = [];
+  let where = 'true';
+  if (q) {
+    params.push(likePattern(q));
+    where = `(u.name ilike $1 or u.username ilike $1 or lower(u.email) ilike $1)`;
+  }
 
-  const [users, total] = await Promise.all([
-    User.find(filter)
-      .select('-password -refreshToken')
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean(),
-    User.countDocuments(filter),
+  const [{ rows }, total] = await Promise.all([
+    query(
+      `select ${USER_COLS},
+              (select count(*)::int from posts p where p.author_id = u.id) as post_count
+         from users u
+        where ${where}
+        order by u.created_at desc, u.id desc
+        limit $${params.length + 1} offset $${params.length + 2}`,
+      [...params, limit, offset],
+    ),
+    one(`select count(*)::int as n from users u where ${where}`, params),
   ]);
-
-  const postCounts = await Post.aggregate([
-    { $match: { author: { $in: users.map((u) => u._id) } } },
-    { $group: { _id: '$author', count: { $sum: 1 } } },
-  ]);
-  const countMap = new Map(postCounts.map((p) => [String(p._id), p.count]));
 
   res.json({
     success: true,
-    data: users.map((u) => ({ ...u, postCount: countMap.get(String(u._id)) || 0 })),
-    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    data: rows.map((r) => ({ ...userJson(r), postCount: r.post_count })),
+    pagination: pagination(page, limit, total.n),
   });
 }));
 
-// Promote / demote a user. Guards: you can't change your own role, and you can't
-// demote the last remaining admin (which would lock everyone out).
+// Promote / demote. Guards: you can't change your own role, and you can't demote
+// the last remaining admin (which would lock everyone out).
 router.patch('/users/:id/role', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) throw ApiError.badRequest('Invalid user id');
-
+  requireUuid(id, 'user id');
   const { role } = req.body;
   if (!['user', 'admin'].includes(role)) throw ApiError.badRequest('Role must be user or admin');
+  if (id === String(req.user.id)) throw ApiError.badRequest('You cannot change your own role');
 
-  if (String(id) === String(req.user._id)) {
-    throw ApiError.badRequest('You cannot change your own role');
-  }
+  await tx(async (t) => {
+    const { rows } = await t.query('select id, role from users where id = $1 for update', [id]);
+    if (!rows[0]) throw ApiError.notFound('User not found');
+    if (rows[0].role === 'admin' && role === 'user') {
+      const { rows: [{ n }] } = await t.query("select count(*)::int as n from users where role = 'admin'");
+      if (n <= 1) throw ApiError.badRequest('Cannot demote the last admin');
+    }
+    await t.query('update users set role = $2 where id = $1', [id, role]);
+  });
 
-  const target = await User.findById(id);
-  if (!target) throw ApiError.notFound('User not found');
-
-  if (target.role === 'admin' && role === 'user') {
-    const adminCount = await User.countDocuments({ role: 'admin' });
-    if (adminCount <= 1) throw ApiError.badRequest('Cannot demote the last admin');
-  }
-
-  target.role = role;
-  await target.save();
-  res.json({ success: true, data: target.toPublicJSON() });
+  const row = await one(`select ${USER_COLS} from users u where u.id = $1`, [id]);
+  res.json({ success: true, data: userJson(row) });
 }));
 
-// Delete a user and every piece of data they own (posts, comments, votes, poll
-// votes, messages, social references). Guards: you can't delete yourself, and you
-// can't delete the last remaining admin.
+// Delete a user. Foreign keys cascade through everything they own (posts, comments,
+// votes, poll votes, messages, follows...) and triggers correct the counters on
+// other people's posts, so there is no hand-written clean-up to get wrong.
 router.delete('/users/:id', asyncHandler(async (req, res) => {
   const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) throw ApiError.badRequest('Invalid user id');
+  requireUuid(id, 'user id');
+  if (id === String(req.user.id)) throw ApiError.badRequest('You cannot delete your own account from the admin panel');
 
-  if (String(id) === String(req.user._id)) {
-    throw ApiError.badRequest('You cannot delete your own account from the admin panel');
-  }
-
-  const target = await User.findById(id);
+  const target = await one('select id, role, avatar from users where id = $1', [id]);
   if (!target) throw ApiError.notFound('User not found');
-
   if (target.role === 'admin') {
-    const adminCount = await User.countDocuments({ role: 'admin' });
-    if (adminCount <= 1) throw ApiError.badRequest('Cannot delete the last admin');
+    const { n } = await one("select count(*)::int as n from users where role = 'admin'");
+    if (n <= 1) throw ApiError.badRequest('Cannot delete the last admin');
   }
 
-  await cascadeDeleteUser(id);
+  await query('delete from users where id = $1', [id]);
+  if (target.avatar) deleteStoredImage(target.avatar);
+  await bumpPostsCache();
   res.json({ success: true, message: 'User deleted' });
 }));
 
-// List all comments (admin moderation). Searchable by comment text, author, or
-// post title; paginated so the list stays fast as the community grows.
+/* --------------------------------------------------------------- comments */
+// Searchable by comment text, author, or post title; paginated. Each condition uses
+// its own trigram index, so the search stays fast as the community grows.
 router.get('/comments', asyncHandler(async (req, res) => {
   const q = String(req.query.q || '').trim();
-  const page = Math.max(1, parseInt(req.query.page) || 1);
-  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const { page, limit, offset } = paging(req);
 
-  let filter = {};
+  const params = [];
+  let where = 'true';
   if (q) {
-    const [matchingUsers, matchingPosts] = await Promise.all([
-      User.find({
-        $or: [
-          { name: { $regex: q, $options: 'i' } },
-          { username: { $regex: q, $options: 'i' } },
-        ],
-      }).select('_id').lean(),
-      Post.find({ title: { $regex: q, $options: 'i' } }).select('_id').lean(),
-    ]);
-    filter.$or = [
-      { text: { $regex: q, $options: 'i' } },
-      { user: { $in: matchingUsers.map((u) => u._id) } },
-      { post: { $in: matchingPosts.map((p) => p._id) } },
-    ];
+    params.push(likePattern(q));
+    where = `(c.text ilike $1
+              or c.user_id in (select id from users where name ilike $1 or username ilike $1)
+              or c.post_id in (select id from posts where title ilike $1))`;
   }
 
-  const [comments, total] = await Promise.all([
-    Comment.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate('user', 'name username avatar')
-      .populate('post', 'title')
-      .lean(),
-    Comment.countDocuments(filter),
+  const [{ rows }, total] = await Promise.all([
+    query(
+      `select c.id, c.seq, c.post_id, c.user_id, c.parent_id, c.text, c.is_pinned, c.created_at, c.updated_at,
+              u.name as u_name, u.username as u_username, u.avatar as u_avatar, p.title as post_title
+         from comments c
+         join users u on u.id = c.user_id
+         join posts p on p.id = c.post_id
+        where ${where}
+        order by c.created_at desc, c.id desc
+        limit $${params.length + 1} offset $${params.length + 2}`,
+      [...params, limit, offset],
+    ),
+    one(`select count(*)::int as n from comments c where ${where}`, params),
   ]);
 
   res.json({
     success: true,
-    data: comments,
-    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    data: rows.map((r) => ({ ...commentJson(r), post: { _id: r.post_id, title: r.post_title } })),
+    pagination: pagination(page, limit, total.n),
   });
 }));
 
-// Delete any comment (admin) — cascades to its replies and keeps the post's
-// commentCount (which counts top-level comments only) in sync.
+// Delete any comment (admin): replies cascade and a trigger fixes the post's counter
 router.delete('/comments/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) throw ApiError.badRequest('Invalid comment id');
-
-  const comment = await Comment.findById(id);
-  if (!comment) throw ApiError.notFound('Comment not found');
-
-  const isTopLevel = !comment.parent;
-  const replies = await Comment.find({ parent: comment._id }).select('_id');
-  await Comment.deleteMany({ _id: { $in: [comment._id, ...replies.map((r) => r._id)] } });
-
-  // commentCount tracks top-level comments only (matches the posts route)
-  if (isTopLevel) {
-    await Post.updateOne({ _id: comment.post }, { $inc: { commentCount: -1 } });
-  }
+  requireUuid(req.params.id, 'comment id');
+  const removed = await one('delete from comments where id = $1 returning id', [req.params.id]);
+  if (!removed) throw ApiError.notFound('Comment not found');
   await bumpPostsCache();
   res.json({ success: true, message: 'Comment deleted' });
 }));
 
-// List the moderation queue. Filter by status (default: open), paginated. Renders
-// from the denormalized snapshots captured at report time, so rows survive even
-// after the reported content is deleted.
+/* ---------------------------------------------------------------- reports */
 router.get('/reports', asyncHandler(async (req, res) => {
   const status = String(req.query.status || 'open');
-  const page = Math.max(1, parseInt(req.query.page) || 1);
-  const limit = Math.min(50, parseInt(req.query.limit) || 20);
+  const { page, limit, offset } = paging(req);
+  const filtered = ['open', 'dismissed', 'actioned'].includes(status);
+  const where = filtered ? 'r.status = $1' : 'true';
+  const params = filtered ? [status] : [];
 
-  const filter = status === 'all' ? {} : { status };
-
-  const [reports, total] = await Promise.all([
-    Report.find(filter)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate('reporter', 'name username avatar')
-      .populate('resolvedBy', 'name username')
-      .lean(),
-    Report.countDocuments(filter),
+  const [{ rows }, total] = await Promise.all([
+    query(
+      `select r.*, rep.name as r_name, rep.username as r_username, rep.avatar as r_avatar,
+              rv.name as v_name, rv.username as v_username
+         from reports r
+         left join users rep on rep.id = r.reporter_id
+         left join users rv on rv.id = r.resolved_by
+        where ${where}
+        order by r.created_at desc, r.id desc
+        limit $${params.length + 1} offset $${params.length + 2}`,
+      [...params, limit, offset],
+    ),
+    one(`select count(*)::int as n from reports r where ${where}`, params),
   ]);
 
-  res.json({
-    success: true,
-    data: reports,
-    pagination: { page, limit, total, pages: Math.ceil(total / limit) },
-  });
+  res.json({ success: true, data: rows.map(reportJson), pagination: pagination(page, limit, total.n) });
 }));
 
-// Transition a report between open / dismissed / actioned.
 router.patch('/reports/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) throw ApiError.badRequest('Invalid report id');
-
+  requireUuid(req.params.id, 'report id');
   const { status } = req.body;
   if (!['open', 'dismissed', 'actioned'].includes(status)) {
     throw ApiError.badRequest('Status must be open, dismissed, or actioned');
   }
 
-  const report = await Report.findById(id);
-  if (!report) throw ApiError.notFound('Report not found');
+  const updated = await one(
+    `update reports
+        set status = $2,
+            resolved_by = case when $2 = 'open' then null else $3::uuid end,
+            resolved_at = case when $2 = 'open' then null else public.now_ms() end
+      where id = $1
+      returning id`,
+    [req.params.id, status, req.user.id],
+  );
+  if (!updated) throw ApiError.notFound('Report not found');
 
-  report.status = status;
-  if (status === 'open') {
-    report.resolvedBy = undefined;
-    report.resolvedAt = undefined;
-  } else {
-    report.resolvedBy = req.user._id;
-    report.resolvedAt = new Date();
-  }
-  await report.save();
-
-  res.json({ success: true, data: report });
+  // Re-read with the reporter and resolver names joined, same shape as the list
+  const row = await one(
+    `select r.*, rep.name as r_name, rep.username as r_username, rep.avatar as r_avatar,
+            rv.name as v_name, rv.username as v_username
+       from reports r
+       left join users rep on rep.id = r.reporter_id
+       left join users rv on rv.id = r.resolved_by
+      where r.id = $1`,
+    [updated.id],
+  );
+  res.json({ success: true, data: reportJson(row) });
 }));
 
-// List all chat rooms with per-room message counts
+/* ------------------------------------------------------------------ rooms */
 router.get('/rooms', asyncHandler(async (req, res) => {
-  const [rooms, messageCounts] = await Promise.all([
-    Room.find().sort({ isDefault: -1, createdAt: -1 }).lean(),
-    Message.aggregate([{ $group: { _id: '$room', count: { $sum: 1 } } }]),
-  ]);
-  const countMap = new Map(messageCounts.map((m) => [String(m._id), m.count]));
-  res.json({ success: true, data: rooms.map((r) => ({ ...r, messageCount: countMap.get(String(r._id)) || 0 })) });
+  const { rows } = await query(
+    `select r.*, (select count(*)::int from messages m where m.room_id = r.id) as message_count
+       from rooms r
+      order by r.is_default desc, r.created_at desc`,
+  );
+  res.json({ success: true, data: rows.map(roomJson) });
 }));
 
-// Delete a chat room and its messages (admin). Reuses the rooms route behaviour.
 router.delete('/rooms/:id', asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!mongoose.isValidObjectId(id)) throw ApiError.badRequest('Invalid room id');
-
-  const room = await Room.findByIdAndDelete(id);
+  requireUuid(req.params.id, 'room id');
+  const room = await one('delete from rooms where id = $1 returning id', [req.params.id]);
   if (!room) throw ApiError.notFound('Room not found');
-
-  await Message.deleteMany({ room: id });
   res.json({ success: true, message: 'Room deleted' });
 }));
-
-// Remove a user's posts. Deletes the posts and everything attached to them, then
-// fixes the denormalized counters on any posts the user voted on / commented on.
-async function cascadeDeleteUser(userId) {
-  // 1. Their posts — cascade comments, votes, and poll votes attached to them
-  const theirPosts = await Post.find({ author: userId }).select('_id').lean();
-  const postIds = theirPosts.map((p) => p._id);
-  if (postIds.length > 0) {
-    await Promise.all([
-      Comment.deleteMany({ post: { $in: postIds } }),
-      PostVote.deleteMany({ post: { $in: postIds } }),
-      PollVote.deleteMany({ post: { $in: postIds } }),
-    ]);
-    await Post.deleteMany({ _id: { $in: postIds } });
-  }
-
-  // 2. Their comments (and replies to those comments), fixing post commentCount
-  const theirComments = await Comment.find({ user: userId }).select('_id parent post').lean();
-  const theirCommentIds = theirComments.map((c) => c._id);
-  if (theirCommentIds.length > 0) {
-    const topLevelByPost = {};
-    for (const c of theirComments) {
-      if (!c.parent) topLevelByPost[String(c.post)] = (topLevelByPost[String(c.post)] || 0) + 1;
-    }
-    await Comment.deleteMany({ $or: [{ user: userId }, { parent: { $in: theirCommentIds } }] });
-    await Promise.all(
-      Object.entries(topLevelByPost).map(([postId, n]) =>
-        Post.updateOne({ _id: postId }, { $inc: { commentCount: -n } }),
-      ),
-    );
-  }
-
-  // 3. Their upvotes — decrement the upvote count on every post they voted on
-  const theirVotes = await PostVote.find({ user: userId }).select('post').lean();
-  if (theirVotes.length > 0) {
-    const byPost = {};
-    for (const v of theirVotes) byPost[String(v.post)] = (byPost[String(v.post)] || 0) + 1;
-    await Promise.all(
-      Object.entries(byPost).map(([postId, n]) =>
-        Post.updateOne({ _id: postId }, { $inc: { upvoteCount: -n } }),
-      ),
-    );
-    await PostVote.deleteMany({ user: userId });
-  }
-
-  // 4. Their poll votes — decrement the option counts they voted for
-  const theirPollVotes = await PollVote.find({ user: userId }).lean();
-  if (theirPollVotes.length > 0) {
-    for (const pv of theirPollVotes) {
-      await Post.updateOne(
-        { _id: pv.post, 'polls._id': pv.poll },
-        { $inc: { [`polls.$.options.${pv.optionIndex}.voteCount`]: -1 } },
-      );
-    }
-    await PollVote.deleteMany({ user: userId });
-  }
-
-  // 5. Their chat messages
-  await Message.deleteMany({ sender: userId });
-
-  // 6. Remove them from other users' social graphs and mentions
-  await User.updateMany(
-    { _id: { $ne: userId } },
-    { $pull: { followers: userId, following: userId, 'mentions': { mentionedBy: userId } } },
-  );
-
-  // 7. Remove their pins from posts and recompute pin state
-  const pinnedPosts = await Post.find({ pinnedBy: userId }).select('pinnedBy').lean();
-  for (const post of pinnedPosts) {
-    const pinnedBy = post.pinnedBy.filter((id) => String(id) !== String(userId));
-    await Post.updateOne(
-      { _id: post._id },
-      { pinnedBy, pinCount: pinnedBy.length, isPinned: pinnedBy.length > 0 },
-    );
-  }
-
-  // 8. Detach rooms they created (leave the room itself alive)
-  await Room.updateMany({ createdBy: userId }, { $unset: { createdBy: 1 } });
-
-  // 9. Finally, the user themselves
-  await User.deleteOne({ _id: userId });
-  await bumpPostsCache();
-}
 
 export default router;

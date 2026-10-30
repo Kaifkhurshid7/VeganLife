@@ -64,15 +64,6 @@ export function AuthProvider({ children }) {
     return data;
   }
 
-  async function adminLogin(email, password, secretKey) {
-    const data = await apiRequest('/auth/admin-login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, secretKey }),
-    });
-    setUser(data.user);
-    return data;
-  }
-
   async function updateProfile(updates) {
     const data = await apiRequest('/auth/profile', {
       method: 'PATCH',
@@ -128,7 +119,6 @@ export function AuthProvider({ children }) {
       loading,
       login,
       signup,
-      adminLogin,
       logout,
       updateProfile,
       uploadAvatar,

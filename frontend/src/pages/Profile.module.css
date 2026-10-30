@@ -326,3 +326,63 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+
+/* ===== theme pass: paper surfaces, wall banner, taped highlights ===== */
+.section {
+  background:
+    radial-gradient(60% 40% at 0% 0%, rgba(166, 180, 143, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 100% 15%, rgba(227, 163, 110, 0.14), transparent 70%),
+    var(--color-bg);
+}
+
+.header {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+/* the cover is a brick wall */
+.cover {
+  height: 170px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='84' height='44'%3E%3Cpath d='M0 .5H84M0 22.5H84M.5 0V22M42.5 22V44' stroke='rgba(87,61,33,0.17)' stroke-width='1.4' fill='none'/%3E%3C/svg%3E"),
+    radial-gradient(90% 70% at 50% 0%, rgba(255, 244, 226, 0.4), transparent 70%),
+    linear-gradient(180deg, #d9bd9f 0%, #c3a07f 100%);
+  border-bottom: 4px double var(--color-earth);
+}
+
+.name {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.badge {
+  background: rgba(240, 222, 170, 0.9);
+  color: #3a2713;
+  border-radius: 3px;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.hashtag {
+  background: rgba(166, 180, 143, 0.28);
+  color: #3f5229;
+}
+.postCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-sage);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.postCard:hover {
+  border-left-color: var(--color-orange);
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+}

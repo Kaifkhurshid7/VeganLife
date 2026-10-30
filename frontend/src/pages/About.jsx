@@ -144,7 +144,7 @@ export default function About() {
           ))}
         </ol>
         <p style={{ marginTop: 'var(--space-md)' }}>
-          Every reference is collected on the <Link to={ROUTES.sources} style={{ textDecoration: 'underline' }}>sources page</Link>.
+          Every reference is collected on the <Link to={ROUTES.sources} style={{ textDecoration: 'underline', color: 'inherit', fontWeight: 400 }}>sources page</Link>.
         </p>
       </section>
 

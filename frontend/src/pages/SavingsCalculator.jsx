@@ -175,7 +175,12 @@ export default function SavingsCalculator() {
             {selected.length === 0 && (
               <div className={styles.emptyState}>
                 <FaSeedling className={styles.emptyIcon} />
-                <p>Select meals on the left to calculate your environmental savings.</p>
+                <h3>Pick meals to see your savings</h3>
+                <ol className={styles.emptySteps}>
+                  <li><span>1</span>Tick the vegan meals you eat on the left.</li>
+                  <li><span>2</span>Each is compared with a typical meat-based equivalent.</li>
+                  <li><span>3</span>Switch between per day, week or month above.</li>
+                </ol>
               </div>
             )}
 

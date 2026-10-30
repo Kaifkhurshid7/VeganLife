@@ -364,3 +364,49 @@
 .empty p {
   margin: 0;
 }
+
+
+/* ===== theme pass: paper surfaces, wall banner, taped highlights ===== */
+.section {
+  background:
+    radial-gradient(60% 40% at 0% 0%, rgba(166, 180, 143, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 100% 15%, rgba(227, 163, 110, 0.14), transparent 70%),
+    var(--color-bg);
+}
+.infoCard,
+.trendingCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px double var(--color-earth);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.postCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-sage);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.postCard:hover {
+  border-left-color: var(--color-orange);
+  transform: translateY(-2px);
+}
+
+.title,
+.postTitle,
+.hashtagHeader h1 {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.hashtag {
+  background: rgba(166, 180, 143, 0.28);
+  color: #3f5229;
+}
+
+.trendingRank {
+  font-family: var(--font-heading);
+  color: var(--color-orange);
+}

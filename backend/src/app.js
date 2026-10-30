@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { authLimiter, apiLimiter, sanitizeInput, xssClean } from './middleware/security.js';
 import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { logger } from './utils/logger.js';
+import { query } from './db/index.js';
 import authRoutes from './routes/auth.js';
 import postRoutes from './routes/posts.js';
 import userRoutes from './routes/users.js';
@@ -59,7 +60,14 @@ export function createApp() {
   });
 
   // Routes
-  app.use('/api/auth', authLimiter, authRoutes);
+  // The strict limiter (15 per 15 minutes) belongs on endpoints that take
+  // credentials. It used to cover every /auth route, including /me and /refresh,
+  // which the app calls on every page load: a logged-out visitor used up the
+  // allowance after a handful of pages and then could not log in at all.
+  app.use('/api/auth/login', authLimiter);
+  app.use('/api/auth/signup', authLimiter);
+  app.use('/api/auth/change-password', authLimiter);
+  app.use('/api/auth', authRoutes);
   app.use('/api/posts', postRoutes);
   app.use('/api/users', userRoutes);
   app.use('/api/collections', collectionsRoutes);
@@ -69,8 +77,13 @@ export function createApp() {
   app.use('/api/push', pushRoutes);
 
   // Health check
-  app.get('/api/health', (req, res) => {
-    res.json({ success: true, status: 'ok', timestamp: new Date().toISOString(), uptime: process.uptime() });
+  app.get('/api/health', async (req, res) => {
+    try {
+      await query('select 1');
+      res.json({ success: true, status: 'ok', database: 'ok', timestamp: new Date().toISOString(), uptime: process.uptime() });
+    } catch {
+      res.status(503).json({ success: false, status: 'degraded', database: 'down', timestamp: new Date().toISOString() });
+    }
   });
 
   // 404 handler

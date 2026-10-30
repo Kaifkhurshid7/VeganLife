@@ -100,9 +100,9 @@ export default function UserSearch() {
                     <div className={styles.name}>{user.name}</div>
                     <div className={styles.username}>@{user.username}</div>
                   </div>
-                  {user.followers?.length > 0 && (
+                  {user.followerCount > 0 && (
                     <div className={styles.followers}>
-                      {user.followers.length} followers
+                      {user.followerCount} {user.followerCount === 1 ? 'follower' : 'followers'}
                     </div>
                   )}
                 </button>

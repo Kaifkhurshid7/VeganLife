@@ -64,7 +64,6 @@ export default function ToolFrame({ tool, seoTitle, description, eyebrow, title,
           <Breadcrumbs
             trail={[
               { name: 'Home', path: ROUTES.home },
-              { name: 'Tools', path: ROUTES.calculator },
               { name: meta.name, path: meta.path },
             ]}
           />

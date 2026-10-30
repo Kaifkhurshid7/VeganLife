@@ -23,7 +23,7 @@ export default function ReferenceList({ refs, title = 'Sources', compact = false
       <div className={styles.refList}>
         {refs.map((ref, idx) => (
           <a
-            key={ref.title || `${ref.org}-${idx}`}
+            key={`${ref.org}-${ref.title}-${idx}`}
             href={ref.link}
             target="_blank"
             rel="noopener noreferrer"

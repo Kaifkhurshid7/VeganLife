@@ -1,9 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaCalculator, FaLeaf, FaFire, FaWeight } from 'react-icons/fa';
+import { FaCalculator, FaLeaf, FaFire, FaWeight, FaDrumstickBite, FaUtensils } from 'react-icons/fa';
 import { ReferenceList, Callout } from '../components/ui';
 import ToolFrame from '../components/ui/ToolFrame';
 import styles from './Calculator.module.css';
+
+const PREVIEW = [
+  { icon: FaWeight, title: 'Your BMI', text: 'Where your weight sits against WHO adult ranges.' },
+  { icon: FaFire, title: 'Daily calories', text: 'Energy needs from the Mifflin–St Jeor equation, adjusted for your goal.' },
+  { icon: FaDrumstickBite, title: 'Protein, carbs and fats', text: 'A starting split in grams, with a protein target of 1.6 g per kg.' },
+  { icon: FaUtensils, title: 'Vegan meal ideas', text: 'Simple plant-based meals sized to match your target.' },
+];
 
 const REFS = [
   { org: 'World Health Organization', title: 'Obesity and overweight: BMI categories for adults', link: 'https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight' },
@@ -145,6 +152,30 @@ export default function Calculator() {
               Calculate
             </button>
           </motion.form>
+
+          {!results && (
+            <motion.aside
+              className={`glass-card ${styles.preview}`}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <p className={styles.previewKicker}>What you will get</p>
+              <h3 className={styles.previewTitle}>Fill in your details, then press Calculate</h3>
+              <ul className={styles.previewList}>
+                {PREVIEW.map(({ icon: Icon, title, text }) => (
+                  <li key={title}>
+                    <span className={styles.previewIcon} aria-hidden="true"><Icon /></span>
+                    <div>
+                      <strong>{title}</strong>
+                      <p>{text}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className={styles.previewNote}>Nothing is saved or sent anywhere. The numbers are calculated in your browser.</p>
+            </motion.aside>
+          )}
 
           {results && (
             <div className={styles.results}>

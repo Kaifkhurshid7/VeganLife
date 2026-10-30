@@ -71,8 +71,16 @@
 
 .produceGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr;
   gap: 24px;
+}
+
+/* Five cards: three across, then two that share the second row evenly (no empty slot) */
+@media (min-width: 640px) {
+  .produceGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .produceGrid > * { grid-column: span 2; }
+  .produceGrid > :nth-child(4),
+  .produceGrid > :nth-child(5) { grid-column: span 3; }
 }
 
 .categoryCard { padding: 30px; }

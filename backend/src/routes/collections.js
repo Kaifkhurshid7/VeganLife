@@ -1,162 +1,130 @@
 import { Router } from 'express';
-import User from '../models/User.js';
-import Post from '../models/Post.js';
+import { query, one, tx, isUuid } from '../db/index.js';
+import { POST_COLS, postJson, collectionJson } from '../db/mappers.js';
 import { authenticate } from '../middleware/auth.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 
 const router = Router();
 
-// Get user's collections
+const requireUuid = (v, label) => {
+  if (!isUuid(v)) throw ApiError.badRequest(`Invalid ${label}`);
+};
+
+async function ownedCollection(collectionId, userId) {
+  requireUuid(collectionId, 'collection id');
+  const col = await one('select id, name, description, created_at from collections where id = $1 and user_id = $2', [collectionId, userId]);
+  if (!col) throw ApiError.notFound('Collection not found');
+  return col;
+}
+
+// Get user's collections (with a small preview of each one's posts)
 router.get('/', authenticate, asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id)
-    .populate('collections.posts', 'title image author')
-    .select('collections');
-
-  if (!user) throw ApiError.notFound('User not found');
-
-  res.json({ success: true, data: user.collections });
+  const { rows } = await query(
+    `select c.id, c.name, c.description, c.created_at,
+            coalesce((select json_agg(json_build_object('_id', p.id, 'title', p.title, 'image', p.image, 'author', p.author_id)
+                                      order by cp.added_at desc)
+                        from collection_posts cp join posts p on p.id = cp.post_id
+                       where cp.collection_id = c.id), '[]'::json) as posts
+       from collections c where c.user_id = $1 order by c.created_at`,
+    [req.user.id],
+  );
+  res.json({ success: true, data: rows.map((r) => collectionJson(r, r.posts)) });
 }));
 
-// Get single collection with posts
+// One collection with its posts (newest added first)
 router.get('/:collectionId/posts', authenticate, asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
-
-  const collection = user.collections.id(req.params.collectionId);
-  if (!collection) throw ApiError.notFound('Collection not found');
-
-  const populatedUser = await User.findById(req.user._id)
-    .populate({
-      path: 'collections.posts',
-      match: { _id: { $in: collection.posts } },
-      populate: { path: 'author', select: 'name username avatar' }
-    });
-
-  const populatedCollection = populatedUser.collections.id(req.params.collectionId);
-
-  res.json({ 
-    success: true, 
-    data: {
-      collection: {
-        _id: collection._id,
-        name: collection.name,
-        description: collection.description,
-        createdAt: collection.createdAt
-      },
-      posts: populatedCollection.posts
-    }
-  });
+  const col = await ownedCollection(req.params.collectionId, req.user.id);
+  const { rows } = await query(
+    `select ${POST_COLS}, exists (select 1 from post_votes v where v.post_id = p.id and v.user_id = $2) as has_upvoted
+       from collection_posts cp
+       join posts p on p.id = cp.post_id
+       join users u on u.id = p.author_id
+      where cp.collection_id = $1
+      order by cp.added_at desc, p.id desc
+      limit 200`,
+    [col.id, req.user.id],
+  );
+  res.json({ success: true, data: { collection: collectionJson(col), posts: rows.map((r) => postJson(r)) } });
 }));
 
-// Create new collection
 router.post('/', authenticate, asyncHandler(async (req, res) => {
-  const { name, description } = req.body;
-
-  if (!name?.trim()) throw ApiError.badRequest('Collection name is required');
+  const name = String(req.body.name || '').trim();
+  const description = String(req.body.description || '').trim();
+  if (!name) throw ApiError.badRequest('Collection name is required');
   if (name.length > 100) throw ApiError.badRequest('Collection name too long (max 100 chars)');
+  if (description.length > 300) throw ApiError.badRequest('Description too long (max 300 chars)');
 
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
+  // Keep one account from creating an unbounded number of collections
+  const { n } = await one('select count(*)::int as n from collections where user_id = $1', [req.user.id]);
+  if (n >= 100) throw ApiError.badRequest('You have reached the limit of 100 collections');
 
-  const newCollection = {
-    name: name.trim(),
-    description: description?.trim() || '',
-    posts: [],
-    createdAt: new Date()
-  };
-
-  user.collections.push(newCollection);
-  await user.save();
-
-  res.status(201).json({ success: true, data: user.collections[user.collections.length - 1] });
+  const row = await one(
+    'insert into collections (user_id, name, description) values ($1, $2, $3) returning id, name, description, created_at',
+    [req.user.id, name, description],
+  );
+  res.status(201).json({ success: true, data: collectionJson(row, []) });
 }));
 
-// Add post to collection
 router.post('/:collectionId/add', authenticate, asyncHandler(async (req, res) => {
   const { postId } = req.body;
-
   if (!postId) throw ApiError.badRequest('Post ID is required');
+  requireUuid(postId, 'post id');
 
-  // Verify post exists
-  const post = await Post.findById(postId);
+  const col = await ownedCollection(req.params.collectionId, req.user.id);
+  const post = await one('select id from posts where id = $1', [postId]);
   if (!post) throw ApiError.notFound('Post not found');
 
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
+  const inserted = await query(
+    'insert into collection_posts (collection_id, post_id) values ($1, $2) on conflict do nothing',
+    [col.id, post.id],
+  );
+  if (inserted.rowCount === 0) throw ApiError.badRequest('Post already in collection');
 
-  const collection = user.collections.id(req.params.collectionId);
-  if (!collection) throw ApiError.notFound('Collection not found');
-
-  // Check if post is already in collection
-  if (collection.posts.includes(postId)) {
-    throw ApiError.badRequest('Post already in collection');
-  }
-
-  collection.posts.push(postId);
-  await user.save();
-
-  res.json({ success: true, message: 'Post added to collection', data: collection });
+  const { rows } = await query('select post_id from collection_posts where collection_id = $1', [col.id]);
+  res.json({ success: true, message: 'Post added to collection', data: collectionJson(col, rows.map((r) => r.post_id)) });
 }));
 
-// Remove post from collection
 router.post('/:collectionId/remove', authenticate, asyncHandler(async (req, res) => {
   const { postId } = req.body;
-
   if (!postId) throw ApiError.badRequest('Post ID is required');
+  requireUuid(postId, 'post id');
 
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
-
-  const collection = user.collections.id(req.params.collectionId);
-  if (!collection) throw ApiError.notFound('Collection not found');
-
-  const postIndex = collection.posts.indexOf(postId);
-  if (postIndex === -1) throw ApiError.notFound('Post not in collection');
-
-  collection.posts.splice(postIndex, 1);
-  await user.save();
-
+  const col = await ownedCollection(req.params.collectionId, req.user.id);
+  const removed = await query('delete from collection_posts where collection_id = $1 and post_id = $2', [col.id, postId]);
+  if (removed.rowCount === 0) throw ApiError.notFound('Post not in collection');
   res.json({ success: true, message: 'Post removed from collection' });
 }));
 
-// Update collection
 router.patch('/:collectionId', authenticate, asyncHandler(async (req, res) => {
+  const col = await ownedCollection(req.params.collectionId, req.user.id);
   const { name, description } = req.body;
+  const next = { name: col.name, description: col.description };
 
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
-
-  const collection = user.collections.id(req.params.collectionId);
-  if (!collection) throw ApiError.notFound('Collection not found');
-
-  if (name) {
-    if (name.trim().length === 0) throw ApiError.badRequest('Collection name cannot be empty');
-    if (name.length > 100) throw ApiError.badRequest('Collection name too long (max 100 chars)');
-    collection.name = name.trim();
+  if (name !== undefined) {
+    const trimmed = String(name).trim();
+    if (!trimmed) throw ApiError.badRequest('Collection name cannot be empty');
+    if (trimmed.length > 100) throw ApiError.badRequest('Collection name too long (max 100 chars)');
+    next.name = trimmed;
   }
-
   if (description !== undefined) {
-    if (description.length > 300) throw ApiError.badRequest('Description too long (max 300 chars)');
-    collection.description = description.trim();
+    const trimmed = String(description).trim();
+    if (trimmed.length > 300) throw ApiError.badRequest('Description too long (max 300 chars)');
+    next.description = trimmed;
   }
 
-  await user.save();
-
-  res.json({ success: true, data: collection });
+  const row = await one(
+    'update collections set name = $2, description = $3 where id = $1 returning id, name, description, created_at',
+    [col.id, next.name, next.description],
+  );
+  res.json({ success: true, data: collectionJson(row) });
 }));
 
-// Delete collection
 router.delete('/:collectionId', authenticate, asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  if (!user) throw ApiError.notFound('User not found');
-
-  const collection = user.collections.id(req.params.collectionId);
-  if (!collection) throw ApiError.notFound('Collection not found');
-
-  collection.deleteOne();
-  await user.save();
-
+  const col = await ownedCollection(req.params.collectionId, req.user.id);
+  await tx(async (t) => {
+    await t.query('delete from collections where id = $1', [col.id]);
+  });
   res.json({ success: true, message: 'Collection deleted' });
 }));
 

@@ -220,3 +220,72 @@
   color: white; font-weight: 700; font-size: 0.85rem; cursor: pointer; font-family: var(--font-body);
 }
 .confirmBtn:hover { background: #a93226; }
+
+
+/* ===== theme pass: paper surfaces, wall banner, taped highlights ===== */
+.section {
+  background:
+    radial-gradient(60% 40% at 0% 0%, rgba(166, 180, 143, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 100% 15%, rgba(227, 163, 110, 0.14), transparent 70%),
+    var(--color-bg);
+}
+.statCard,
+.panel,
+.reportItem,
+.postItem,
+.userItem,
+.roomItem,
+.commentItem,
+.recentItem {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 5px solid var(--color-sage);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.title {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.statNum {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+.tabs {
+  border-bottom: 2px solid var(--color-earth);
+}
+
+.tabBtn {
+  border-radius: 10px 10px 0 0;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.tabActive {
+  background: var(--color-earth);
+  color: var(--color-cream);
+}
+
+.filterActive {
+  background: var(--color-earth);
+  color: var(--color-cream);
+}
+
+/* the panel is just the content wrapper for each tab, not a card of its own */
+.panel {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* nine stat cards read best as a 3 x 3 grid (four columns left one orphaned) */
+@media (min-width: 700px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

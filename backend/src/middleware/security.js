@@ -89,3 +89,15 @@ export function xssClean(req, res, next) {
   if (req.body) req.body = cleanObj(req.body);
   next();
 }
+
+// Profile-photo uploads are expensive (decode + resize + store), so cap them per
+// signed-in user (falls back to IP when there is no session).
+export const avatarLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => (req.user?.id ? `u:${req.user.id}` : req.ip),
+  message: { success: false, message: 'Too many photo uploads. Try again in an hour.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: createStore('rl:avatar:'),
+});

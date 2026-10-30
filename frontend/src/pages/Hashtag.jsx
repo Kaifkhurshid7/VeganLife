@@ -6,6 +6,7 @@ import { FaLeaf, FaSeedling } from 'react-icons/fa6';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
+import { Seo } from '../components/seo';
 import { apiFetch } from '../utils/api';
 import styles from './Hashtag.module.css';
 
@@ -71,6 +72,7 @@ export default function Hashtag() {
 
   return (
     <section className={styles.section}>
+      <Seo title={`#${tag}`} description={`Community posts tagged #${tag}.`} path={`/hashtag/${encodeURIComponent(tag)}`} noindex />
       <BackButton />
 
       <div className={styles.container}>

@@ -35,7 +35,7 @@ function formatDay(iso) {
 export default function Chat() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
   const {
     connected, rooms, onlineByRoom, typingByRoom, subscribe,
     sendMessage, setTyping, switchRoom, leaveRoom, markRoomRead, bumpUnread, createRoom,
@@ -244,6 +244,15 @@ export default function Chat() {
           </div>
         </div>
       </div>
+    );
+  }
+
+  // Don't flash the "log in" prompt at a signed-in user while the session loads.
+  if (authLoading) {
+    return (
+      <section className={styles.section}>
+        <p className={styles.stateMsg} role="status">Loading chat…</p>
+      </section>
     );
   }
 

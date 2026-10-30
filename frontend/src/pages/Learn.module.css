@@ -219,7 +219,10 @@
 
 /* ═════════ section scaffolding ═════════ */
 .block {
-  margin-bottom: var(--space-3xl);
+  /* the global `section` rule adds big page-section padding; these are blocks inside a page */
+  padding: 0;
+  overflow: visible;
+  margin-bottom: var(--space-2xl);
 }
 
 .blockHead {

@@ -21,7 +21,7 @@
 
 .header {
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: 56px;
 }
 
 .label {
@@ -52,7 +52,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 100px;
+  gap: 40px;
 }
 
 .timelineLine {

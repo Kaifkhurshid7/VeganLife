@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FiClock, FiUser, FiDollarSign, FiCalendar, FiCheckCircle } from 'react-icons/fi';
 import { FaLeaf, FaSeedling, FaFire, FaDroplet, FaWheatAwn, FaBacon } from 'react-icons/fa6';
 import BackButton from '../components/ui/BackButton';
+import { Seo } from '../components/seo';
 import { ReferenceList } from '../components/ui';
 import { recipes } from '../data/recipes';
 import styles from './RecipeDetail.module.css';
@@ -58,6 +59,7 @@ export default function RecipeDetail() {
 
   return (
     <section className={styles.section}>
+      <Seo title={recipe.title} description={recipe.desc} path={`/recipes/${recipe.id}`} />
       <BackButton />
       <div className={styles.container}>
         <motion.div

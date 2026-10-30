@@ -7,6 +7,7 @@ import { COMMENT_REACTIONS, resolveIcon } from '../utils/iconMap';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/ui/Toast';
 import BackButton from '../components/ui/BackButton';
+import { Seo } from '../components/seo';
 import RichTextEditor from '../components/ui/RichTextEditor';
 import UserSearch from '../components/ui/UserSearch';
 import ReportModal from '../components/ui/ReportModal';
@@ -35,6 +36,15 @@ const BADGES = [
   { level: 500, name: 'Sustainability Mentor', icon: <FaHandHoldingHeart style={{ color: '#e3a36e' }} /> },
 ];
 
+/** Progress towards the next badge, from the real score (null at the top level). */
+function getBadgeProgress(score) {
+  const next = BADGES.find((b) => b.level > score);
+  if (!next) return null;
+  const current = [...BADGES].reverse().find((b) => score >= b.level) || BADGES[0];
+  const span = next.level - current.level;
+  return { next, pct: Math.min(100, Math.round(((score - current.level) / span) * 100)), remaining: next.level - score };
+}
+
 function getUserBadge(score) {
   return [...BADGES].reverse().find((b) => score >= b.level) || BADGES[0];
 }
@@ -52,9 +62,20 @@ export default function Community() {
   const [newPost, setNewPost] = useState({ title: '', content: '', category: 'General', image: '' });
   const [imagePreview, setImagePreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [trending, setTrending] = useState([]);
   const sentinelRef = useRef(null);
 
   useEffect(() => { setPagination(null); fetchPosts(); }, [activeTab]);
+
+  // Real trending hashtags (the sidebar used to show a hard-coded list)
+  useEffect(() => {
+    let cancelled = false;
+    apiFetch('/posts/trending/hashtags?limit=6')
+      .then((res) => res.json())
+      .then((json) => { if (!cancelled && Array.isArray(json.data)) setTrending(json.data); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   const filteredPosts = searchQuery
     ? posts.filter((p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.content?.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -62,11 +83,12 @@ export default function Community() {
 
   // Server-paginated feed; appends the next page on infinite scroll
   async function fetchPosts({ append = false } = {}) {
-    const targetPage = append ? (pagination?.page || 1) + 1 : 1;
     setLoading(!append);
     if (append) setLoadingMore(true);
     try {
-      const params = new URLSearchParams({ page: String(targetPage), limit: '20' });
+      // Cursor (keyset) pagination: each response carries the cursor for the next page
+      const params = new URLSearchParams({ limit: '20' });
+      if (append && pagination?.nextCursor) params.set('cursor', pagination.nextCursor);
       if (activeTab === 'trending') params.set('sort', 'popular');
       if (activeTab === 'challenges') params.set('categories', 'Sustainability,Fitness');
       if (activeTab === 'recipes') params.set('categories', 'Recipes,Nutrition');
@@ -87,7 +109,7 @@ export default function Community() {
     if (!sentinel) return;
     const observer = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting
-        && pagination && pagination.page < pagination.pages
+        && pagination?.hasMore
         && !loadingMore && !loading) {
         fetchPosts({ append: true });
       }
@@ -240,14 +262,33 @@ export default function Community() {
     setImagePreview(null);
   }
 
+
+  // Real figures from the posts currently loaded in the feed
+  const authorTotals = Object.values(
+    posts.reduce((acc, post) => {
+      const key = post.author?.username;
+      if (!key) return acc;
+      acc[key] = acc[key] || { name: post.author.name, username: key, count: 0 };
+      acc[key].count += 1;
+      return acc;
+    }, {})
+  ).sort((x, y) => y.count - x.count);
+
   return (
     <section className={styles.section}>
+      <Seo
+        title="Community"
+        description="Share recipes, ask questions and swap tips with people at every stage of eating plant-based."
+        path="/community"
+      />
       <BackButton />
       <div className={styles.layout}>
         {/* Left Sidebar */}
         <aside className={styles.leftSidebar}>
           {isAuthenticated ? (
             <div className={styles.profileCard}>
+              <span className={styles.passTape} aria-hidden="true" />
+              <p className={styles.passLabel}>Member pass</p>
               <div className={styles.profileAvatar}>{user.name.charAt(0)}</div>
               <h4 className={styles.profileName}>{user.name}</h4>
               <span className={styles.profileUsername}>@{user.username}</span>
@@ -255,10 +296,27 @@ export default function Community() {
                 <span>{getUserBadge(user.sustainabilityScore || 0).icon}</span>
                 <span>{getUserBadge(user.sustainabilityScore || 0).name}</span>
               </div>
+
+              {(() => {
+                const progress = getBadgeProgress(user.sustainabilityScore || 0);
+                return progress ? (
+                  <div className={styles.progress}>
+                    <div className={styles.progressTop}>
+                      <span>Next: {progress.next.name}</span>
+                      <strong>{progress.remaining} XP</strong>
+                    </div>
+                    <div className={styles.progressTrack} role="progressbar" aria-valuenow={progress.pct} aria-valuemin={0} aria-valuemax={100} aria-label={`Progress to ${progress.next.name}`}>
+                      <span style={{ width: `${Math.max(progress.pct, 4)}%` }} />
+                    </div>
+                  </div>
+                ) : null;
+              })()}
+
               <div className={styles.profileStats}>
                 <div><FaFire className={styles.statIcon} /><span>{user.streak || 0} day streak</span></div>
                 <div><FaSeedling className={styles.statIcon} /><span>{user.sustainabilityScore || 0} XP</span></div>
               </div>
+              <Link to={`/profile/${user.username}`} className={styles.passLink}>View profile</Link>
             </div>
           ) : (
             <div className={styles.loginPrompt}>
@@ -278,26 +336,35 @@ export default function Community() {
             <Link to="/savings" className={styles.sideNavLink}><FaDroplet /> Carbon Savings</Link>
           </nav>
 
-          <div className={styles.trendingTags}>
-            <span className={styles.sideNavLabel}>Trending Tags</span>
-            <div className={styles.tagList}>
-              {['#PlantBased', '#MealPrep', '#EcoWarrior', '#VeganFitness', '#ZeroWaste', '#StudentVegan'].map((tag) => (
-                <span key={tag} className={styles.tag}>{tag}</span>
-              ))}
+          {trending.length > 0 && (
+            <div className={styles.trendingTags}>
+              <span className={styles.sideNavLabel}>Trending Tags</span>
+              <div className={styles.tagList}>
+                {trending.map(({ tag, count }) => (
+                  <Link key={tag} to={`/hashtag/${encodeURIComponent(tag)}`} className={styles.tag} style={{ textDecoration: 'none' }}>
+                    #{tag} <small>{count}</small>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </aside>
 
         {/* Main Feed */}
         <div className={styles.mainFeed}>
           <header className={styles.hero}>
-            <span className={styles.heroWatermark} aria-hidden="true"><FaLeaf /></span>
-            <div className={styles.heroText}>
-              <span className={styles.heroKicker}>The community</span>
+            <div className={styles.heroPoster}>
+              <span className={styles.heroTape} aria-hidden="true" />
+              <span className={styles.heroKicker}>The community wall</span>
               <h1 className={styles.heroTitle}>Community</h1>
-              <p>Share meals, ask questions and swap tips with people at every stage, from curious to long-time vegan.</p>
+              <p>Pin a meal, a tip or a question. People at every stage, from curious to long-time vegan, will see it.</p>
             </div>
-            <div className={styles.heroAction}>
+
+            <div className={styles.heroSide}>
+              <span className={styles.heroSticker} aria-hidden="true">
+                <small>Be kind</small>
+                <strong>cite sources</strong>
+              </span>
               {isAuthenticated ? (
                 <button className={styles.composeBtn} onClick={() => setShowComposer(true)}>
                   <FiPlus /> New Post
@@ -372,7 +439,7 @@ export default function Community() {
                       </div>
                       <button type="submit" className={styles.publishBtn} disabled={uploading}><FiSend /> {uploading ? 'Publishing...' : 'Publish'}</button>
                     </div>
-                    <p className={styles.composerNote}>Posts are reviewed before appearing publicly.</p>
+                    <p className={styles.composerNote}>Posts appear right away. Admins can remove anything that breaks the community rules.</p>
                   </form>
                 </motion.div>
               </motion.div>
@@ -390,11 +457,18 @@ export default function Community() {
               ))}
             </div>
           ) : filteredPosts.length === 0 ? (
-            <motion.div className={styles.emptyState} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <FaSeedling className={styles.emptyIcon} />
-              <h3>No posts yet</h3>
-              <p>Every movement begins with one voice. Share your sustainable journey with the community.</p>
-              {isAuthenticated && <button className="btn btn-primary" onClick={() => setShowComposer(true)}>Create First Post</button>}
+            <motion.div className={styles.emptyState} initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }}>
+              <span className={styles.emptyTape} aria-hidden="true" />
+              <FaSeedling className={styles.emptyIcon} aria-hidden="true" />
+              <h3>Nothing pinned yet</h3>
+              <p>Every movement begins with one voice. Be the first to put something on the wall: a recipe, a question or a win.</p>
+              {isAuthenticated ? (
+                <button className={styles.emptyBtn} onClick={() => setShowComposer(true)}>
+                  <FiPlus aria-hidden="true" /> Create first post
+                </button>
+              ) : (
+                <Link to="/auth" className={styles.emptyBtn}>Join to post</Link>
+              )}
             </motion.div>
           ) : (
             <div className={styles.feed}>
@@ -413,7 +487,7 @@ export default function Community() {
                 />
               ))}
 
-              {pagination && pagination.page < pagination.pages && (
+              {pagination?.hasMore && (
                 <div ref={sentinelRef} className={styles.loadMore}>
                   {loadingMore ? 'Loading more…' : ''}
                 </div>
@@ -425,40 +499,42 @@ export default function Community() {
         {/* Right Sidebar */}
         <aside className={styles.rightSidebar}>
           <div className={styles.communityStats}>
-            <h4>Community Impact</h4>
+            <h4>In this feed</h4>
             <div className={styles.impactGrid}>
-              <div className={styles.impactItem}><FaEarthAmericas /><span>2,400 kg</span><small>CO₂ Saved</small></div>
-              <div className={styles.impactItem}><FaDroplet /><span>180K L</span><small>Water Saved</small></div>
-              <div className={styles.impactItem}><FiUsers /><span>342</span><small>Members</small></div>
-              <div className={styles.impactItem}><FaFire /><span>89</span><small>Active Today</small></div>
+              <div className={styles.impactItem}><FiMessageCircle /><span>{posts.length}</span><small>Posts loaded</small></div>
+              <div className={styles.impactItem}><FiUsers /><span>{authorTotals.length}</span><small>Voices</small></div>
             </div>
           </div>
 
-          <div className={styles.topContributors}>
-            <h4>Top Contributors</h4>
-            <div className={styles.contributorList}>
-              {['Sabrina J.', 'Daniel C.', 'Clara V.', 'Alex M.'].map((name, i) => (
-                <div key={name} className={styles.contributor}>
-                  <span className={styles.contributorRank}>#{i + 1}</span>
-                  <div className={styles.contributorAvatar}>{name.charAt(0)}</div>
-                  <span className={styles.contributorName}>{name}</span>
-                  <span className={styles.contributorXP}>{500 - i * 80} XP</span>
-                </div>
-              ))}
+          {authorTotals.length > 0 && (
+            <div className={styles.topContributors}>
+              <h4>Most active here</h4>
+              <div className={styles.contributorList}>
+                {authorTotals.slice(0, 4).map((a, i) => (
+                  <Link key={a.username} to={`/profile/${a.username}`} className={styles.contributor} style={{ textDecoration: 'none' }}>
+                    <span className={styles.contributorRank}>#{i + 1}</span>
+                    <div className={styles.contributorAvatar}>{a.name?.charAt(0) || '?'}</div>
+                    <span className={styles.contributorName}>{a.name}</span>
+                    <span className={styles.contributorXP}>{a.count} {a.count === 1 ? 'post' : 'posts'}</span>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className={styles.activeChallenges}>
-            <h4>Active Challenges</h4>
+            <h4>House rules</h4>
             <div className={styles.challengeList}>
               <div className={styles.challengeItem}>
-                <FaFire style={{ color: 'var(--color-orange)' }} />
-                <div><strong>7-Day Vegan</strong><small>23 participants</small></div>
+                <FaHandHoldingHeart style={{ color: 'var(--color-sage)' }} />
+                <div><strong>Be kind</strong><small>Disagree without contempt</small></div>
               </div>
               <div className={styles.challengeItem}>
-                <FaSeedling style={{ color: 'var(--color-sage)' }} />
-                <div><strong>Zero Waste Week</strong><small>15 participants</small></div>
+                <FaLightbulb style={{ color: 'var(--color-orange)' }} />
+                <div><strong>Share your source</strong><small>Say if it is opinion or fact</small></div>
               </div>
+              <Link to="/terms" className={styles.sideNavLink} style={{ marginTop: 4 }}>Read the full Terms</Link>
+              <Link to="/#challenge" className={styles.sideNavLink}><FaFire /> Try a challenge</Link>
             </div>
           </div>
         </aside>

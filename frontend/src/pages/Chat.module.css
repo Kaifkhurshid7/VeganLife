@@ -125,3 +125,69 @@
 .iconOption { display: flex; align-items: center; justify-content: center; height: 44px; border: 1px solid var(--glass-border); border-radius: var(--radius-md); background: rgba(255,255,255,0.45); color: var(--color-earth); font-size: 1.2rem; cursor: pointer; transition: all 0.25s var(--ease-elastic); }
 .iconOption:hover { border-color: var(--color-earth); transform: translateY(-2px); background: rgba(255,255,255,0.7); }
 .iconOptionActive { border-color: var(--color-earth); background: var(--color-earth); color: var(--color-cream); transform: scale(1.08); }
+
+
+/* ===== theme pass: paper surfaces, wall banner, taped highlights ===== */
+.section {
+  background:
+    radial-gradient(60% 40% at 0% 0%, rgba(166, 180, 143, 0.2), transparent 70%),
+    radial-gradient(50% 40% at 100% 15%, rgba(227, 163, 110, 0.14), transparent 70%),
+    var(--color-bg);
+}
+.sidebar {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-top: 4px double var(--color-earth);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.main {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.chatHeader {
+  border-bottom: 3px double var(--color-earth);
+}
+
+.chatTitle,
+.sidebarTitle {
+  font-family: var(--font-heading);
+  color: var(--color-earth);
+}
+
+/* the room you are in: a strip of tape behind its name */
+.roomActive {
+  background: rgba(240, 222, 170, 0.55);
+  border-left: 4px solid var(--color-earth);
+}
+
+.roomItem:hover:not(.roomActive) {
+  background: rgba(166, 180, 143, 0.22);
+}
+
+.messageBubble {
+  border-radius: 4px 14px 14px 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.messageOwn .messageBubble {
+  border-radius: 14px 4px 14px 14px;
+}
+
+.unreadBadge {
+  background: #a2402d;
+  color: #fff;
+}
+
+/* own messages: the global paragraph colour was brown on the brown bubble */
+.messageOwn .messageBubble p,
+.messageOwn .messageBubble {
+  color: var(--color-cream);
+}
+
+.messageOwn .messageName {
+  color: #e9d7b8;
+}
