@@ -45,15 +45,15 @@
 
 @media (min-width: 1024px) {
   .mapLayout {
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 2fr 1fr;
     align-items: start;
   }
 }
 
 .mapContainer {
   position: relative;
-  aspect-ratio: 5 / 4;
-  background: var(--glass-bg);
+  aspect-ratio: 1000 / 394;
+  background: linear-gradient(180deg, rgba(166, 196, 205, 0.28), rgba(166, 196, 205, 0.12));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -65,6 +65,10 @@
   position: absolute;
   inset: 0;
 }
+
+.land { fill: #d9ccb4; stroke: #f4ede0; stroke-width: 0.6; }
+.country { stroke: #fff8ea; stroke-width: 0.8; transition: opacity 0.25s ease; }
+.graticule { stroke: rgba(87, 61, 33, 0.08); stroke-width: 1; stroke-dasharray: 4 6; }
 
 .marker {
   padding: 0;

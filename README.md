@@ -196,7 +196,6 @@ VeganLife/
 |--------|-------------------|--------------------------|--------|
 | POST   | `/signup`         | Create account           | No     |
 | POST   | `/login`          | User login               | No     |
-| POST   | `/admin-login`    | Admin login (secret key) | No     |
 | POST   | `/refresh`        | Rotate tokens            | Cookie |
 | GET    | `/me`             | Get current user         | Yes    |
 | PATCH  | `/profile`        | Update name/username/bio/avatar | Yes |
