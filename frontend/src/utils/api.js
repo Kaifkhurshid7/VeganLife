@@ -35,7 +35,7 @@ export function refreshAccessToken() {
 // them after a refresh would just resend the same bad input. Everything else can
 // safely be retried once after a silent rotation.
 function shouldRetryAfter401(path) {
-  const noRetry = ['/auth/login', '/auth/signup', '/auth/admin-login', '/auth/refresh'];
+  const noRetry = ['/auth/login', '/auth/signup', '/auth/refresh'];
   return !noRetry.some((p) => path === p || path.startsWith(`${p}/`));
 }
 

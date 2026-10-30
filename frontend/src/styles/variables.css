@@ -36,7 +36,7 @@
   --space-xl: 40px;
   --space-2xl: 60px;
   --space-3xl: 100px;
-  --space-section: 120px;
+  --space-section: 80px;
 
   /* Border Radius */
   --radius-sm: 8px;
@@ -108,7 +108,7 @@
 
 @media (max-width: 768px) {
   :root {
-    --space-section: 80px;
+    --space-section: 56px;
     --section-padding: 5%;
   }
 }
